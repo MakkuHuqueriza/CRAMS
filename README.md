@@ -2,6 +2,10 @@
 This project follows a **Trunk-Based** Development workflow to ensure fast iteration, smooth collaboration, and maintainable code quality. All changes go through a strict review process before being merged into the main codebase.
 
 ### Table of Contents
+<<<<<<< HEAD
+=======
+
+>>>>>>> d0bc9c9 (chore: update README)
 - [Start w/ Tickets](#start-w-tickets)
 - [Branch Naming Convention](#branch-naming-conventions)
 - [Push Your Changes](#push-your-changes)
@@ -19,6 +23,10 @@ All tasks should begin from a connected ticket on our project board.
 ```
 git checkout -b <type/short-description> main
 ```
+<<<<<<< HEAD
+=======
+
+>>>>>>> d0bc9c9 (chore: update README)
 1. Go to the **CRAMS Project Board**
 1. Locate your assigned ticket
 1. Scroll to the right sidebar under **Development**
@@ -33,6 +41,10 @@ Branches should follow the **Conventional Commits** style using the commit `type
 <type>/short-description
 ```
 ### Examples:
+<<<<<<< HEAD
+=======
+
+>>>>>>> d0bc9c9 (chore: update README)
 - `feat/add-user-authentication`
 - `fix/fix-login-bug`
 - `chore/update-dependencies`
@@ -40,6 +52,10 @@ Branches should follow the **Conventional Commits** style using the commit `type
 - `test/improve-coverage`
 
 ### Allowed Types:
+<<<<<<< HEAD
+=======
+
+>>>>>>> d0bc9c9 (chore: update README)
 - `feat` → New feature
 - `fix` → Bug fix
 - `chore` → Maintenance tasks
@@ -65,9 +81,18 @@ git add .
 git commit -m “feat: your message here”
 git push origin <current branch name>
 ```
+<<<<<<< HEAD
 1. Open a Pull Request (PR) to the `main` branch
 1. Move the corresponding ticket to the **For Review** column
 1. If you encounter errors while pushing:
+=======
+
+1. Open a Pull Request (PR) to the `main` branch
+1. Add a **Reviewer** to your PR to check your changes
+1. Move the corresponding ticket to the **For Review** column
+1. If you encounter errors while pushing:
+
+>>>>>>> d0bc9c9 (chore: update README)
 ```
 git push origin <current branch name> --force
 ```
@@ -130,6 +155,10 @@ We follow **Conventional Commits** for all messages.
 [optional footer]
 ```
 ### Examples:
+<<<<<<< HEAD
+=======
+
+>>>>>>> d0bc9c9 (chore: update README)
 - `feat(auth): add user authentication`
 - `fix(login): resolve incorrect password issue`
 - `chore(deps): update dependencies`
@@ -141,6 +170,10 @@ We follow **Conventional Commits** for all messages.
 
 ## Merge to Main (Admin Only)
 Only admins are allowed to merge into `main`.
+<<<<<<< HEAD
+=======
+
+>>>>>>> d0bc9c9 (chore: update README)
 1. Do **not** click the default “Merge” button.
 1. Use the dropdown beside the merge button.
 1. Select **Rebase and merge** to keep history clean.
