@@ -4,15 +4,15 @@ This project follows a **Trunk-Based** Development workflow to ensure fast itera
 
 ### Table of Contents
 
-[Start w/ Tickets](#start-w-tickets)
-[Branch Naming Convention](#branch-naming-conventions)
-[Push Your Changes](#push-your-changes)
-[Pulling Changes to Your Branch](#pulling-changes-to-your-branch)
-[Branch Behind? Rebase It!](#branch-behind-rebase-it)
-[Still on Main?](#still-on-main)
-[Merge to Main (Admin Only)](#merge-to-main-admin-only)
-[Commit Message Guidelines](#commit-message-guidelines)
-[Merging Strategy](#merging-strategy)
+- [Start w/ Tickets](#start-w-tickets)
+- [Branch Naming Convention](#branch-naming-conventions)
+- [Push Your Changes](#push-your-changes)
+- [Pulling Changes to Your Branch](#pulling-changes-to-your-branch)
+- [Branch Behind? Rebase It!](#branch-behind-rebase-it)
+- [Still on Main?](#still-on-main)
+- [Merge to Main (Admin Only)](#merge-to-main-admin-only)
+- [Commit Message Guidelines](#commit-message-guidelines)
+- [Merging Strategy](#merging-strategy)
 
 ---
 
