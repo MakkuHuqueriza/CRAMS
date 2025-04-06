@@ -102,7 +102,8 @@ git push origin <current branch name> --force
 ## Pulling Changes to Your Branch
 When others have merged into `main`, pull the latest changes to stay up-to-date:
 ```
-git pull origin main
+git fetch origin main
+git rebase origin/main
 ```
 After pulling:
 ```
