@@ -1,11 +1,9 @@
 # Github Workflow
+
 This project follows a **Trunk-Based** Development workflow to ensure fast iteration, smooth collaboration, and maintainable code quality. All changes go through a strict review process before being merged into the main codebase.
 
 ### Table of Contents
-<<<<<<< HEAD
-=======
 
->>>>>>> d0bc9c9 (chore: update README)
 - [Start w/ Tickets](#start-w-tickets)
 - [Branch Naming Convention](#branch-naming-conventions)
 - [Push Your Changes](#push-your-changes)
@@ -19,14 +17,13 @@ This project follows a **Trunk-Based** Development workflow to ensure fast itera
 ---
 
 ## Start w/ Tickets
+
 All tasks should begin from a connected ticket on our project board.
+
 ```
 git checkout -b <type/short-description> main
 ```
-<<<<<<< HEAD
-=======
 
->>>>>>> d0bc9c9 (chore: update README)
 1. Go to the **CRAMS Project Board**
 1. Locate your assigned ticket
 1. Scroll to the right sidebar under **Development**
@@ -35,16 +32,17 @@ git checkout -b <type/short-description> main
 ---
 
 ## Branch Naming Convention
+
 Branches should follow the **Conventional Commits** style using the commit `type` as a prefix:
+
 ### Format:
+
 ```
 <type>/short-description
 ```
-### Examples:
-<<<<<<< HEAD
-=======
 
->>>>>>> d0bc9c9 (chore: update README)
+### Examples:
+
 - `feat/add-user-authentication`
 - `fix/fix-login-bug`
 - `chore/update-dependencies`
@@ -52,10 +50,7 @@ Branches should follow the **Conventional Commits** style using the commit `type
 - `test/improve-coverage`
 
 ### Allowed Types:
-<<<<<<< HEAD
-=======
 
->>>>>>> d0bc9c9 (chore: update README)
 - `feat` → New feature
 - `fix` → Bug fix
 - `chore` → Maintenance tasks
@@ -69,30 +64,28 @@ Branches should follow the **Conventional Commits** style using the commit `type
 ---
 
 ## Push Your Changes
-*Please refer to [Conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) for the format of your commit messages*
 
-**Always run format before committing:** 
+_Please refer to [Conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) for the format of your commit messages_
+
+**Always run format before committing:**
+
 ```
 npm run format
 ```
+
 Then proceed with:
+
 ```
 git add .
 git commit -m “feat: your message here”
 git push origin <current branch name>
 ```
-<<<<<<< HEAD
-1. Open a Pull Request (PR) to the `main` branch
-1. Move the corresponding ticket to the **For Review** column
-1. If you encounter errors while pushing:
-=======
 
 1. Open a Pull Request (PR) to the `main` branch
+1. Move the corresponding ticket to the **For Review** column
 1. Add a **Reviewer** to your PR to check your changes
-1. Move the corresponding ticket to the **For Review** column
 1. If you encounter errors while pushing:
 
->>>>>>> d0bc9c9 (chore: update README)
 ```
 git push origin <current branch name> --force
 ```
@@ -100,43 +93,55 @@ git push origin <current branch name> --force
 ---
 
 ## Pulling Changes to Your Branch
+
 When others have merged into `main`, pull the latest changes to stay up-to-date:
+
 ```
-git fetch origin main
-git rebase origin/main
+git pull origin main
 ```
+
 After pulling:
+
 ```
 npm install
 ```
+
 > Run `npm install` in case there are new packages added by others
 
 ---
 
 ## Branch Behind? Rebase It!
+
 If your local branch is behind `main`, **rebase before pushing** to avoid merge conflicts later.
+
 ```
 git fetch origin main
 git rebase origin/main
 ```
+
 > If rebase fails or conflicts, stash your changes:
+
 ```
 git stash
 git fetch origin main
 git rebase origin/main
 git stash pop
 ```
-Don’t forget to resolve any merge conflicts during this step.
 
+Don’t forget to resolve any merge conflicts during this step.
 
 ---
 
 ## Still on Main?
+
 Always branch off from `main`. Do not push changes directly.
+
 ```
 git checkout -b <type/short-description> main
 ```
+
 > Already made changes in `main`? **Do this:**
+
 ```
 git stash
 git checkout -b CR-<ticket-number> main
@@ -146,8 +151,11 @@ git stash pop
 ---
 
 ## Commit Message Guidelines
+
 We follow **Conventional Commits** for all messages.
+
 ### Format:
+
 ```
 <type>(<scope>): <message>
 
@@ -155,11 +163,9 @@ We follow **Conventional Commits** for all messages.
 
 [optional footer]
 ```
-### Examples:
-<<<<<<< HEAD
-=======
 
->>>>>>> d0bc9c9 (chore: update README)
+### Examples:
+
 - `feat(auth): add user authentication`
 - `fix(login): resolve incorrect password issue`
 - `chore(deps): update dependencies`
@@ -170,11 +176,9 @@ We follow **Conventional Commits** for all messages.
 ---
 
 ## Merge to Main (Admin Only)
-Only admins are allowed to merge into `main`.
-<<<<<<< HEAD
-=======
 
->>>>>>> d0bc9c9 (chore: update README)
+Only admins are allowed to merge into `main`.
+
 1. Do **not** click the default “Merge” button.
 1. Use the dropdown beside the merge button.
 1. Select **Rebase and merge** to keep history clean.
@@ -184,6 +188,7 @@ Only admins are allowed to merge into `main`.
 ---
 
 ## One Ticket, One Branch
+
 Stick to a **1 ticket = 1 branch** rule to make tracking and reviews easier. Never reuse branches across tickets.
 
 > **If you're unsure about any step, ask your project manager or lead! We're all learning—no shame in asking.**
