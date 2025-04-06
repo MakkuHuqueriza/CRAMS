@@ -84,11 +84,6 @@ git push origin <current branch name>
 1. Open a Pull Request (PR) to the `main` branch
 1. Move the corresponding ticket to the **For Review** column
 1. Add a **Reviewer** to your PR to check your changes
-1. If you encounter errors while pushing:
-
-```
-git push origin <current branch name> --force
-```
 
 ---
 
@@ -181,7 +176,7 @@ Only admins are allowed to merge into `main`.
 
 1. Do **not** click the default “Merge” button.
 1. Use the dropdown beside the merge button.
-1. Select **Rebase and merge** to keep history clean.
+1. Select **Squash and merge** to keep history clean.
 1. After merge **delete the branch to keep the repo clean.**
 1. Move the ticket to **Done** after merge.
 
