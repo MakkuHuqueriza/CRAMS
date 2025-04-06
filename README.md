@@ -1,36 +1,192 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Github Workflow
 
-## Getting Started
+This project follows a **Trunk-Based** Development workflow to ensure fast iteration, smooth collaboration, and maintainable code quality. All changes go through a strict review process before being merged into the main codebase.
 
-First, run the development server:
+### Table of Contents
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+[Start w/ Tickets](#start-w-tickets)
+[Branch Naming Convention](#branch-naming-conventions)
+[Push Your Changes](#push-your-changes)
+[Pulling Changes to Your Branch](#pulling-changes-to-your-branch)
+[Branch Behind? Rebase It!](#branch-behind-rebase-it)
+[Still on Main?](#still-on-main)
+[Merge to Main (Admin Only)](#merge-to-main-admin-only)
+[Commit Message Guidelines](#commit-message-guidelines)
+[Merging Strategy](#merging-strategy)
+
+---
+
+## Start w/ Tickets
+
+All tasks should begin from a connected ticket on our project board.
+
+```
+git checkout -b <type/short-description> main
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Go to the **CRAMS Project Board**
+Locate your assigned ticket
+Scroll to the right sidebar under **Development**
+Connect your branch to the ticket
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Branch Naming Convention
 
-## Learn More
+Branches should follow the **Conventional Commits** style using the commit `type` as a prefix:
 
-To learn more about Next.js, take a look at the following resources:
+### Format:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+<type>/short-description
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Examples:
 
-## Deploy on Vercel
+`feat/add-user-authentication`
+`fix/fix-login-bug`
+`chore/update-dependencies`
+`docs/update-readme`
+`test/improve-coverage`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Allowed Types:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`feat` → New feature
+`fix` → Bug fix
+`chore` → Maintenance tasks
+`docs` → Documentation updates
+`test` → Test-related changes
+`refactor` → Code improvements (no functional changes)
+`style` → Code styling (formatting, linting, etc.)
+`perf` → Performance improvements
+`build` → Changes that affect the build system
+
+---
+
+## Push Your Changes
+
+_Please refer to [Conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) for the format of your commit messages_
+
+**Always run format before committing:**
+
+```
+npm run format
+```
+
+Then proceed with:
+
+```
+git add .
+git commit -m “feat: your message here”
+git push origin <current branch name>
+```
+
+Open a Pull Request (PR) to the `main` branch
+Move the corresponding ticket to the **For Review** column
+If you encounter errors while pushing:
+
+```
+git push origin <current branch name> --force
+```
+
+---
+
+## Pulling Changes to Your Branch
+
+When others have merged into `main`, pull the latest changes to stay up-to-date:
+
+```
+git pull origin main
+```
+
+After pulling:
+
+```
+npm install
+```
+
+> Run `npm install` in case there are new packages added by others
+
+---
+
+## Branch Behind? Rebase It!
+
+If your local branch is behind `main`, **rebase before pushing** to avoid merge conflicts later.
+
+```
+git fetch origin main
+git rebase origin/main
+```
+
+> If rebase fails or conflicts, stash your changes:
+
+```
+git stash
+git fetch origin main
+git rebase origin/main
+git stash pop
+```
+
+Don’t forget to resolve any merge conflicts during this step.
+
+---
+
+## Still on Main?
+
+Always branch off from `main`. Do not push changes directly.
+
+```
+git checkout -b <type/short-description> main
+```
+
+> Already made changes in `main`? **Do this:**
+
+```
+git stash
+git checkout -b CR-<ticket-number> main
+git stash pop
+```
+
+---
+
+## Commit Message Guidelines
+
+We follow **Conventional Commits** for all messages.
+
+### Format:
+
+```
+<type>(<scope>): <message>
+
+[optional body]
+
+[optional footer]
+```
+
+### Examples:
+
+`feat(auth): add user authentication`
+`fix(login): resolve incorrect password issue`
+`chore(deps): update dependencies`
+`docs(readme): update usage instructions`
+
+**Scope** is optional, but recommended for clarity.
+
+---
+
+## Merge to Main (Admin Only)
+
+Only admins are allowed to merge into `main`.
+Do **not** click the default “Merge” button.
+Use the dropdown beside the merge button.
+Select **Rebase and merge** to keep history clean.
+After merge **delete the branch to keep the repo clean.**
+Move the ticket to **Done** after merge.
+
+---
+
+## One Ticket, One Branch
+
+Stick to a **1 ticket = 1 branch** rule to make tracking and reviews easier. Never reuse branches across tickets.
+
+> **If you're unsure about any step, ask your project manager or lead! We're all learning—no shame in asking.**
