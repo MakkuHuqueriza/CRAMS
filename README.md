@@ -130,7 +130,7 @@ We follow **Conventional Commits** for all messages.
 [optional footer]
 ```
 ### Examples:
-- feat(auth): add user authentication`
+- `feat(auth): add user authentication`
 - `fix(login): resolve incorrect password issue`
 - `chore(deps): update dependencies`
 - `docs(readme): update usage instructions`
