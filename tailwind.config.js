@@ -1,13 +1,12 @@
-// tailwind.config.js
-export const purge = [
-  "./pages/**/*.{js,ts,jsx,tsx}",
-  "./components/**/*.{js,ts,jsx,tsx}",
-];
-export const darkMode = false;
-export const theme = {
-  extend: {},
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+  ],
+  darkMode: "class", // or false
+  theme: {
+    extend: {},
+  },
+  plugins: [],
 };
-export const variants = {
-  extend: {},
-};
-export const plugins = [];
