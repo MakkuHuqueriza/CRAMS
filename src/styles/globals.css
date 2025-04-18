@@ -1,5 +1,9 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+/* ./styles/globals.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* @import "tw-animate-css"; */
 
 @custom-variant dark (&:is(.dark *));
 
@@ -112,7 +116,39 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-@layer base {
+@layer utilities {
+  .color-primary {
+    color: #274c77;
+  }
+  .text-primary-foreground {
+    color: #0a1128;
+  }
+  .secondary {
+    color: #f5eeea;
+  }
+  .text-secondary-foreground {
+    color: #000000;
+  }
+  .bg-primary {
+    background-color: #ffffff;
+  }
+  .bg-secondary {
+    background-color: #e7edf1;
+  }
+  .border-border {
+    @apply border;
+    border-color: var(--color-border);
+  }
+  .outline-ring\/50 {
+    @apply outline;
+    outline-color: rgba(var(--color-ring), 0.5);
+  }
+  .bg-background {
+    background-color: var(--background);
+  }
+  .text-foreground {
+    color: var(--foreground);
+  }
   * {
     @apply border-border outline-ring/50;
   }
