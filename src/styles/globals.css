@@ -117,6 +117,24 @@
 }
 
 @layer utilities {
+  .color-primary {
+    color: #274c77;
+  }
+  .text-primary-foreground {
+    color: #0a1128;
+  }
+  .secondary {
+    color: #f5eeea;
+  }
+  .text-secondary-foreground {
+    color: #000000;
+  }
+  .bg-primary {
+    background-color: #ffffff;
+  }
+  .bg-secondary {
+    background-color: #e7edf1;
+  }
   .border-border {
     @apply border;
     border-color: var(--color-border);
