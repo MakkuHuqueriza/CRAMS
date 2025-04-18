@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { List, LogOut } from "lucide-react";
 import {
   Popover,
@@ -17,14 +18,14 @@ const Navbar = () => {
           {/* Left Section: Logo */}
           <div className="md:pl-8 flex items-center">
             <div className="flex-shrink-0">
-              <a href="/" className="text-secondary-foreground">
+              <Link href="/" className="text-secondary-foreground">
                 <Image
                   src="/CRAMS_logo.svg"
                   alt="CRAMS Logo"
                   width={120}
                   height={120}
                 />
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -55,22 +56,22 @@ const Navbar = () => {
             >
               <ul className="space-y-1 text-sm text-secondary-foreground">
                 <li>
-                  <a
-                    href="/profile"
+                  <Link
+                    href="/"
                     className="flex items-center gap-2 px-4 py-2 text-[14px] hover:bg-gray-100 active:bg-[#274c77] active:text-white"
                   >
                     <List className="w-4 h-4" />
                     <span>Pending Reservations</span>
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="/logout"
+                  <Link
+                    href="/"
                     className="flex items-center gap-2 px-4 py-2 text-[14px] hover:bg-gray-100 active:bg-[#274c77] active:text-white"
                   >
                     <LogOut className="w-4 h-4" />
                     <span>Log out</span>
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </PopoverContent>
