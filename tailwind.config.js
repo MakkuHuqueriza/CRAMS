@@ -2,7 +2,12 @@
 module.exports = {
   content: ["./src/**/*.{js,ts,jsx,tsx}", "./public/**/*.html"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        primary: "var(--font-primary)", // Montserrat
+        secondary: "var(--font-secondary)", // Manrope
+      },
+    },
   },
   plugins: [],
 };

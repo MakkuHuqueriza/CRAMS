@@ -118,7 +118,7 @@
 
 @layer utilities {
   .color-primary {
-    color: #274c77;
+    background-color: #274c77;
   }
   .text-primary-foreground {
     color: #0a1128;
@@ -135,22 +135,11 @@
   .bg-secondary {
     background-color: #e7edf1;
   }
-  .border-border {
-    @apply border;
-    border-color: var(--color-border);
-  }
-  .outline-ring\/50 {
-    @apply outline;
-    outline-color: rgba(var(--color-ring), 0.5);
-  }
   .bg-background {
     background-color: var(--background);
   }
   .text-foreground {
     color: var(--foreground);
-  }
-  * {
-    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
