@@ -10,8 +10,8 @@ This project follows a **Trunk-Based** Development workflow to ensure fast itera
 - [Pulling Changes to Your Branch](#pulling-changes-to-your-branch)
 - [Branch Behind? Rebase It!](#branch-behind-rebase-it)
 - [Still on Main?](#still-on-main)
-- [Merge to Main (Admin Only)](#merge-to-main-admin-only)
 - [Commit Message Guidelines](#commit-message-guidelines)
+- [Merge to Main (Admin Only)](#merge-to-main-admin-only)
 - [Merging Strategy](#merging-strategy)
 
 ---
@@ -191,14 +191,14 @@ Only admins are allowed to merge into `main`.
 
 ### After Your PR is Approved and Merged:
 
-1. Sync your local `main`:
+Sync your local `main`:
 
 ```
 git fetch origin main
 git rebase origin/main
 ```
 
-1. If your branch wasn’t up-to-date or had uncommitted changes:
+If your branch wasn’t up-to-date or had uncommitted changes:
 
 ```
 git stash
