@@ -9,7 +9,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { logoutAction } from "@/actions/user"; // Import your logout action
+import { logoutAction } from "@/actions/users"; // Import your logout action
 
 const Navbar = () => {
   return (

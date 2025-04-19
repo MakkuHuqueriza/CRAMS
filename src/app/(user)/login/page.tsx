@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { loginAction, signUpAction } from "@/actions/user";
+import { loginAction, signUpAction } from "@/actions/users";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
