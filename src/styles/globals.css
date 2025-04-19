@@ -48,6 +48,8 @@
 }
 
 :root {
+  --font-primary: var(--font-montserrat);
+  --font-secondary: var(--font-manrope);
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -82,7 +84,23 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+body {
+  font-family: var(--font-primary), sans-serif; /* Default to Montserrat */
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family:
+    var(--font-primary), sans-serif; /* Use Montserrat for headings */
+}
+
 .dark {
+  --font-primary: var(--font-montserrat);
+  --font-secondary: var(--font-manrope);
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -123,8 +141,8 @@
   .text-primary-foreground {
     color: #0a1128;
   }
-  .secondary {
-    color: #f5eeea;
+  .rooms-secondary {
+    background-color: #f5eeea;
   }
   .text-secondary-foreground {
     color: #000000;
