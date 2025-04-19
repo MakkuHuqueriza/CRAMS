@@ -1,11 +1,13 @@
 import Navbar from "@/app/components/Navbar";
-// import { Carousel } from './components/Carousel';
+import AvailableRooms from "@/app/components/AvailableRooms";
+import { getUser } from "@/utils/supabase/server"; // Import your getUser function
+import { redirect } from "next/navigation";
 
 export default function HomePage() {
   return (
     <main>
       <Navbar />
-      {/* <Carousel /> */}
+      <AvailableRooms />
     </main>
   );
 }
