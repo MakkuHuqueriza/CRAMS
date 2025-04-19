@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 export default async function HomePage() {
   // Fetch the user from Supabase
   const user = await getUser();
-
   // If no user exists, redirect to login
   if (!user) {
     redirect("/login");
