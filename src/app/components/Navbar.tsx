@@ -65,13 +65,13 @@ const Navbar = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/"
-                    className="flex items-center gap-2 px-4 py-2 text-[14px] hover:bg-gray-100 active:bg-[#274c77] active:text-white"
+                  <button
+                    // onClick={} logout function
+                    className="flex items-center gap-2 px-4 py-2 w-full text-[14px] hover:bg-gray-100 active:bg-[#274c77] active:text-white"
                   >
                     <LogOut className="w-4 h-4" />
                     <span>Log out</span>
-                  </Link>
+                  </button>
                 </li>
               </ul>
             </PopoverContent>
