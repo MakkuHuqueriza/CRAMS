@@ -52,7 +52,7 @@ const Navbar = () => {
 
             <PopoverContent
               align="end"
-              className="w-52 p-0 rounded-none bg-white shadow-md z-50"
+              className="w-53 p-0 rounded-none bg-white shadow-md z-50"
             >
               <ul className="space-y-1 text-sm text-secondary-foreground">
                 <li>
