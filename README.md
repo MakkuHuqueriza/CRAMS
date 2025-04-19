@@ -5,7 +5,7 @@ This project follows a **Trunk-Based** Development workflow to ensure fast itera
 ### Table of Contents
 
 - [Start w/ Tickets](#start-w-tickets)
-- [Branch Naming Convention](#branch-naming-conventions)
+- [Branch Naming Convention](#branch-naming-convention)
 - [Push Your Changes](#push-your-changes)
 - [Pulling Changes to Your Branch](#pulling-changes-to-your-branch)
 - [Branch Behind? Rebase It!](#branch-behind-rebase-it)
@@ -179,6 +179,35 @@ Only admins are allowed to merge into `main`.
 1. Select **Squash and merge** to keep history clean.
 1. After merge **delete the branch to keep the repo clean.**
 1. Move the ticket to **Done** after merge.
+
+---
+
+## Merging Strategy
+
+- Always rebase your branch with `main` before merging.
+- Use **"Rebase & Merge"** (not just "Merge") when completing a PR to maintain a clean linear history.
+- Avoid long-lived branches. Merge your work promptly once approved.
+- **Delete your branch** after it's merged to `main`.
+
+### After Your PR is Approved and Merged:
+
+1. Sync your local `main`:
+
+```
+git fetch origin main
+git rebase origin/main
+```
+
+1. If your branch wasn’t up-to-date or had uncommitted changes:
+
+```
+git stash
+git fetch origin main
+git rebase origin/main
+git stash pop
+```
+
+> This ensures your latest work sits cleanly on top of the updated main without losing progress.
 
 ---
 
