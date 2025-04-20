@@ -79,54 +79,66 @@ const RoomCard = ({ room }: { room: Room }) => {
     switch (type) {
       case "LECTURE ROOM/AUDITORIUM":
       case "LECTURE ROOM":
-        return <BookOpen className="w-5 h-5 text-[24px]" />;
+        return (
+          <BookOpen className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-4 h-4 text-[24px] text-primary-foreground" />
+        );
       case "DMPCS LABORATORY ROOM":
-        return <Laptop className="w-5 h-5 text-[24px]" />;
+        return (
+          <Laptop className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-4 h-4 text-[24px] text-primary-foreground" />
+        );
       case "DBSES LABORATORY ROOM":
-        return <Beaker className="w-5 h-5 text-[24px]" />;
+        return (
+          <Beaker className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-4 h-4 text-[24px] text-primary-foreground" />
+        );
       case "DFSC LABORATORY ROOM":
-        return <ChefHat className="w-5 h-5 text-[24px]" />;
+        return (
+          <ChefHat className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-4 h-4 text-[24px] text-primary-foreground" />
+        );
       default:
         return null; // No icon for unknown types
     }
   };
 
   return (
-    <Card className="flex md:flex-row bg-[#e9eff6] border-none p-4 md:p-4 scale-[0.97] gap-6">
+    <Card className="w-[98%] flex md:flex-row bg-[#e7edf1] border-none p-4 md:p-4 scale-[0.90] md:scale-[0.97] gap-6 md:gap-5">
       <div className="flex-shrink-0">
         <Image
           src={room.image}
           alt={room.name}
           width={315}
           height={315}
-          className="rounded-md object-cover"
+          className="rounded-lg object-cover w-full max-w-[280px] h-auto aspect-square md:w-[250px] md:h-[250px] lg:w-[315px] lg:h-[315px]"
         />
       </div>
 
       <div className="flex flex-col justify-between flex-1">
         {/* Top Section: Title & Info */}
         <div className="space-y-1">
-          <h2 className="text-[36px] font-bold mb-10">{room.name}</h2>
+          <h2 className="text-primary-foreground text-[30px] lg:text-[36px] md:text-[28px] font-bold mb-5 lg:mb-10 md:mb-5">
+            {room.name}
+          </h2>
 
           <div className="flex items-center gap-2">
             {getRoomIcon(room.type)}
-            <span className="text-[16px] font-semibold">{room.type}</span>
+            <span className="text-primary-foreground text-[10px] lg:text-[16px] md:text-[12px] font-semibold">
+              {room.type}
+            </span>
           </div>
 
-          <div className="flex items-center gap-2 text-[16px] text-muted-foreground">
+          <div className="flex items-center gap-2 text-[10px] lg:text-[16px] md:text-[12px] text-primary-foreground">
             <Building className="w-4 h-4" /> {room.floor}
             <span className="mx-2 mr-[-5px]">|</span>
             <Users className="w-4 h-4 ml-4" /> {room.capacity}
           </div>
 
-          <div className="pt-8 pb-1">
-            <p className="text-[16px] text-primary-foreground font-semibold">
+          <div className="pt-4 pb-1">
+            <p className="text-[15px] lg:text-[16px] md:text-[12px] text-primary-foreground font-semibold">
               Available Time
             </p>
             {room.times.map((time, i) => (
               <p
                 key={i}
-                className="text-sm tracking-wider flex items-center gap-2"
+                className="text-primary-foreground text-[13px] lg:text-sm md:text-[11px] tracking-wider flex items-center gap-2"
               >
                 <Clock className="w-4 h-4 text-[#274c77]" />
                 {time}
@@ -141,14 +153,25 @@ const RoomCard = ({ room }: { room: Room }) => {
         </div>
 
         {/* Bottom Buttons aligned right */}
-        <div className="flex justify-end gap-2 mt-4 text-[24px]">
+        <div className="flex justify-center md:justify-end gap-2 mt-6 md:mt-4">
           <Button
-            variant="outline"
-            className="px-4 border-[#182657] text-[#182657] hover:shadow-lg border-2"
+            size="extraSmall"
+            className="border-[#182657] text-[#182657] hover:shadow-lg border-2 
+            xl:text-[15px] xl:px-4 xl:py-3 
+            lg:text-[14px] lg:px-4 lg:py-2 
+            md:text-[11px] md:px-2 md:py-1 
+            text-[11px] px-3 py-2"
           >
             View Details
           </Button>
-          <Button className="bg-[#274c77] text-white hover:bg-[#182657]">
+          <Button
+            size="extraSmall"
+            className="bg-[#274c77] text-white hover:bg-[#182657] 
+            xl:text-[15px] xl:px-5 xl:py-3 
+            lg:text-[14px] lg:px-4 lg:py-2 
+            md:text-[12px] md:px-3 md:py-2 
+            text-[11px] px-3 py-2"
+          >
             Reserve Now
           </Button>
         </div>
@@ -165,21 +188,33 @@ const AvailableRooms = () => {
         <div className="bg-primary w-[75%] max-w-6xl mx-auto py-10 border-b border-muted">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
-              <h1 className="text-[48px] lg:text-[42px] md:text-[36px] font-bold text-primary whitespace-nowrap">
+              <h1 className="text-[28px] xl:text-[42px] md:text-[30px] font-bold text-primary whitespace-nowrap">
                 Available Rooms
               </h1>
-              <p className="text-[20px] md:text-[16px] text-muted-foreground whitespace-nowrap">
+              <p className="text-[14px] xl:text-[20px] md:text-[14px] text-muted-foreground whitespace-nowrap">
                 Browse to see room&apos;s availability
               </p>
             </div>
-            <div className="flex xl:gap-2 lg:gap-0">
+            <div className="flex gap-2 xl:gap-3 lg:gap-2">
               <Button
-                variant="outline"
-                className="rounded-md text-[#274c77] border-[#274c77] hover:shadow-lg transition border-2 font-semibold xl:text-[19px] xl:px-5 xl:py-5 lg:text-[16px] lg:scale-[90%] md:scale-[70%]"
+                size="extraSmall"
+                className="
+                rounded-md text-[#274c77] border-[#274c77] hover:shadow-lg transition border-2 font-semibold
+                xl:text-[16px] xl:px-4 xl:py-4
+                lg:text-[14px] lg:px-3 lg:py-3
+                md:text-[12px] md:px-2 md:py-1 
+                text-[11px] px-2 py-1"
               >
                 Floor 1 - CSM Lobby
               </Button>
-              <Button className="bg-[#274c77] text-white hover:bg-[#182657] border-2 border-[#274c77] rounded-md font-semibold xl:text-[19px] xl:px-5 xl:py-5 xl:ml-[-15px] lg:text-[16px] lg:scale-[90%] lg:ml-[-10px] md:scale-[70%] md:ml-[-40px]">
+              <Button
+                size="extraSmall"
+                className="bg-[#274c77] text-white hover:bg-[#182657] border-2 border-[#274c77] rounded-md font-semibold 
+                xl:text-[16px] xl:px-4 xl:py-4
+                lg:text-[14px] lg:px-3 lg:py-3
+                md:text-[12px] md:px-2 md:py-1 
+                text-[11px] px-2 py-1"
+              >
                 Floor 2 - Rooms
               </Button>
             </div>
@@ -188,10 +223,10 @@ const AvailableRooms = () => {
 
         {/* Beige background */}
         <div className="rooms-secondary h-full px-4 md:px-8 pt-10 rounded-t-[30px]">
-          <div className="bg-primary w-[75%] max-w-6xl mx-auto p-6 px-2 space-y-5 rounded-3xl shadow-xl text-[24px]">
-            <div className="flex justify-end">
+          <div className="bg-primary xl:w-[75%] lg:w-[90%] md:w-[89%] w-[85%] max-w-6xl mx-auto p-6 px-2 md:space-y-5 rounded-3xl shadow-xl text-[24px]">
+            <div className="flex justify-center md:justify-end lg:mr-2">
               <Select>
-                <SelectTrigger className="w-[190px] text-[#8a8a8a] py-2 mr-4 border border-gray-300 rounded-lg shadow-sm bg-white hover:bg-gray-100">
+                <SelectTrigger className="w-[190px] text-[#8a8a8a] py-2 mr-4 border border-gray-300 rounded-lg shadow-sm bg-white hover:bg-gray-100 mb-0 md:mb-0">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent className="w-full bg-white text-black border border-gray-300 shadow-md rounded-lg mt-2">
@@ -222,9 +257,11 @@ const AvailableRooms = () => {
               </Select>
             </div>
 
-            {roomData.map((room, index) => (
-              <RoomCard key={index} room={room} />
-            ))}
+            <div className="flex flex-col items-center space-y-[-35px] md:space-y-4">
+              {roomData.map((room, index) => (
+                <RoomCard key={index} room={room} />
+              ))}
+            </div>
           </div>
           <div className="flex justify-center pt-12">
             <Button
