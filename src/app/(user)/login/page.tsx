@@ -39,7 +39,7 @@ export default function LoginPage() {
         setMessage("Redirecting to Google...");
       }
     } catch (error) {
-      setMessage("An error occurred during Google sign-in.");
+      setMessage(`An error occurred during Google sign-in: ${error}`);
     }
   };
 
