@@ -74,7 +74,7 @@ const roomData: Room[] = [
 ];
 
 const RoomCard = ({ room }: { room: Room }) => {
-  // Helper function to get the appropriate icon
+  // Helper function to get the room icon
   const getRoomIcon = (type: string) => {
     switch (type) {
       case "LECTURE ROOM/AUDITORIUM":
@@ -106,7 +106,7 @@ const RoomCard = ({ room }: { room: Room }) => {
       <div className="flex flex-col justify-between flex-1">
         {/* Top Section: Title & Info */}
         <div className="space-y-1">
-          <h2 className="text-[28px] font-bold mb-10">{room.name}</h2>
+          <h2 className="text-[36px] font-bold mb-10">{room.name}</h2>
 
           <div className="flex items-center gap-2">
             {getRoomIcon(room.type)}
@@ -124,7 +124,10 @@ const RoomCard = ({ room }: { room: Room }) => {
               Available Time
             </p>
             {room.times.map((time, i) => (
-              <p key={i} className="text-sm flex items-center gap-2">
+              <p
+                key={i}
+                className="text-sm tracking-wider flex items-center gap-2"
+              >
                 <Clock className="w-4 h-4 text-[#274c77]" />
                 {time}
               </p>
@@ -141,7 +144,7 @@ const RoomCard = ({ room }: { room: Room }) => {
         <div className="flex justify-end gap-2 mt-4 text-[24px]">
           <Button
             variant="outline"
-            className="px-4 border-[#182657] text-[#182657] border-2"
+            className="px-4 border-[#182657] text-[#182657] hover:shadow-lg border-2"
           >
             View Details
           </Button>
@@ -172,7 +175,7 @@ const AvailableRooms = () => {
             <div className="flex gap-2 text-[25px]">
               <Button
                 variant="outline"
-                className="rounded-md text-[#274c77] border-[#274c77] border-2 font-semibold px-6 py-3"
+                className="rounded-md text-[#274c77] border-[#274c77] hover:shadow-lg transition border-2 font-semibold px-6 py-3"
               >
                 Floor 1 - CSM Lobby
               </Button>
@@ -211,7 +214,7 @@ const AvailableRooms = () => {
                     All Rooms
                   </SelectItem>
                   <div>
-                    <button className="text-[#274c77] border border-[#274c77] text-sm font-medium rounded-md w-full px-4 py-[2px] hover:bg-[#f1f1f1] transition">
+                    <button className="text-[#274c77] border border-[#274c77] text-sm font-medium rounded-md w-full px-4 py-[2px] active:bg-[#274c77] active:text-white transition">
                       Reset Filter
                     </button>
                   </div>
