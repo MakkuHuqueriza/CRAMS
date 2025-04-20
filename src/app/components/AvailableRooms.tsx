@@ -257,7 +257,7 @@ const AvailableRooms = () => {
               </Select>
             </div>
 
-            <div className="flex flex-col items-center space-y-[-35px] md:space-y-4">
+            <div className="flex flex-col items-center space-y-[-30px] md:space-y-4">
               {roomData.map((room, index) => (
                 <RoomCard key={index} room={room} />
               ))}
