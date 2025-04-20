@@ -92,13 +92,13 @@ const RoomCard = ({ room }: { room: Room }) => {
   };
 
   return (
-    <Card className="flex md:flex-row bg-[#e9eff6] border-none p-4 md:p-5 scale-[0.97] gap-6">
+    <Card className="flex md:flex-row bg-[#e9eff6] border-none p-4 md:p-4 scale-[0.97] gap-6">
       <div className="flex-shrink-0">
         <Image
           src={room.image}
           alt={room.name}
-          width={310}
-          height={310}
+          width={315}
+          height={315}
           className="rounded-md object-cover"
         />
       </div>
@@ -165,21 +165,21 @@ const AvailableRooms = () => {
         <div className="bg-primary w-[75%] max-w-6xl mx-auto py-10 border-b border-muted">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
-              <h1 className="text-[48px] font-bold text-primary">
+              <h1 className="text-[48px] lg:text-[42px] md:text-[36px] font-bold text-primary whitespace-nowrap">
                 Available Rooms
               </h1>
-              <p className="text-[20px] text-muted-foreground">
+              <p className="text-[20px] md:text-[16px] text-muted-foreground whitespace-nowrap">
                 Browse to see room&apos;s availability
               </p>
             </div>
-            <div className="flex gap-2 text-[25px]">
+            <div className="flex xl:gap-2 lg:gap-0">
               <Button
                 variant="outline"
-                className="rounded-md text-[#274c77] border-[#274c77] hover:shadow-lg transition border-2 font-semibold px-6 py-3"
+                className="rounded-md text-[#274c77] border-[#274c77] hover:shadow-lg transition border-2 font-semibold xl:text-[19px] xl:px-5 xl:py-5 lg:text-[16px] lg:scale-[90%] md:scale-[70%]"
               >
                 Floor 1 - CSM Lobby
               </Button>
-              <Button className="bg-[#274c77] text-white hover:bg-[#182657] rounded-md font-semibold px-5 py-4">
+              <Button className="bg-[#274c77] text-white hover:bg-[#182657] border-2 border-[#274c77] rounded-md font-semibold xl:text-[19px] xl:px-5 xl:py-5 xl:ml-[-15px] lg:text-[16px] lg:scale-[90%] lg:ml-[-10px] md:scale-[70%] md:ml-[-40px]">
                 Floor 2 - Rooms
               </Button>
             </div>
