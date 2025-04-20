@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { loginAction, signUpAction } from "@/actions/users";
+import { loginAction, signUpAction, signInWithGoogle } from "@/actions/users";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -27,6 +27,19 @@ export default function LoginPage() {
         setMessage("Signed up successfully!");
         setIsLoginMode(true); // Switch to login mode after successful signup
       }
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithGoogle();
+      if (result?.errorMessage) {
+        setMessage(result.errorMessage);
+      } else {
+        setMessage("Redirecting to Google...");
+      }
+    } catch (error) {
+      setMessage("An error occurred during Google sign-in.");
     }
   };
 
@@ -60,6 +73,12 @@ export default function LoginPage() {
         {isLoginMode
           ? "Don't have an account? Signup"
           : "Already have an account? Login"}
+      </button>
+      <button
+        onClick={handleGoogleSignIn}
+        className="bg-red-500 text-white px-4 py-2 rounded"
+      >
+        Sign in with Google
       </button>
       {message && <p className="text-sm text-red-500">{message}</p>}
     </div>
