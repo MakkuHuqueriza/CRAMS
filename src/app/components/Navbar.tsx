@@ -9,6 +9,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { logoutAction } from "@/actions/users";
 
 const Navbar = () => {
   return (
@@ -66,7 +67,7 @@ const Navbar = () => {
                 </li>
                 <li>
                   <button
-                    // onClick={} logout function
+                    onClick={logoutAction}
                     className="flex items-center gap-2 px-4 py-2 w-full text-[14px] hover:bg-gray-100 active:bg-[#274c77] active:text-white"
                   >
                     <LogOut className="w-4 h-4" />
