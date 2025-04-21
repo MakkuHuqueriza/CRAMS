@@ -115,7 +115,7 @@ const roomData: Room[] = [
   },
 ];
 
-const AvailableRoomsSection = () => {
+const AvailableRooms = () => {
   const [selectedFloor, setSelectedFloor] = useState("1st Floor, CSM");
 
   // Filter rooms based on the selected floor
@@ -331,4 +331,4 @@ const AvailableRoomsSection = () => {
   );
 };
 
-export default AvailableRoomsSection;
+export default AvailableRooms;
