@@ -7,21 +7,27 @@ export default function ResetPasswordPage() {
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleResetPassword = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleResetPassword = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault(); // Prevent the default form submission behavior
     setIsSubmitting(true);
     setMessage("");
 
     const formData = new FormData(event.currentTarget);
 
-    try { 
+    try {
       const result = await resetPasswordAction(formData);
       if (result?.errorMessage) {
-        setMessage(result.errorMessage || "An error occurred while resetting the password.");
+        setMessage(
+          result.errorMessage ||
+            "An error occurred while resetting the password.",
+        );
       } else {
         setMessage("Password reset email sent successfully!");
       }
     } catch (error) {
+      console.error("Error resetting password:", error);
       setMessage("An unexpected error occurred.");
     } finally {
       setIsSubmitting(false);
@@ -32,7 +38,10 @@ export default function ResetPasswordPage() {
     <div className="flex flex-col items-center gap-4 p-8">
       <h1 className="text-2xl font-bold">Reset Password</h1>
       <p className="text-gray-600">Enter your email to reset your password.</p>
-      <form onSubmit={handleResetPassword} className="flex flex-col items-center gap-4">
+      <form
+        onSubmit={handleResetPassword}
+        className="flex flex-col items-center gap-4"
+      >
         <input
           type="email"
           name="email"
