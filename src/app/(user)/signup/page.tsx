@@ -2,39 +2,26 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation"; // Import useRouter for navigation
-import { loginAction, signInWithGoogle } from "@/actions/users";
+import { signUpAction } from "@/actions/users";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const router = useRouter(); // Initialize router
 
-  const handleLogin = async () => {
-    const result = await loginAction(email, password);
+  const handleSignup = async () => {
+    const result = await signUpAction(email, password);
     if (result?.errorMessage) {
       setMessage(result.errorMessage);
     } else {
-      setMessage("Logged in successfully!");
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    try {
-      const result = await signInWithGoogle();
-      if (result?.errorMessage) {
-        setMessage(result.errorMessage);
-      } else {
-        setMessage("Redirecting to Google...");
-      }
-    } catch (error) {
-      setMessage(`An error occurred during Google sign-in: ${error}`);
+      setMessage("Signed up successfully!");
     }
   };
 
   return (
     <div className="flex flex-col items-center gap-4 p-8">
-      <h1 className="text-2xl font-bold">Login</h1>
+      <h1 className="text-2xl font-bold">Signup</h1>
       <input
         type="email"
         placeholder="Email"
@@ -50,22 +37,16 @@ export default function LoginPage() {
         className="border rounded p-2 w-64"
       />
       <button
-        onClick={handleLogin}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
+        onClick={handleSignup}
+        className="bg-green-500 text-white px-4 py-2 rounded"
       >
-        Login
+        Signup
       </button>
       <button
-        onClick={handleGoogleSignIn}
-        className="bg-red-500 text-white px-4 py-2 rounded"
-      >
-        Sign in with Google
-      </button>
-      <button
-        onClick={() => router.push("/signup")} // Navigate to signup page
+        onClick={() => router.push("/login")} // Navigate to login page
         className="text-blue-500 underline"
       >
-        Don&apos;t have an account? Signup
+        Already have an account? Login
       </button>
       {message && <p className="text-sm text-red-500">{message}</p>}
     </div>
