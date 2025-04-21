@@ -26,5 +26,7 @@ export async function GET(request: Request) {
   }
 
   // return the user to an error page with instructions
+  // this is a generic error page, you can customize it or remove it
+  // if you want to handle the error in a different way
   return NextResponse.redirect(`${origin}/auth/auth-code-error`);
 }

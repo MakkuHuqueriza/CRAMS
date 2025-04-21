@@ -65,3 +65,20 @@ export const signInWithGoogle = async () => {
     redirect(data.url);
   }
 };
+
+export const resetPasswordAction = async (FormData: FormData) => {
+
+  const email = FormData.get("email") as string;
+
+  const { auth } = await createClient();
+
+  const { data, error } = await auth.resetPasswordForEmail(email)
+
+  console.log(data);
+
+  if (error) {
+    return handleError(error);
+  }
+
+  await auth.updateUser({ password: 'new_password' })
+}
