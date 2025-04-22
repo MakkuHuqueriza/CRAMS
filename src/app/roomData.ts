@@ -5,7 +5,7 @@ export type Room = {
   capacity: number;
   image: string;
   times: string[];
-  description?: string;
+  description: string;
 };
 
 export const roomData: Room[] = [
