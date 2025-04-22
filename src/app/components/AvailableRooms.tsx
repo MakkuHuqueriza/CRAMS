@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import Link from "next/link";
+import { roomData, Room } from "@/app/roomData";
 import {
   Select,
   SelectContent,
@@ -23,103 +25,14 @@ import {
   ArrowDown,
 } from "lucide-react";
 
-type Room = {
-  name: string;
-  type: string;
-  floor: string;
-  capacity: number;
-  image: string;
-  times: string[];
-};
-
-const roomData: Room[] = [
-  {
-    name: "ROOM 102",
-    type: "DBSES LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM"],
-  },
-  {
-    name: "ROOM 105",
-    type: "LECTURE ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM"],
-  },
-  {
-    name: "ROOM 108",
-    type: "DBSES LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM"],
-  },
-  {
-    name: "ROOM 112",
-    type: "LECTURE ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM"],
-  },
-  {
-    name: "ROOM 132",
-    type: "DFSC LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM"],
-  },
-  {
-    name: "ROOM 227",
-    type: "LECTURE ROOM/AUDITORIUM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM"],
-  },
-  {
-    name: "ROOM 225A",
-    type: "DMPCS LABORATORY ROOM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM"],
-  },
-  {
-    name: "ROOM 221",
-    type: "DBSES LABORATORY ROOM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM"],
-  },
-  {
-    name: "ROOM 223",
-    type: "DFSC LABORATORY ROOM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM"],
-  },
-  {
-    name: "ROOM 222",
-    type: "LECTURE ROOM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM"],
-  },
-];
-
 const AvailableRooms = () => {
   const [selectedFloor, setSelectedFloor] = useState("1st Floor, CSM");
+  const [showAllRooms, setShowAllRooms] = useState(false);
 
   // Filter rooms based on the selected floor
-  const filteredRooms = roomData.filter((room) => room.floor === selectedFloor);
+  const filteredRooms = showAllRooms
+    ? roomData
+    : roomData.filter((room) => room.floor === selectedFloor);
 
   const RoomCard = ({ room }: { room: Room }) => {
     const getRoomIcon = (type: string) => {
@@ -208,11 +121,13 @@ const AvailableRooms = () => {
               md:text-[11px] md:px-2 md:py-1 
               text-[11px] px-3 py-2"
             >
-              View Details
+              <Link href={`/rooms/${encodeURIComponent(room.name)}`}>
+                View Details
+              </Link>
             </Button>
             <Button
               size="extraSmall"
-              className="bg-[#274c77] text-white hover:bg-[#182657] 
+              className="bg-[#274c77] text-white hover:bg-[#182657] active:bg-[#0A1128] active:text-[#9BB2FC]
               xl:text-[15px] xl:px-5 xl:py-3 
               lg:text-[14px] lg:px-4 lg:py-2 
               md:text-[12px] md:px-3 md:py-2 
@@ -242,7 +157,10 @@ const AvailableRooms = () => {
             <div className="flex gap-2 xl:gap-3 lg:gap-2">
               <Button
                 size="extraSmall"
-                onClick={() => setSelectedFloor("1st Floor, CSM")}
+                onClick={() => {
+                  setSelectedFloor("1st Floor, CSM");
+                  setShowAllRooms(false);
+                }}
                 className={`rounded-md font-semibold border-2 ${
                   selectedFloor === "1st Floor, CSM"
                     ? "text-[#274c77] border-[#274c77] hover:shadow-lg"
@@ -253,7 +171,10 @@ const AvailableRooms = () => {
               </Button>
               <Button
                 size="extraSmall"
-                onClick={() => setSelectedFloor("2nd Floor, CSM")}
+                onClick={() => {
+                  setSelectedFloor("2nd Floor, CSM");
+                  setShowAllRooms(false);
+                }}
                 className={`rounded-md font-semibold border-2 ${
                   selectedFloor === "2nd Floor, CSM"
                     ? "text-[#274c77] border-[#274c77] hover:shadow-lg"
@@ -316,15 +237,20 @@ const AvailableRooms = () => {
               </motion.div>
             </AnimatePresence>
           </div>
-          <div className="flex justify-center pt-12">
-            <Button
-              variant="outline"
-              className="rounded-full bg-primary px-5 py-[18px] font-semibold text-[#274c77] border-[#274c77] border-2 transition-transform transform hover:scale-105"
-            >
-              Load More
-              <ArrowDown className="w-4 h-4" />
-            </Button>
-          </div>
+          {!showAllRooms && (
+            <div className="flex justify-center pt-12">
+              <Button
+                onClick={() => {
+                  setSelectedFloor("");
+                  setShowAllRooms(true);
+                }}
+                className="rounded-full bg-primary px-5 py-[18px] font-semibold text-[#274c77] border-[#274c77] border-2 transition-transform transform hover:scale-105"
+              >
+                Load More
+                <ArrowDown className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </section>
