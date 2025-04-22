@@ -138,6 +138,12 @@ h6 {
   .color-primary {
     background-color: #274c77;
   }
+  .dark-blue-bg {
+    background-color: #034078;
+  }
+  .dark-blue-text {
+    color: #034078;
+  }
   .text-primary-foreground {
     color: #0a1128;
   }
@@ -158,6 +164,9 @@ h6 {
   }
   .text-foreground {
     color: var(--foreground);
+  }
+  .hero-bg-blue {
+    background-color: #6096ba;
   }
   body {
     @apply bg-background text-foreground;
