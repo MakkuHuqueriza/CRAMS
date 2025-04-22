@@ -48,7 +48,6 @@ export const logoutAction = async () => {
 export const signInWithGoogle = async () => {
   const { auth } = await createClient();
   const originUrl = (await headers()).get("origin");
-  console.log(originUrl);
 
   const { data, error } = await auth.signInWithOAuth({
     provider: "google",
@@ -71,13 +70,20 @@ export const resetPasswordAction = async (FormData: FormData) => {
 
   const { auth } = await createClient();
 
-  const { data, error } = await auth.resetPasswordForEmail(email);
-
-  console.log(data);
+  const { error } = await auth.resetPasswordForEmail(email);
 
   if (error) {
     return handleError(error);
   }
+};
 
-  await auth.updateUser({ password: "new_password" });
+export const updatePasswordAction = async (FormData: FormData) => {
+  const password = FormData.get("new_password") as string;
+
+  const { auth } = await createClient();
+
+  const { error } = await auth.updateUser({ password });
+  if (error) {
+    return handleError(error);
+  }
 };
