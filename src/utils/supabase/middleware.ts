@@ -42,11 +42,46 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith("/login") &&
     !request.nextUrl.pathname.startsWith("/signup") &&
     !request.nextUrl.pathname.startsWith("/auth") &&
-    !request.nextUrl.pathname.startsWith("/reset-password")
+    !request.nextUrl.pathname.startsWith("/reset-password") &&
+    !request.nextUrl.pathname.startsWith("/admin/login")
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
+  if (
+    user &&
+    request.nextUrl.pathname.startsWith("/login") &&
+    request.nextUrl.pathname.startsWith("/signup")
+  ) {
+    // user is logged in, potentially respond by redirecting the user to the home page
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
+
+  if (
+    user &&
+    user.user_metadata?.is_admin !== true &&
+    request.nextUrl.pathname.startsWith("/admin")
+  ) {
+    // user is logged in, potentially respond by redirecting the user to the home page
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
+
+  if (
+    user &&
+    user.user_metadata?.is_admin === true &&
+    (request.nextUrl.pathname === "/" ||
+      request.nextUrl.pathname === "/admin/login")
+  ) {
+    // user is logged in, potentially respond by redirecting the user to the admin page
+    const url = request.nextUrl.clone();
+    url.pathname = "/admin";
     return NextResponse.redirect(url);
   }
 
