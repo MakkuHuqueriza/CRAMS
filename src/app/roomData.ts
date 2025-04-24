@@ -5,6 +5,7 @@ export type Room = {
   capacity: number;
   image: string;
   times: string[];
+  description?: string;
 };
 
 export const roomData: Room[] = [
@@ -15,6 +16,8 @@ export const roomData: Room[] = [
     capacity: 50,
     image: "/room_sample.png",
     times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM"],
+    description:
+      "Auditorium ni Lorem ipsum Sed mollis mi sit amet justo ornare egestas. Praesent dignissim consectetur nibh eget accumsan. Sed viverra sem ac eleifend aliquet. Sed massa dui, luctus ac orci id, auctor facilisis metus.",
   },
   {
     name: "ROOM 105",
