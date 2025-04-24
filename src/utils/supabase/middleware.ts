@@ -68,11 +68,7 @@ export async function updateSession(request: NextRequest) {
     .eq("id", user?.id)
     .single();
 
-  if (
-    user &&
-    !isAdmin &&
-    request.nextUrl.pathname.startsWith("/admin")
-  ) {
+  if (user && !isAdmin && request.nextUrl.pathname.startsWith("/admin")) {
     // user is logged in, potentially respond by redirecting the user to the home page
     const url = request.nextUrl.clone();
     url.pathname = "/";
@@ -80,11 +76,11 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (
-    user && 
+    user &&
     isAdmin &&
     (request.nextUrl.pathname === "/" ||
       request.nextUrl.pathname === "/admin/login")
-  ){
+  ) {
     // user is logged in, potentially respond by redirecting the user to the admin page
     const url = request.nextUrl.clone();
     url.pathname = "/admin";
