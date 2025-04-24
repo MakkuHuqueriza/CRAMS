@@ -9,18 +9,29 @@ export const adminLoginAction = async (FormData: FormData) => {
     password: FormData.get("password") as string,
   };
 
-  const { auth } = await createClient();
+  const supabase = await createClient();
 
-  const { data, error } = await auth.signInWithPassword(loginCredentials);
+  const { data, error } =
+    await supabase.auth.signInWithPassword(loginCredentials);
 
   if (error) {
     return error;
   }
 
-  if (data.user?.user_metadata?.is_admin) {
+  const { data: adminData, error: adminError } = await supabase
+    .from("admin")
+    .select("id")
+    .eq("id", data.user?.id)
+    .single();
+
+  if (adminError) {
+    return adminError;
+  }
+
+  if (adminData) {
     redirect("/admin");
   } else {
-    await auth.signOut();
+    await supabase.auth.signOut();
     redirect("/admin/login");
   }
 };

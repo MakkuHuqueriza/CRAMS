@@ -62,9 +62,15 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  const { data: isAdmin } = await supabase
+    .from("admin")
+    .select("id")
+    .eq("id", user?.id)
+    .single();
+
   if (
     user &&
-    user.user_metadata?.is_admin !== true &&
+    !isAdmin &&
     request.nextUrl.pathname.startsWith("/admin")
   ) {
     // user is logged in, potentially respond by redirecting the user to the home page
@@ -74,11 +80,11 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (
-    user &&
-    user.user_metadata?.is_admin === true &&
+    user && 
+    isAdmin &&
     (request.nextUrl.pathname === "/" ||
       request.nextUrl.pathname === "/admin/login")
-  ) {
+  ){
     // user is logged in, potentially respond by redirecting the user to the admin page
     const url = request.nextUrl.clone();
     url.pathname = "/admin";
