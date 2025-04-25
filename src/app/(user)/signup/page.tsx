@@ -10,6 +10,7 @@ export default function SignupPage() {
   const [message, setMessage] = useState("");
   const router = useRouter(); // Initialize router
   const [reenteredPassword, setReenteredPassword] = useState("");
+  const [showReenterPassword, setShowReenterPassword] = useState(false);
 
   const handleSignup = async () => {
     if (password !== reenteredPassword) {
@@ -45,7 +46,7 @@ export default function SignupPage() {
         <img
           src="/CRAMS_white_logo.svg"
           alt="CRAMS Logo"
-          className="block md:hidden max-w-[50%] h-auto absolute top-4 left-1/2 transform -translate-x-1/2"
+          className="block md:hidden max-w-[40%] h-auto absolute top-4 left-1/2 transform -translate-x-1/2"
         />
         {/* Desktop Logo */}
         <div className="hidden md:block text-center">
