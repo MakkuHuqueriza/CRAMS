@@ -33,41 +33,62 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 p-8">
-      <h1 className="text-2xl font-bold">Login</h1>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="border rounded p-2 w-64"
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="border rounded p-2 w-64"
-      />
-      <button
-        onClick={handleLogin}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
-      >
-        Login
-      </button>
-      <button
-        onClick={handleGoogleSignIn}
-        className="bg-red-500 text-white px-4 py-2 rounded"
-      >
-        Sign in with Google
-      </button>
-      <button
-        onClick={() => router.push("/signup")} // Navigate to signup page
-        className="text-blue-500 underline"
-      >
-        Don&apos;t have an account? Signup
-      </button>
-      {message && <p className="text-sm text-red-500">{message}</p>}
+    <div className="flex h-screen">
+      {/* Left Section */}
+      <div className="w-1/2 color-primary text-white flex flex-col justify-center items-center p-8">
+        <div className="text-center">
+          <img
+            src="/CRAMS_full_logo.png"
+            alt="CRAMS Logo"
+            className="max-w-[70%] h-auto mx-auto mb-2"
+          />
+          <h1 className="text-[140px] font-semibold leading-none tracking-wide">CRAMS</h1>
+          <p className="text-[20px] font-medium">
+            Classroom Reservation and Management System
+          </p>
+          <p className="text-sm mt-1">
+            Organized Reservations, Even for the Biggest Crammers!
+          </p>
+        </div>
+      </div>
+
+      {/* Right Section */}
+      <div className="w-1/2 flex flex-col justify-center items-center p-8">
+        <h1 className="text-[64px] font-semibold mb-6">Log In</h1>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="border rounded p-2 w-[60%] mb-4"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="border rounded p-2 w-[60%] mb-4"
+        />
+        <button
+          onClick={handleLogin}
+          className="bg-blue-500 text-black font-medium text-[16px] px-8 py-[6px] rounded-[50px] mb-2"
+        >
+          Log In
+        </button>
+        <button
+          onClick={handleGoogleSignIn}
+          className="bg-red-500 text-white px-4 py-2 rounded w-64 mb-4"
+        >
+          Log in using Google
+        </button>
+        <button
+          onClick={() => router.push("/signup")} // Navigate to signup page
+          className="text-blue-500 underline mb-4"
+        >
+          Don&apos;t have an account? Signup
+        </button>
+        {message && <p className="text-sm text-red-500">{message}</p>}
+      </div>
     </div>
   );
 }
