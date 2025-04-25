@@ -142,7 +142,7 @@ export default function SignupPage() {
         >
           Already have an account? Login
         </button>
-        {message && <p className="text-sm text-[#cf2626]">{message}</p>}
+        {message && <p className="text-sm text-red-500">{message}</p>}
       </div>
     </div>
   );
