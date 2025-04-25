@@ -123,7 +123,7 @@ export default function LoginPage() {
         >
           Don&apos;t have an account? Signup
         </button>
-        {message && <p className="text-sm text-red-500">{message}</p>}
+        {message && <p className="text-sm text-[#cf2626]">{message}</p>}
       </div>
     </div>
   );
