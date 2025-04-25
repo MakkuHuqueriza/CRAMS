@@ -35,6 +35,8 @@ const AvailableRooms = () => {
     : roomData.filter((room) => room.floor === selectedFloor);
 
   const RoomCard = ({ room }: { room: Room }) => {
+    const [showAllTimes, setShowAllTimes] = useState(false);
+
     const getRoomIcon = (type: string) => {
       switch (type) {
         case "LECTURE ROOM/AUDITORIUM":
@@ -61,7 +63,7 @@ const AvailableRooms = () => {
 
     return (
       <Card className="w-[98%] flex md:flex-row bg-[#e7edf1] border-none p-4 md:p-4 scale-[0.90] md:scale-[0.97] gap-6 md:gap-5">
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 flex items-stretch">
           <Image
             src={room.image}
             alt={room.name}
@@ -94,22 +96,30 @@ const AvailableRooms = () => {
               <p className="text-[15px] lg:text-[16px] md:text-[12px] text-primary-foreground font-semibold">
                 Available Time
               </p>
-              {room.times.map((time, i) => (
-                <p
-                  key={i}
-                  className="text-primary-foreground text-[13px] lg:text-sm md:text-[11px] tracking-wider flex items-center gap-2"
-                >
-                  <Clock className="w-4 h-4 text-[#274c77]" />
-                  {time}
-                </p>
-              ))}
+              {(showAllTimes ? room.times : room.times.slice(0, 2)).map(
+                (time, i) => (
+                  <p
+                    key={i}
+                    className="text-primary-foreground text-[13px] lg:text-sm md:text-[11px] tracking-wider flex items-center gap-2"
+                  >
+                    <Clock className="w-4 h-4 text-[#274c77]" />
+                    {time}
+                  </p>
+                ),
+              )}
             </div>
           </div>
 
           {/* Dots Button */}
-          <button className="bg-primary text-black rounded-full p-1 w-6 h-3 flex items-center justify-center">
-            <MoreHorizontal className="w-5 h-5" />
-          </button>
+          {room.times.length > 2 && (
+            <button
+              onClick={() => setShowAllTimes(!showAllTimes)}
+              className="bg-primary text-black rounded-full p-1 w-6 h-3 flex items-center justify-center"
+            >
+              {showAllTimes ? "" : ""}
+              <MoreHorizontal className="w-4 h-4" />
+            </button>
+          )}
 
           {/* Buttons */}
           <div className="flex justify-center md:justify-end gap-2 mt-6 md:mt-4">
