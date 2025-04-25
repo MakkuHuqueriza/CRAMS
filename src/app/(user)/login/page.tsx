@@ -95,7 +95,7 @@ export default function LoginPage() {
           className="bg-[#f5f9fc] border-[1px] border-[#B9B9B9] rounded-md p-1 md:p-2 w-[80%] sm:w-[70%] md:w-[60%] mb-2 text-sm"
         />
         <a
-          href="/forgot-password"
+          href="/reset-password"
           className="text-[#a3a3a3] underline mb-10 w-[80%] sm:w-[70%] md:w-[60%] text-left text-[10px] sm:text-[11px] lg:text-[13px]"
         >
           Forgot Your Password?
