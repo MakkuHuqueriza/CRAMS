@@ -25,18 +25,18 @@ export default function SignupPage() {
     }
   };
 
-    const handleGoogleSignIn = async () => {
-      try {
-        const result = await signInWithGoogle();
-        if (result?.errorMessage) {
-          setMessage(result.errorMessage);
-        } else {
-          setMessage("Redirecting to Google...");
-        }
-      } catch (error) {
-        setMessage(`An error occurred during Google sign-in: ${error}`);
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithGoogle();
+      if (result?.errorMessage) {
+        setMessage(result.errorMessage);
+      } else {
+        setMessage("Redirecting to Google...");
       }
-    };
+    } catch (error) {
+      setMessage(`An error occurred during Google sign-in: ${error}`);
+    }
+  };
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
@@ -103,21 +103,21 @@ export default function SignupPage() {
         />
         {showReenterPassword && (
           <>
-        <label
-          htmlFor="reenter-password"
-          className="w-[80%] sm:w-[70%] md:w-[60%] text-left text-[12px] sm:text-[14px] lg:text-[16px] font-medium"
-        >
-          Re-enter Password
-        </label>
-        <input
-          id="reenter-password"
-          type="password"
-          placeholder="Re-enter your password"
-          value={reenteredPassword}
-          onChange={(e) => setReenteredPassword(e.target.value)}
-          className="bg-[#f5f9fc] border-[1px] border-[#B9B9B9] rounded-md p-1 md:p-2 w-[80%] sm:w-[70%] md:w-[60%] mb-2 text-sm"
-        />
-        </>
+            <label
+              htmlFor="reenter-password"
+              className="w-[80%] sm:w-[70%] md:w-[60%] text-left text-[12px] sm:text-[14px] lg:text-[16px] font-medium"
+            >
+              Re-enter Password
+            </label>
+            <input
+              id="reenter-password"
+              type="password"
+              placeholder="Re-enter your password"
+              value={reenteredPassword}
+              onChange={(e) => setReenteredPassword(e.target.value)}
+              className="bg-[#f5f9fc] border-[1px] border-[#B9B9B9] rounded-md p-1 md:p-2 w-[80%] sm:w-[70%] md:w-[60%] mb-2 text-sm"
+            />
+          </>
         )}
         <button
           onClick={handleSignup}
