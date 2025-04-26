@@ -18,11 +18,14 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
+import { availableTime } from "@/app/searchElements";
 import "@/styles/globals.css";
 import "react-day-picker/dist/style.css"; // for default styling
 
 const Hero = () => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [startTime, setStartTime] = useState<string>("");
+  const [endTime, setEndTime] = useState<string>("");
 
   return (
     <section className="w-full bg-background">
@@ -53,7 +56,7 @@ const Hero = () => {
 
         {/* Search Bar */}
         <div className="flex items-center justify-between">
-          <div className="bg-white shadow-lg rounded-lg p-4 flex flex-wrap items-center justify-between gap-2 w-[1400px] mx-auto">
+          <div className="bg-white shadow-lg rounded-lg p-4 flex flex-wrap items-center justify-between gap-2 w-[1450px] mx-auto">
             {/* DATE PICKER */}
             <Popover>
               <PopoverTrigger asChild>
@@ -126,10 +129,18 @@ const Hero = () => {
                 <label className="text-sm font-semibold text-black mb-1">
                   START TIME
                 </label>
-                <input
-                  type="time"
-                  className="text-gray-400 border-none bg-transparent focus:outline-none"
-                />
+                <select
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="text-sm text-gray-400 border-none bg-transparent focus:outline-none"
+                >
+                  <option value="">Select Start Time</option>
+                  {availableTime.map((time, index) => (
+                    <option key={index} value={time.availableTime}>
+                      {time.availableTime}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -138,19 +149,27 @@ const Hero = () => {
 
             {/* END TIME PICKER */}
             <div className="flex items-start gap-4">
-              <div className="flex items-center justify-center w-10 h-10">
-                <LogOut className="text-color-primary w-6 h-6" />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm font-semibold text-black mb-1">
-                  END TIME
-                </label>
-                <input
-                  type="time"
-                  className="text-gray-400 border-none bg-transparent focus:outline-none"
-                />
-              </div>
+            <div className="flex items-center justify-center w-10 h-10">
+              <LogOut className="text-color-primary w-6 h-6" />
             </div>
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-black mb-1">
+                END TIME
+              </label>
+              <select
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className="text-sm text-gray-400 border-none bg-transparent focus:outline-none"
+              >
+                <option value="">Select End Time</option>
+                {availableTime.map((time, index) => (
+                  <option key={index} value={time.availableTime}>
+                    {time.availableTime}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
 
             {/* Divider */}
             <div className="h-12 w-px bg-secondary" />
