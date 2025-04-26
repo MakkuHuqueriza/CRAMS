@@ -88,7 +88,7 @@ const RoomDetails = () => {
               </h1>
             </div>
 
-            <div className="flex items-center gap-4 text-muted-foreground text-sm">
+            <div className="flex items-center gap-4 text-muted-foreground text-[12px] md:text-sm">
               <div className="flex items-center gap-1">
                 <Building className="w-4 h-4" />
                 {room.floor}
