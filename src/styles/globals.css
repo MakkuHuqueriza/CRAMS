@@ -172,7 +172,7 @@ h6 {
     background-color: #6096ba;
   }
   .default-text {
-    color: #B9B9B9;
+    color: #b9b9b9;
   }
   body {
     @apply bg-background text-foreground;
