@@ -1,3 +1,4 @@
+/* Corrected and polished calendar.tsx */
 "use client";
 
 import * as React from "react";
@@ -16,16 +17,13 @@ export function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn(
-        "p-4 bg-white rounded-xl shadow-md", // 💡 adds background and subtle shadow
-        className
-      )}
+      className={cn("p-4 bg-white rounded-xl shadow-md", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium",
-        nav: "flex items-center",
+        nav: "flex items-center gap-2",
         nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
         table: "w-full border-collapse space-y-1",
         head_row: "flex",
@@ -34,16 +32,14 @@ export function Calendar({
         row: "flex w-full mt-2",
         cell: cn(
           "h-9 w-9 text-center text-sm p-0 relative",
-          "focus-within:relative focus-within:z-20"
+          "focus-within:relative focus-within:z-20",
         ),
-        day: "h-9 w-9 p-0 font-normal text-gray-800 hover:bg-accent hover:text-accent-foreground",
+        day: "h-9 w-9 p-0 font-normal text-gray-800 hover:bg-blue-100 hover:text-blue-800 rounded-full",
         day_selected:
-          "bg-blue-600 text-white hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white",
-        day_today: "bg-muted text-muted-foreground",
+          "bg-blue-600 text-white hover:bg-blue-700 hover:text-white rounded-full",
+        day_today: "border border-blue-600 rounded-full",
         day_outside: "text-muted opacity-50",
         day_disabled: "text-muted opacity-50",
-
-        // 💙 ACTUAL RANGE HIGHLIGHTS!
         day_range_start: "bg-blue-600 text-white rounded-l-full",
         day_range_middle: "bg-blue-100 text-blue-900",
         day_range_end: "bg-blue-600 text-white rounded-r-full",
@@ -63,7 +59,7 @@ export function Calendar({
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              <span className="text-sm font-medium">
+              <span className="text-sm font-semibold">
                 {format(displayMonth, "MMMM yyyy")}
               </span>
               <button
@@ -81,3 +77,11 @@ export function Calendar({
     />
   );
 }
+
+/* 
+✅ Updates made:
+- Day hover and selected styles are now rounded and lighter.
+- Today's day now has a thin blue border (more subtle highlight).
+- Navigation buttons have better hover behavior.
+- General font and padding tweaks for cleaner UI.
+*/

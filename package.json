@@ -20,7 +20,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
-    "framer-motion": "^12.7.4",
+    "framer-motion": "^12.9.2",
     "lucide-react": "^0.487.0",
     "next": "15.2.4",
     "postcss-nested": "^7.0.2",

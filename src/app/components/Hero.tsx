@@ -24,12 +24,6 @@ import "react-day-picker/dist/style.css"; // for default styling
 const Hero = () => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
-  const formattedRange = dateRange?.from
-    ? dateRange.to
-      ? `${format(dateRange.from, "PPP")} → ${format(dateRange.to, "PPP")}`
-      : format(dateRange.from, "PPP")
-    : "Pick a date range";
-
   return (
     <section className="w-full bg-background">
       <div className="mx-auto px-4">
@@ -59,7 +53,7 @@ const Hero = () => {
 
         {/* Search Bar */}
         <div className="flex items-center justify-between">
-          <div className="bg-white shadow-lg rounded-lg p-4 flex flex-wrap items-center justify-between gap-2 w-[1350px] mx-auto">
+          <div className="bg-white shadow-lg rounded-lg p-4 flex flex-wrap items-center justify-between gap-2 w-[1400px] mx-auto">
             {/* DATE PICKER */}
             <Popover>
               <PopoverTrigger asChild>
@@ -74,10 +68,14 @@ const Hero = () => {
                     <label className="text-base font-medium text-black mb-1">
                       DATE
                     </label>
-                    <div className="text-gray-400 text-left text-lg min-w-[240px]">
+                    <div
+                      className={`text-left min-w-[240px]
+                        ${dateRange?.from && dateRange?.to ? "text-black" : "text-gray-400"}
+                      `}
+                    >
                       {dateRange?.from && dateRange?.to
                         ? `${format(dateRange.from, "MM/dd/yyyy")} - ${format(dateRange.to, "MM/dd/yyyy")}`
-                        : "Select a Date Range"}
+                        : "Select a Date"}
                     </div>
                   </div>
                 </div>
