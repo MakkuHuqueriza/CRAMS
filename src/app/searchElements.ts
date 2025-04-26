@@ -1,8 +1,12 @@
-export type Search = {
+export type AvailableTime = {
   availableTime: string;
 };
 
-export const availableTime: Search[] = [
+export type RoomCapacity = {
+  roomCapacity: string;
+};
+
+export const availableTime: AvailableTime[] = [
   { availableTime: "7:00 AM" },
   { availableTime: "7:30 AM" },
   { availableTime: "8:00 AM" },
@@ -28,4 +32,15 @@ export const availableTime: Search[] = [
   { availableTime: "6:00 PM" },
   { availableTime: "6:30 PM" },
   { availableTime: "7:00 PM" },
+];
+
+export const roomCapacity: RoomCapacity[] = [
+  { roomCapacity: "15" },
+  { roomCapacity: "20" },
+  { roomCapacity: "25" },
+  { roomCapacity: "30" },
+  { roomCapacity: "35" },
+  { roomCapacity: "40" },
+  { roomCapacity: "45" },
+  { roomCapacity: "50" },
 ];

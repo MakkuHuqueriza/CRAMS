@@ -19,6 +19,7 @@ import {
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { availableTime } from "@/app/searchElements";
+import { roomCapacity } from "@/app/searchElements";
 import "@/styles/globals.css";
 import "react-day-picker/dist/style.css"; // for default styling
 
@@ -26,6 +27,7 @@ const Hero = () => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");
+  const [roomCap, setRoomCap] = useState<string>("");
 
   return (
     <section className="w-full bg-background">
@@ -112,7 +114,7 @@ const Hero = () => {
                 <input
                   type="text"
                   placeholder="Select Room"
-                  className="text-gray-400 placeholder-gray-400 border-none bg-transparent focus:outline-none"
+                  className="text-gray-400 border-none bg-transparent focus:outline-none"
                 />
               </div>
             </div>
@@ -149,27 +151,27 @@ const Hero = () => {
 
             {/* END TIME PICKER */}
             <div className="flex items-start gap-4">
-            <div className="flex items-center justify-center w-10 h-10">
-              <LogOut className="text-color-primary w-6 h-6" />
+              <div className="flex items-center justify-center w-10 h-10">
+                <LogOut className="text-color-primary w-6 h-6" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm font-semibold text-black mb-1">
+                  END TIME
+                </label>
+                <select
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className="text-sm text-gray-400 border-none bg-transparent focus:outline-none"
+                >
+                  <option value="">Select End Time</option>
+                  {availableTime.map((time, index) => (
+                    <option key={index} value={time.availableTime}>
+                      {time.availableTime}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-black mb-1">
-                END TIME
-              </label>
-              <select
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="text-sm text-gray-400 border-none bg-transparent focus:outline-none"
-              >
-                <option value="">Select End Time</option>
-                {availableTime.map((time, index) => (
-                  <option key={index} value={time.availableTime}>
-                    {time.availableTime}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
 
             {/* Divider */}
             <div className="h-12 w-px bg-secondary" />
@@ -183,11 +185,18 @@ const Hero = () => {
                 <label className="text-sm font-semibold text-black mb-1">
                   CAPACITY
                 </label>
-                <input
-                  type="number"
-                  placeholder="Select Cap"
-                  className="text-gray-400 border-none bg-transparent focus:outline-none"
-                />
+                <select
+                  value={roomCap}
+                  onChange={(e) => setRoomCap(e.target.value)} 
+                  className="text-sm text-gray-400 border-none bg-transparent focus:outline-none"
+                >
+                  <option value="">Select Cap</option>
+                  {roomCapacity.map((capacity, index) => (
+                    <option key={index} value={capacity.roomCapacity}>
+                      {capacity.roomCapacity}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
