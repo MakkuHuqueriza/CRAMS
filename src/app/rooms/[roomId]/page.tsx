@@ -88,7 +88,11 @@ const RoomDetails = () => {
               </h1>
             </div>
 
+<<<<<<< HEAD
             <div className="flex items-center gap-4 text-muted-foreground text-[12px] md:text-sm">
+=======
+            <div className="flex items-center gap-4 text-muted-foreground text-sm">
+>>>>>>> 5b44428f8cb8f95a088f3f74fd6eaa696610bfea
               <div className="flex items-center gap-1">
                 <Building className="w-4 h-4" />
                 {room.floor}
