@@ -56,19 +56,19 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
       case "LECTURE ROOM/AUDITORIUM":
       case "LECTURE ROOM":
         return (
-          <BookOpen className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-4 h-4 text-primary-foreground" />
+          <BookOpen className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
         );
       case "DMPCS LABORATORY ROOM":
         return (
-          <Laptop className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-4 h-4 text-primary-foreground" />
+          <Laptop className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
         );
       case "DBSES LABORATORY ROOM":
         return (
-          <Beaker className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-4 h-4 text-primary-foreground" />
+          <Beaker className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
         );
       case "DFSC LABORATORY ROOM":
         return (
-          <ChefHat className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-4 h-4 text-primary-foreground" />
+          <ChefHat className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
         );
       default:
         return null;
@@ -108,7 +108,7 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
           />
 
           {/* Room Info Card */}
-          <div className="bg-white rounded-xl border-[1px] border-gray-200 p-6 space-y-4">
+          <div className="bg-white rounded-xl border-[1px] border-[#B9B9B9] p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <h1 className="text-2xl sm:text-3xl font-bold text-[#1b1b1b]">
                 {room.name}
@@ -120,6 +120,7 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
                 <Building className="w-4 h-4" />
                 {room.room_location}
               </div>
+              <span className="mx-[4px] mr-[6px]">|</span>
               <div className="flex items-center gap-1">
                 <Users className="w-4 h-4" />
                 {room.capacity}
@@ -132,8 +133,6 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
                 {room.room_type}
               </p>
             </div>
-            
-            <div className="border-[]"><hr></hr></div>
 
             <hr className="border-[1px] border-[#B9B9B9] rounded-md"></hr>
             <p className="text-sm text-gray-700 leading-relaxed mt-4 font-medium">
@@ -191,7 +190,7 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
 
           {/* Reserve Button */}
           <div className="flex justify-start">
-            <Button className="bg-[#274c77] text-white hover:bg-[#182657] px-6 py-2 rounded-2xl">
+            <Button className="bg-[#274c77] text-white text-[14px] hover:bg-[#182657] px-5 py-6 rounded-[30px]">
               Reserve Room
             </Button>
           </div>
