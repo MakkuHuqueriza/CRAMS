@@ -143,9 +143,7 @@ const AvailableRooms = () => {
               md:text-[12px] md:px-3 md:py-2 
               text-[11px] px-3 py-2"
             >
-              <Link href={`/reserve`}>
-              Reserve Now
-              </Link>
+              <Link href={`/reserve`}>Reserve Now</Link>
             </Button>
           </div>
         </div>
