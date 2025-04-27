@@ -1,5 +1,5 @@
 import Navbar from "@/app/components/Navbar";
-import AvailableRooms from "@/app/components/AvailableRooms";
+import AvailableRooms from "@/app/components/AvailableRooms/page";
 import { getUser } from "@/utils/supabase/server";
 
 export default async function HomePage() {
