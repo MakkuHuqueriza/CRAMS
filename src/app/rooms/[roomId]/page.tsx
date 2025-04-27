@@ -3,6 +3,7 @@
 import Navbar from "@/app/components/Navbar";
 import { useParams } from "next/navigation";
 import { roomData } from "@/app/roomData";
+import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +21,7 @@ const RoomDetails = () => {
   const roomId = params.roomId;
   const decodedRoomId =
     typeof roomId === "string" ? decodeURIComponent(roomId) : "";
-  const room = roomData.find((room) => room.name === decodedRoomId);
+  const room = roomData.find((room) => room.id === decodedRoomId);
 
   const getRoomIcon = (type: string) => {
     switch (type) {
@@ -68,13 +69,13 @@ const RoomDetails = () => {
             >
               Available Rooms
             </span>{" "}
-            &gt; {room.name}
+            &gt; {room.id}
           </p>
 
           {/* Room Image */}
           <Image
             src={room.image}
-            alt={room.name}
+            alt={room.id}
             width={900}
             height={500}
             className="rounded-xl object-cover w-full h-[300px] md:h-[400px]"
@@ -84,7 +85,7 @@ const RoomDetails = () => {
           <div className="bg-white rounded-xl border-[1px] border-[#B9B9B9] p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <h1 className="text-2xl sm:text-3xl font-bold text-[#1b1b1b]">
-                {room.name}
+                {room.id}
               </h1>
             </div>
 
@@ -134,7 +135,11 @@ const RoomDetails = () => {
           {/* Reserve Button */}
           <div className="flex justify-start">
             <Button className="bg-[#274c77] text-white text-[14px] hover:bg-[#182657] px-5 py-6 rounded-[30px]">
-              Reserve Room
+              <Link
+                href={`/rooms/${encodeURIComponent(room.id)}/reserve/page1`}
+              >
+                Reserve Room
+              </Link>
             </Button>
           </div>
         </div>

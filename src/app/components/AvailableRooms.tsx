@@ -66,7 +66,7 @@ const AvailableRooms = () => {
         <div className="flex-shrink-0 flex items-stretch">
           <Image
             src={room.image}
-            alt={room.name}
+            alt={room.id}
             width={315}
             height={315}
             className="rounded-lg object-cover w-full max-w-[280px] h-auto aspect-square md:w-[250px] md:h-[250px] lg:w-[315px] lg:h-[315px]"
@@ -76,7 +76,7 @@ const AvailableRooms = () => {
         <div className="flex flex-col justify-between flex-1">
           <div className="space-y-1">
             <h2 className="text-primary-foreground text-[30px] lg:text-[36px] md:text-[28px] font-bold mb-5 lg:mb-10 md:mb-5">
-              {room.name}
+              {room.id}
             </h2>
 
             <div className="flex items-center gap-2">
@@ -131,7 +131,7 @@ const AvailableRooms = () => {
               md:text-[11px] md:px-2 md:py-1 
               text-[11px] px-3 py-2"
             >
-              <Link href={`/rooms/${encodeURIComponent(room.name)}`}>
+              <Link href={`/rooms/${encodeURIComponent(room.id)}`}>
                 View Details
               </Link>
             </Button>
@@ -143,7 +143,11 @@ const AvailableRooms = () => {
               md:text-[12px] md:px-3 md:py-2 
               text-[11px] px-3 py-2"
             >
-              <Link href={`/reserve`}>Reserve Now</Link>
+              <Link
+                href={`/rooms/${encodeURIComponent(room.id)}/reserve/page1`}
+              >
+                Reserve Now
+              </Link>
             </Button>
           </div>
         </div>
