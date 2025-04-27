@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
@@ -95,7 +96,7 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
             >
               Available Rooms
             </span>{" "}
-            &gt; {room.name}
+            &gt; {room.id}
           </p>
 
           {/* Room Image */}
@@ -111,7 +112,7 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
           <div className="bg-white rounded-xl border-[1px] border-[#B9B9B9] p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <h1 className="text-2xl sm:text-3xl font-bold text-[#1b1b1b]">
-                {room.name}
+                {room.id}
               </h1>
             </div>
 
@@ -191,7 +192,11 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
           {/* Reserve Button */}
           <div className="flex justify-start">
             <Button className="bg-[#274c77] text-white text-[14px] hover:bg-[#182657] px-5 py-6 rounded-[30px]">
-              Reserve Room
+              <Link
+                href={`/rooms/${encodeURIComponent(room.id)}/reserve/page1`}
+              >
+                Reserve Room
+              </Link>
             </Button>
           </div>
         </div>
