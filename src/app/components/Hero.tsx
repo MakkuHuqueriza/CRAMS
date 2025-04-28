@@ -45,11 +45,9 @@ const Hero = () => {
 
   return (
     <section className="w-full bg-background relative">
-
       {/* Original Banner with Search Bar Integrated */}
       <div className="mx-auto px-4 h-full">
         <div className="grid grid-cols-1 md:grid-cols-2 h-[500px] rounded-xl overflow-hidden">
-
           {/* Left Side - Blue Background */}
           <div className="relative flex flex-col justify-center px-10">
             <div className="absolute inset-0 hero-bg-blue opacity-50"></div>
@@ -77,11 +75,10 @@ const Hero = () => {
           <div className="absolute bottom-10 left-0 right-0 px-8">
             <div className="bg-white shadow-lg rounded-lg p-4 mx-auto max-w-[1450px]">
               <div className="flex flex-wrap items-center justify-between gap-2">
-
                 {/* DATE PICKER */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <div className="flex items-start gap-4 p-2 rounded-md hover:bg-secondary cursor-pointer w-[250px]">
+                    <div className="flex items-start gap-4 p-2 rounded-md hover:bg-secondary cursor-pointer w-[270px]">
                       <div className="flex items-center justify-center w-10 h-10">
                         <CalendarIcon className="text-color-primary w-6 h-6" />
                       </div>
@@ -93,7 +90,9 @@ const Hero = () => {
                           className={`text-left ${dateRange?.from ? "text-black" : "text-gray-400"}`}
                         >
                           {dateRange?.from
-                            ? format(dateRange.from, "MM/dd/yyyy")
+                            ? dateRange.to
+                              ? `${format(dateRange.from, "MM/dd/yyyy")} - ${format(dateRange.to, "MM/dd/yyyy")}`
+                              : format(dateRange.from, "MM/dd/yyyy")
                             : "Select Date"}
                         </div>
                       </div>

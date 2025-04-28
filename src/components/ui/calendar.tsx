@@ -1,4 +1,3 @@
-/* Corrected and polished calendar.tsx */
 "use client";
 
 import * as React from "react";
@@ -34,16 +33,24 @@ export function Calendar({
           "h-9 w-9 text-center text-sm p-0 relative",
           "focus-within:relative focus-within:z-20",
         ),
-        day: "h-9 w-9 p-0 font-normal text-gray-800 hover:bg-blue-100 hover:text-blue-800 rounded-full",
-        day_selected:
-          "bg-blue-600 text-white hover:bg-blue-700 hover:text-white rounded-full",
-        day_today: "border border-blue-600 rounded-full",
+        day: cn(
+          "h-9 w-9 p-0 font-normal text-gray-800 rounded-full",
+          "hover:bg-gray-100 hover:text-gray-900", // Gray tint on hover
+          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+        ),
+        day_selected: cn(
+          "bg-blue-600 text-white hover:bg-blue-700", // Solid blue when selected
+          "focus:bg-blue-700",
+        ),
+        day_today: "border-2 border-blue-500 rounded-full", // Blue circle for current date
         day_outside: "text-muted opacity-50",
         day_disabled: "text-muted opacity-50",
         day_range_start: "bg-blue-600 text-white rounded-l-full",
-        day_range_middle: "bg-blue-100 text-blue-900",
+        day_range_middle: cn(
+          "bg-blue-100 text-blue-900", // Light blue for range middle
+          "hover:bg-blue-200",
+        ),
         day_range_end: "bg-blue-600 text-white rounded-r-full",
-
         ...classNames,
       }}
       components={{
@@ -77,11 +84,3 @@ export function Calendar({
     />
   );
 }
-
-/* 
-✅ Updates made:
-- Day hover and selected styles are now rounded and lighter.
-- Today's day now has a thin blue border (more subtle highlight).
-- Navigation buttons have better hover behavior.
-- General font and padding tweaks for cleaner UI.
-*/
