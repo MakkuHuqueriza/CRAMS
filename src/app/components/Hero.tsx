@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
+import { roomData } from "@/app/roomData";
 import { availableTime } from "@/app/searchElements";
 import { roomCapacity } from "@/app/searchElements";
 import "@/styles/globals.css";
@@ -27,7 +28,22 @@ const Hero = () => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");
+  const [isStartTimeOpen, setIsStartTimeOpen] = useState(false);
+  const [isEndTimeOpen, setIsEndTimeOpen] = useState(false);
+  const [isCapacityOpen, setIsCapacityOpen] = useState(false);
   const [roomCap, setRoomCap] = useState<string>("");
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
+  const [showAllRooms, setShowAllRooms] = useState(false);
+  const [isLocationOpen, setIsLocationOpen] = useState(false);
+
+  // Extract and sort room names numerically
+  const roomNames = roomData
+    .map((room) => room.name)
+    .sort(
+      (a, b) => parseInt(a.replace(/\D/g, "")) - parseInt(b.replace(/\D/g, "")),
+    );
+
+  const displayedRooms = showAllRooms ? roomNames : roomNames.slice(0, 6);
 
   return (
     <section className="w-full bg-background">
@@ -74,7 +90,7 @@ const Hero = () => {
                       DATE
                     </label>
                     <div
-                      className={`text-left min-w-[240px]
+                      className={`text-left min-w-[235px]
                         ${dateRange?.from && dateRange?.to ? "text-black" : "text-gray-400"}
                       `}
                     >
@@ -103,7 +119,7 @@ const Hero = () => {
             <div className="h-12 w-px bg-secondary" />
 
             {/* LOCATION PICKER */}
-            <div className="flex items-start gap-4">
+            <div className="relative flex items-start gap-4 p-2 rounded-md hover:bg-secondary cursor-pointer w-[200px]">
               <div className="flex items-center justify-center w-10 h-10">
                 <MapPin className="text-color-primary w-6 h-6" />
               </div>
@@ -111,11 +127,42 @@ const Hero = () => {
                 <label className="text-sm font-semibold text-black mb-1">
                   LOCATION
                 </label>
-                <input
-                  type="text"
-                  placeholder="Select Room"
-                  className="text-gray-400 border-none bg-transparent focus:outline-none"
-                />
+                <div
+                  onClick={() => setIsLocationOpen(!isLocationOpen)}
+                  className={`text-sm border-none bg-transparent focus:outline-none ${
+                    selectedRoom ? "text-black" : "text-gray-400"
+                  }`}
+                >
+                  {selectedRoom || "Select Room"}
+                </div>
+
+                {isLocationOpen && (
+                  <div className="absolute z-50 top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto w-48">
+                    {displayedRooms.map((room) => (
+                      <div
+                        key={room}
+                        onClick={() => {
+                          setSelectedRoom(room);
+                          setIsLocationOpen(false);
+                        }}
+                        className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                          selectedRoom === room ? "bg-blue-500 text-white" : ""
+                        }`}
+                      >
+                        {room}
+                      </div>
+                    ))}
+
+                    {!showAllRooms && roomNames.length > 6 && (
+                      <div
+                        onClick={() => setShowAllRooms(true)}
+                        className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-gray-500 border-t border-gray-200"
+                      >
+                        List More
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -123,7 +170,7 @@ const Hero = () => {
             <div className="h-12 w-px bg-secondary" />
 
             {/* START TIME PICKER */}
-            <div className="flex items-start gap-4">
+            <div className="relative flex items-start gap-4 p-2 rounded-md hover:bg-secondary cursor-pointer w-[200px]">
               <div className="flex items-center justify-center w-10 h-10">
                 <LogIn className="text-color-primary w-6 h-6" />
               </div>
@@ -131,18 +178,35 @@ const Hero = () => {
                 <label className="text-sm font-semibold text-black mb-1">
                   START TIME
                 </label>
-                <select
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  className="text-sm text-gray-400 border-none bg-transparent focus:outline-none"
+                <div
+                  onClick={() => setIsStartTimeOpen(!isStartTimeOpen)}
+                  className={`text-sm border-none bg-transparent focus:outline-none ${
+                    startTime ? "text-black" : "text-gray-400"
+                  }`}
                 >
-                  <option value="">Select Start Time</option>
-                  {availableTime.map((time, index) => (
-                    <option key={index} value={time.availableTime}>
-                      {time.availableTime}
-                    </option>
-                  ))}
-                </select>
+                  {startTime || "Select Start Time"}
+                </div>
+
+                {isStartTimeOpen && (
+                  <div className="absolute z-50 top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {availableTime.map((time) => (
+                      <div
+                        key={time.availableTime}
+                        onClick={() => {
+                          setStartTime(time.availableTime);
+                          setIsStartTimeOpen(false);
+                        }}
+                        className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                          startTime === time.availableTime
+                            ? "bg-blue-500 text-white"
+                            : ""
+                        }`}
+                      >
+                        {time.availableTime}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -150,7 +214,7 @@ const Hero = () => {
             <div className="h-12 w-px bg-secondary" />
 
             {/* END TIME PICKER */}
-            <div className="flex items-start gap-4">
+            <div className="relative flex items-start gap-4 p-2 rounded-md hover:bg-secondary cursor-pointer w-[200px]">
               <div className="flex items-center justify-center w-10 h-10">
                 <LogOut className="text-color-primary w-6 h-6" />
               </div>
@@ -158,18 +222,35 @@ const Hero = () => {
                 <label className="text-sm font-semibold text-black mb-1">
                   END TIME
                 </label>
-                <select
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                  className="text-sm text-gray-400 border-none bg-transparent focus:outline-none"
+                <div
+                  onClick={() => setIsEndTimeOpen(!isEndTimeOpen)}
+                  className={`text-sm border-none bg-transparent focus:outline-none ${
+                    endTime ? "text-black" : "text-gray-400"
+                  }`}
                 >
-                  <option value="">Select End Time</option>
-                  {availableTime.map((time, index) => (
-                    <option key={index} value={time.availableTime}>
-                      {time.availableTime}
-                    </option>
-                  ))}
-                </select>
+                  {endTime || "Select End Time"}
+                </div>
+
+                {isEndTimeOpen && (
+                  <div className="absolute z-50 top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {availableTime.map((time) => (
+                      <div
+                        key={time.availableTime}
+                        onClick={() => {
+                          setEndTime(time.availableTime);
+                          setIsEndTimeOpen(false);
+                        }}
+                        className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                          endTime === time.availableTime
+                            ? "bg-blue-500 text-white"
+                            : ""
+                        }`}
+                      >
+                        {time.availableTime}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -177,7 +258,7 @@ const Hero = () => {
             <div className="h-12 w-px bg-secondary" />
 
             {/* CAPACITY PICKER */}
-            <div className="flex items-start gap-4">
+            <div className="relative flex items-start gap-4 p-2 rounded-md hover:bg-secondary cursor-pointer w-[200px]">
               <div className="flex items-center justify-center w-10 h-10">
                 <Users className="text-color-primary w-6 h-6" />
               </div>
@@ -185,18 +266,35 @@ const Hero = () => {
                 <label className="text-sm font-semibold text-black mb-1">
                   CAPACITY
                 </label>
-                <select
-                  value={roomCap}
-                  onChange={(e) => setRoomCap(e.target.value)} 
-                  className="text-sm text-gray-400 border-none bg-transparent focus:outline-none"
+                <div
+                  onClick={() => setIsCapacityOpen(!isCapacityOpen)}
+                  className={`text-sm border-none bg-transparent focus:outline-none ${
+                    roomCap ? "text-black" : "text-gray-400"
+                  }`}
                 >
-                  <option value="">Select Cap</option>
-                  {roomCapacity.map((capacity, index) => (
-                    <option key={index} value={capacity.roomCapacity}>
-                      {capacity.roomCapacity}
-                    </option>
-                  ))}
-                </select>
+                  {roomCap || "Select Cap"}
+                </div>
+
+                {isCapacityOpen && (
+                  <div className="absolute z-50 top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {roomCapacity.map((capacity) => (
+                      <div
+                        key={capacity.roomCapacity}
+                        onClick={() => {
+                          setRoomCap(capacity.roomCapacity);
+                          setIsCapacityOpen(false);
+                        }}
+                        className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                          roomCap === capacity.roomCapacity
+                            ? "bg-blue-500 text-white"
+                            : ""
+                        }`}
+                      >
+                        {capacity.roomCapacity}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
