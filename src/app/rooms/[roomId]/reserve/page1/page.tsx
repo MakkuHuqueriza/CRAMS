@@ -64,32 +64,95 @@ const ReservationDetails = () => {
               <p className="text-sm px-10 py-2">
                 We will use these details for your reservation information.
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-10">
-                <input
-                  type="text"
-                  placeholder="Contact Name"
-                  className="border rounded p-2 w-full"
-                />
-                <input
-                  type="email"
-                  placeholder="Email Address"
-                  className="border rounded p-2 w-full"
-                />
-                <input
-                  type="text"
-                  placeholder="Contact Number"
-                  className="border rounded p-2 w-full"
-                />
-                <input
-                  type="text"
-                  placeholder="Role"
-                  className="border rounded p-2 w-full"
-                />
-                <input
-                  type="text"
-                  placeholder="Course/Department/Organization"
-                  className="border rounded p-2 w-full"
-                />
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 px-10">
+                {/* Contact Name */}
+                <div>
+                  <label className="text-[16px] font-medium">
+                    Contact Name
+                  </label>
+                  <input
+                    type="text"
+                    className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] w-full"
+                  />
+                  <p className="text-[12px] text-gray-400 mt-[2px]">
+                    Enter your name (First name, Last name)
+                  </p>
+                </div>
+
+                {/* Email Address */}
+                <div>
+                  <label className="text-[16px] font-medium">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] w-full"
+                  />
+                  <p className="text-[12px] text-gray-400 mt-[2px]">
+                    Enter your email address
+                  </p>
+                </div>
+              </div>
+
+              {/* Contact Number, Role, and Course/Department/Organization */}
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 px-10">
+                {/* Left Column: Contact Number and Role */}
+                <div className="grid grid-cols-2 gap-x-4">
+                  {/* Contact Number */}
+                  <div>
+                    <label className="text-[16px] font-medium">
+                      Contact Number
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value="+63"
+                        readOnly
+                        className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] w-[70px] bg-gray-100 text-center"
+                      />
+                      <input
+                        type="text"
+                        className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] w-full"
+                      />
+                    </div>
+                    <p className="text-[12px] text-gray-400 mt-[2px]">
+                      Enter your contact number
+                    </p>
+                  </div>
+
+                  {/* Role */}
+                  <div>
+                    <label className="text-[16px] font-medium">Role</label>
+                    <select
+                      className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] w-full"
+                      defaultValue=""
+                    >
+                      <option value="" disabled>
+                        Select your role
+                      </option>
+                      <option value="Student">Student</option>
+                      <option value="Faculty">Faculty</option>
+                    </select>
+                    <p className="text-[12px] text-gray-400 mt-[2px]">
+                      Select your role
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right Column: Course/Department/Organization */}
+                <div>
+                  <label className="text-[16px] font-medium">
+                    Course/Department/Organization
+                  </label>
+                  <input
+                    type="text"
+                    className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] w-full"
+                  />
+                  <p className="text-[12px] text-gray-400 mt-[2px]">
+                    Enter your current affiliation (e.g., if Student, enter your
+                    course)
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -160,7 +223,7 @@ const ReservationDetails = () => {
                       value={selectedOption} // Controlled value
                       onChange={(e) => setSelectedOption(e.target.value)} // Update state on change
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Select an option
                       </option>
                       <option value="Event">Event</option>
@@ -194,14 +257,14 @@ const ReservationDetails = () => {
                     <input
                       type="checkbox"
                       id="othersCheckbox"
-                      className="border rounded p-2"
+                      className="p-[1px]"
                       onChange={(e) => setOthersInputEnabled(e.target.checked)}
                     />
                     <span>Others/Purpose:</span>
                     <input
                       type="text"
                       placeholder=""
-                      className="border-[1px] border-[#B9B9B9] rounded-sm py-[1px] w-full max-w-[300px]"
+                      className="border-[1px] border-[#B9B9B9] rounded-sm py-[1px] w-full max-w-[300px] text-sm"
                       disabled={!othersInputEnabled}
                     />
                   </label>
