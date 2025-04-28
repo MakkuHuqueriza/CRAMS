@@ -54,8 +54,8 @@ export default function ResetPasswordPage() {
         className="flex flex-col items-center gap-4"
       >
         <input
-          id="email"
           type="email"
+          name="email"
           placeholder="Enter your email"
           className="bg-[#f5f9fc] border-[1px] border-[#B9B9B9] rounded-md p-1 md:p-3 w-full sm:w-[70%] md:w-[21rem] text-sm"
         />

@@ -20,8 +20,8 @@ export const adminLoginAction = async (FormData: FormData) => {
 
   const { data: adminData, error: adminError } = await supabase
     .from("admin")
-    .select("id")
-    .eq("id", data.user?.id)
+    .select("admin_id")
+    .eq("admin_id", data.user?.id)
     .single();
 
   if (adminError) {

@@ -115,7 +115,7 @@ export default function LoginPage() {
           onClick={handleGoogleSignIn}
           className="bg-primary text-black border-[3px] text-[12px] sm:text-[13px] lg:text-[16px] border-[#9BB2FC] px-6 sm:px-8 py-[4px] rounded-[50px] w-[80%] sm:w-[70%] md:w-[65%] max-w-[300px] mb-4 transition hover:scale-[103%]"
         >
-          Log in using Google
+          Continue with Google
         </button>
         <button
           onClick={() => router.push("/signup")} // Navigate to signup page
