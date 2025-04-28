@@ -53,8 +53,8 @@ export async function updateSession(request: NextRequest) {
 
   if (
     user &&
-    request.nextUrl.pathname.startsWith("/login") &&
-    request.nextUrl.pathname.startsWith("/signup")
+    (request.nextUrl.pathname.startsWith("/login") ||
+      request.nextUrl.pathname.startsWith("/signup"))
   ) {
     // user is logged in, potentially respond by redirecting the user to the home page
     const url = request.nextUrl.clone();
@@ -64,8 +64,8 @@ export async function updateSession(request: NextRequest) {
 
   const { data: isAdmin } = await supabase
     .from("admin")
-    .select("id")
-    .eq("id", user?.id)
+    .select("admin_id")
+    .eq("admin_id", user?.id)
     .single();
 
   if (user && !isAdmin && request.nextUrl.pathname.startsWith("/admin")) {

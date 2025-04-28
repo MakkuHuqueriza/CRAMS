@@ -1,11 +1,11 @@
 import Navbar from "@/app/components/Navbar";
-// import { Carousel } from './components/Carousel';
+import AvailableRooms from "@/app/components/AvailableRooms";
 
 export default function HomePage() {
   return (
     <main>
       <Navbar />
-      {/* <Carousel /> */}
+      <AvailableRooms />
     </main>
   );
 }
