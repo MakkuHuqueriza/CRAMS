@@ -124,12 +124,12 @@ const Hero = () => {
                 <MapPin className="text-color-primary w-6 h-6" />
               </div>
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-black mb-1">
+                <label className="text-base font-medium text-black mb-1">
                   LOCATION
                 </label>
                 <div
                   onClick={() => setIsLocationOpen(!isLocationOpen)}
-                  className={`text-sm border-none bg-transparent focus:outline-none ${
+                  className={`text-base border-none bg-transparent focus:outline-none ${
                     selectedRoom ? "text-black" : "text-gray-400"
                   }`}
                 >
@@ -175,12 +175,12 @@ const Hero = () => {
                 <LogIn className="text-color-primary w-6 h-6" />
               </div>
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-black mb-1">
+                <label className="text-base font-medium text-black mb-1">
                   START TIME
                 </label>
                 <div
                   onClick={() => setIsStartTimeOpen(!isStartTimeOpen)}
-                  className={`text-sm border-none bg-transparent focus:outline-none ${
+                  className={`text-base border-none bg-transparent focus:outline-none w-[180px] ${
                     startTime ? "text-black" : "text-gray-400"
                   }`}
                 >
@@ -219,12 +219,12 @@ const Hero = () => {
                 <LogOut className="text-color-primary w-6 h-6" />
               </div>
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-black mb-1">
+                <label className="text-base font-medium text-black mb-1">
                   END TIME
                 </label>
                 <div
                   onClick={() => setIsEndTimeOpen(!isEndTimeOpen)}
-                  className={`text-sm border-none bg-transparent focus:outline-none ${
+                  className={`text-base border-none bg-transparent focus:outline-none w-[180px] ${
                     endTime ? "text-black" : "text-gray-400"
                   }`}
                 >
@@ -263,12 +263,12 @@ const Hero = () => {
                 <Users className="text-color-primary w-6 h-6" />
               </div>
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-black mb-1">
+                <label className="text-base font-medium text-black mb-1">
                   CAPACITY
                 </label>
                 <div
                   onClick={() => setIsCapacityOpen(!isCapacityOpen)}
-                  className={`text-sm border-none bg-transparent focus:outline-none ${
+                  className={`text-base border-none bg-transparent focus:outline-none ${
                     roomCap ? "text-black" : "text-gray-400"
                   }`}
                 >
