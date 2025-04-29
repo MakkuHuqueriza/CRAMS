@@ -6,7 +6,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Facebook, Linkedin, Twitter } from "lucide-react"
+import { Facebook, Linkedin, X } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function ContactPage() {
@@ -158,7 +158,7 @@ export default function ContactPage() {
                       <Linkedin className="h-4 w-4" />
                     </Button>
                     <Button variant="outline" size="icon" className="h-8 w-8 bg-blue-800 text-white hover:bg-blue-900">
-                      <Twitter className="h-4 w-4" />
+                      <X className="h-4 w-4" />
                     </Button>
                     <Button variant="outline" size="icon" className="h-8 w-8 bg-blue-800 text-white hover:bg-blue-900">
                       <Facebook className="h-4 w-4" />
