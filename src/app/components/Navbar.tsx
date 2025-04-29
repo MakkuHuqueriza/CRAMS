@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+
 import Image from "next/image";
 import Link from "next/link";
 import { List, LogOut } from "lucide-react";
@@ -11,7 +11,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { logoutAction } from "@/actions/users";
 
-const Navbar = () => {
+interface NavbarProps {
+  name?: string;
+  avatar_url?: string;
+  email?: string;
+}
+
+const Navbar = (props: NavbarProps) => {
   return (
     <nav className="bg-primary">
       <div className="w-full px-4 sm:px-0 lg:pr-0">
@@ -38,15 +44,24 @@ const Navbar = () => {
                 className="relative h-auto border border-gray-200 px-1 md:pr-10 py-[3px] flex items-center justify-center gap-2 
                   rounded-full sm:rounded-l-[50px] sm:rounded-r-none"
               >
-                <Image
-                  src="/profile_placeholder.svg"
-                  alt="User Profile"
-                  width={42}
-                  height={42}
-                  className="rounded-full"
-                />
+                {props.name ? (
+                  <Image
+                    src={props.avatar_url || ""}
+                    alt="User Profile"
+                    width={42}
+                    height={42}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <div className="rounded-full w-[42] h-[42] flex items-center justify-center bg-[#274c77]">
+                    <p className="text-lg font-bold text-white">
+                      {props.email ? props.email.charAt(0).toUpperCase() : ""}
+                    </p>
+                  </div>
+                )}
+
                 <span className="hidden sm:inline text-secondary-foreground">
-                  Makku Kuma
+                  {props.name || (props.email ? props.email.split("@")[0] : "")}
                 </span>
               </Button>
             </PopoverTrigger>
