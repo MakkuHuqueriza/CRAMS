@@ -19,8 +19,8 @@ export default function Confirmation() {
         </div>
         <p className="text-[36px] font-medium text-center px-10 leading-tight py-4">
           You will be notified{" "}
-          <span className="text-red-900 font-semibold">through email</span> when
-          an admin reviews your request.
+          <span className="text-[#780D29] font-semibold">through email</span>{" "}
+          when an admin reviews your request.
         </p>
 
         <Link href="/components/AvailableRooms">
