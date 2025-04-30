@@ -1,7 +1,7 @@
 import Navbar from "@/app/components/Navbar";
 import AvailableRooms from "@/app/components/AvailableRooms";
-import { getUser } from "@/utils/supabase/server";
 import Hero from "@/app/components/Hero";
+import { getUser } from "@/utils/supabase/server";
 // import { Carousel } from './components/Carousel';
 
 export default async function HomePage() {
