@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Navbar from "@/app/components/Navbar";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -158,8 +157,6 @@ const AvailableRooms = () => {
 
   return (
     <>
-      <Navbar />
-
       <section className="flex justify-center py-12">
         <div className="w-full rounded-xl shadow-lg bg-primary">
           <div className="bg-primary w-[75%] max-w-6xl mx-auto py-10 border-b border-muted">
