@@ -97,25 +97,25 @@ const ReservationDetails = () => {
               {/* Contact Number, Role, and Course/Department/Organization */}
               <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 px-10">
                 {/* Left Column: Contact Number and Role */}
-                <div className="grid grid-cols-2 gap-x-4">
+                <div className="grid grid-cols-2 gap-x-[140px]">
                   {/* Contact Number */}
                   <div>
                     <label className="text-[16px] font-medium">
                       Contact Number
                     </label>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       <input
                         type="text"
                         value="+63"
                         readOnly
-                        className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] w-[70px] bg-gray-100 text-center"
+                        className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] w-[65px] bg-gray-100 text-center"
                       />
                       <input
                         type="text"
-                        className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] w-full"
+                        className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] w-[200px]"
                       />
                     </div>
-                    <p className="text-[12px] text-gray-400 mt-[2px]">
+                    <p className="text-[12px] text-gray-400 mt-[2px] w-[200px]">
                       Enter your contact number
                     </p>
                   </div>
@@ -124,11 +124,11 @@ const ReservationDetails = () => {
                   <div>
                     <label className="text-[16px] font-medium">Role</label>
                     <select
-                      className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] w-full"
+                      className="border-[1px] border-[#B9B9B9] rounded-md p-[2px] w-full"
                       defaultValue=""
                     >
                       <option value="" disabled>
-                        Select your role
+                        Select
                       </option>
                       <option value="Student">Student</option>
                       <option value="Faculty">Faculty</option>
@@ -167,13 +167,23 @@ const ReservationDetails = () => {
                 Ensure the information displayed is correct.
               </p>
               <div className="border-[#B9B9B9] border-[1px] px-12 py-8 rounded-lg max-w-4xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-[4px]">
-                  <input
-                    type="text"
-                    value={room?.id || ""}
-                    readOnly
-                    className="border rounded p-2 w-full bg-gray-100"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-[4px]">
+                  <div>
+                    <label className="text-[16px] font-medium">
+                      Room to Reserve
+                    </label>
+                    <div>
+                      <input
+                        type="text"
+                        value={room?.id || ""}
+                        readOnly
+                        className="border rounded p-2 w-full bg-gray-100"
+                      />
+                    </div>
+                  </div>
+                  <label className="text-[16px] font-medium">
+                    Location/Building
+                  </label>
                   <input
                     type="text"
                     value={room?.floor || ""}
@@ -277,7 +287,7 @@ const ReservationDetails = () => {
               <Link href={`/components/AvailableRooms`}>
                 <button
                   type="button"
-                  className="bg-red-500 text-white font-medium px-4 py-[10px] rounded-[50px]"
+                  className="bg-[#780D29] text-white font-medium px-4 py-[10px] rounded-[50px]"
                 >
                   Cancel
                 </button>
@@ -285,7 +295,7 @@ const ReservationDetails = () => {
               <Link href={`/rooms/${roomId}/reserve/page2`}>
                 <button
                   type="button"
-                  className="bg-blue-500 text-white font-medium px-4 py-[10px] rounded-[50px]"
+                  className="bg-[#274C77] text-white font-medium px-4 py-[10px] rounded-[50px]"
                 >
                   Submit for Approval
                 </button>

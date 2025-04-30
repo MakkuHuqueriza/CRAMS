@@ -87,7 +87,7 @@ export default function ReservationSummary() {
               <Link href={`/rooms/${roomId}/reserve/page1`}>
                 <button
                   type="button"
-                  className="bg-red-500 text-white font-medium px-4 py-[10px] rounded-[50px]"
+                  className="bg-[#780D29] text-white font-medium px-4 py-[10px] rounded-[50px]"
                 >
                   Edit Details
                 </button>
@@ -95,7 +95,7 @@ export default function ReservationSummary() {
               <Link href={`/rooms/${roomId}/reserve/page3`}>
                 <button
                   type="button"
-                  className="bg-blue-500 text-white font-medium px-4 py-[10px] rounded-[50px]"
+                  className="bg-[#274C77] text-white font-medium px-4 py-[10px] rounded-[50px]"
                 >
                   Confirm Details
                 </button>
