@@ -53,7 +53,7 @@ const Hero = () => {
             <div className="absolute inset-0 hero-bg-blue opacity-50"></div>
             <div className="relative z-10">
               <h1 className="text-4xl md:text-5xl font-bold dark-blue-text mb-2">
-                don't stress, <br /> just CRAMS.
+                don&apos;t stress, <br /> just CRAMS.
               </h1>
               <p className="text-primary-foreground text-lg">
                 Classroom reservations made simple!
