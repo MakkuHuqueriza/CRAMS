@@ -20,6 +20,9 @@ const ReservationDetails = () => {
     role?: string;
     course?: string;
     time?: string;
+    type?: string;
+    dateOfReservation?: string;
+    natureOfWork?: string;
   }
 
   const [formErrors, setFormErrors] = useState<FormErrors>({});
@@ -81,20 +84,58 @@ const ReservationDetails = () => {
     }
 
     // Validate Start and End Times
-    const startHour = parseInt(startTime.split(":")[0], 10);
-    const endHour = parseInt(endTime.split(":")[0], 10);
-    const startMinutes = parseInt(startTime.split(":")[1], 10);
-    const endMinutes = parseInt(endTime.split(":")[1], 10);
-
     if (!startTime || !endTime) {
       errors.time = "Start Time and End Time are required.";
-    } else if (
-      startHour < 7 ||
-      (startHour === 7 && startMinutes < 0) ||
-      endHour > 7 + 12 ||
-      (endHour === 7 + 12 && endMinutes > 0)
-    ) {
-      errors.time = "Time must be between 7:00 AM and 7:00 PM.";
+    } else {
+      const startHour = parseInt(startTime.split(":")[0], 10);
+      const endHour = parseInt(endTime.split(":")[0], 10);
+      const startMinutes = parseInt(startTime.split(":")[1], 10);
+      const endMinutes = parseInt(endTime.split(":")[1], 10);
+
+      const startTotalMinutes =
+        startHour * 60 +
+        startMinutes +
+        (startPeriod === "PM" && startHour !== 12 ? 720 : 0);
+      const endTotalMinutes =
+        endHour * 60 +
+        endMinutes +
+        (endPeriod === "PM" && endHour !== 12 ? 720 : 0);
+
+      const minTime = 7 * 60; // 7:00 AM in minutes
+      const maxTime = 19 * 60; // 7:00 PM in minutes
+
+      if (startTotalMinutes < minTime || startTotalMinutes > maxTime) {
+        errors.time = "Start Time must be between 7:00 AM and 7:00 PM.";
+      }
+      if (endTotalMinutes < minTime || endTotalMinutes > maxTime) {
+        errors.time = "End Time must be between 7:00 AM and 7:00 PM.";
+      }
+      if (startTotalMinutes >= endTotalMinutes) {
+        errors.time = "End Time must be after Start Time.";
+      }
+    }
+
+    // Validate Job Order Section
+    const type = document.querySelector(
+      'input[type="text"][placeholder="Type of Reservation – Event, Seminar, etc"]',
+    ) as HTMLInputElement;
+    if (!type?.value.trim()) {
+      errors.type = "Type of Reservation is required.";
+    }
+
+    const dateOfReservation = document.querySelector(
+      'input[type="date"]',
+    ) as HTMLInputElement;
+    if (!dateOfReservation?.value.trim()) {
+      errors.dateOfReservation = "Date of Reservation is required.";
+    }
+
+    // Validate Nature of Work Checkboxes
+    const checkboxes = document.querySelectorAll(
+      'input[type="checkbox"]:checked',
+    );
+    if (checkboxes.length === 0) {
+      errors.natureOfWork = "At least one checkbox must be selected.";
     }
 
     setFormErrors(errors);
@@ -105,6 +146,8 @@ const ReservationDetails = () => {
     e.preventDefault();
     if (validateForm()) {
       alert("Form submitted successfully!");
+      // Navigate to the next page
+      window.location.href = `/rooms/${room?.id}/reserve/page2`;
     }
   };
 
@@ -322,10 +365,11 @@ const ReservationDetails = () => {
                     <input
                       type="text"
                       className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-full"
+                      placeholder="Type of Reservation – Event, Seminar, etc"
                     />
-                    <p className="text-[12px] text-gray-400 mt-[2px]">
-                      Type of Reservation – Event, Seminar, etc
-                    </p>
+                    {formErrors.type && (
+                      <p className="text-red-500 text-sm">{formErrors.type}</p>
+                    )}
                   </div>
                   <div>
                     <label className="text-sm font-medium block mb-1">
@@ -335,9 +379,14 @@ const ReservationDetails = () => {
                       type="date"
                       className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-[180px]"
                     />
+                    {formErrors.dateOfReservation && (
+                      <p className="text-red-500 text-sm">
+                        {formErrors.dateOfReservation}
+                      </p>
+                    )}
                   </div>
                   {/* Time Section in a Box */}
-                  <div className="md:col-span-2 grid md:grid-cols-2">
+                  <div className="md:col-span-2">
                     <div className="border border-gray-300 rounded p-2 px-3 justify-center flex flex-col md:flex-row gap-x-4">
                       {/* Start Time */}
                       <div className="flex flex-col w-full md:w-1/2">
@@ -407,6 +456,12 @@ const ReservationDetails = () => {
                         </div>
                       </div>
                     </div>
+                    {/* Error Message Below the Gray Box */}
+                    {formErrors.time && (
+                      <p className="text-red-500 text-sm mt-2">
+                        {formErrors.time}
+                      </p>
+                    )}
                   </div>
                 </div>
               </fieldset>
@@ -479,6 +534,11 @@ const ReservationDetails = () => {
                     />
                   </label>
                 </div>
+                {formErrors.natureOfWork && (
+                  <p className="text-red-500 text-sm">
+                    {formErrors.natureOfWork}
+                  </p>
+                )}
               </fieldset>
             </div>
 
