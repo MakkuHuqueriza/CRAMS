@@ -87,3 +87,19 @@ export const updatePasswordAction = async (FormData: FormData) => {
     return handleError(error);
   }
 };
+
+export const getAllRooms = async () => {
+
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("room")
+    .select("*")
+    .order("name", { ascending: true });
+  
+  if (error) {
+    return handleError(error);
+  }
+  return data;
+
+}
