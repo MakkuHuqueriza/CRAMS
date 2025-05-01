@@ -41,6 +41,8 @@ export default function LoginPage() {
         <Image
           src="/CRAMS_white_logo.svg"
           alt="CRAMS Logo"
+          width={200}
+          height={100}
           className="block md:hidden max-w-[50%] h-auto absolute top-4 left-1/2 transform -translate-x-1/2"
         />
         {/* Desktop Logo */}
@@ -48,6 +50,8 @@ export default function LoginPage() {
           <Image
             src="/CRAMS_full_logo.png"
             alt="CRAMS Logo"
+            width={400}
+            height={200}
             className="max-w-[50%] md:max-w-[55%] xl:max-w-[70%] h-auto mx-auto mb-2"
           />
           <h1 className="text-[40px] md:text-[80px] lg:text-[110px] xl:text-[140px] font-semibold leading-none tracking-wide">
