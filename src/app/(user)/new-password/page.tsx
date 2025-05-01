@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updatePasswordAction } from "@/actions/users";
+import Image from "next/image";
 
 function NewPasswordPage() {
   const router = useRouter(); // Initialize router
@@ -39,7 +40,7 @@ function NewPasswordPage() {
   return (
     <div className="flex flex-col items-center gap-4 p-8">
       <div className="flex justify-start items-left text-left mb-2">
-        <img
+        <Image
           src="/CRAMS_logo.svg"
           alt="CRAMS Logo"
           className="max-w-[50%] md:max-w-[55%] xl:max-w-[20%] h-auto"
