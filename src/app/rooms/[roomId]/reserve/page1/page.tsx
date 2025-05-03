@@ -13,16 +13,18 @@ const ReservationDetails = () => {
   const [startPeriod, setStartPeriod] = useState("AM");
   const [endTime, setEndTime] = useState("");
   const [endPeriod, setEndPeriod] = useState("AM");
+  const [selectedCheckbox, setSelectedCheckbox] = useState<string | null>(null);
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
   interface FormErrors {
-    contactName?: string;
-    email?: string;
-    contactNumber?: string;
-    role?: string;
-    course?: string;
-    time?: string;
-    type?: string;
-    dateOfReservation?: string;
-    natureOfWork?: string;
+    contactName?: boolean;
+    email?: boolean;
+    contactNumber?: boolean;
+    role?: boolean;
+    course?: boolean;
+    time?: boolean;
+    type?: boolean;
+    dateOfReservation?: boolean;
+    natureOfWork?: boolean;
   }
 
   const [formErrors, setFormErrors] = useState<FormErrors>({});
@@ -43,13 +45,19 @@ const ReservationDetails = () => {
 
   const validateForm = () => {
     const errors: FormErrors = {};
+    let hasErrors = false;
+
+    // Reset errors
+    setFormErrors({});
+    setErrorMessages([]);
 
     // Validate Contact Name
     const contactName = document.querySelector(
       'input[type="text"][placeholder="Enter your name"]',
     ) as HTMLInputElement;
     if (!contactName?.value.trim()) {
-      errors.contactName = "Contact Name is required.";
+      errors.contactName = true;
+      hasErrors = true;
     }
 
     // Validate Email Address
@@ -57,9 +65,11 @@ const ReservationDetails = () => {
       'input[type="email"]',
     ) as HTMLInputElement;
     if (!email?.value.trim()) {
-      errors.email = "Email Address is required.";
+      errors.email = true;
+      hasErrors = true;
     } else if (!/\S+@\S+\.\S+/.test(email.value)) {
-      errors.email = "Invalid email address.";
+      errors.email = true;
+      hasErrors = true;
     }
 
     // Validate Contact Number
@@ -67,12 +77,14 @@ const ReservationDetails = () => {
       'input[type="text"][placeholder="Enter your number"]',
     ) as HTMLInputElement;
     if (!contactNumber?.value.trim()) {
-      errors.contactNumber = "Contact Number is required.";
+      errors.contactNumber = true;
+      hasErrors = true;
     }
 
     // Validate Role
     if (!selectedOption) {
-      errors.role = "Role is required.";
+      errors.role = true;
+      hasErrors = true;
     }
 
     // Validate Course/Department/Organization
@@ -80,39 +92,14 @@ const ReservationDetails = () => {
       'input[type="text"][placeholder="Enter your current affiliation"]',
     ) as HTMLInputElement;
     if (!course?.value.trim()) {
-      errors.course = "Course/Department/Organization is required.";
+      errors.course = true;
+      hasErrors = true;
     }
 
     // Validate Start and End Times
     if (!startTime || !endTime) {
-      errors.time = "Start Time and End Time are required.";
-    } else {
-      const startHour = parseInt(startTime.split(":")[0], 10);
-      const endHour = parseInt(endTime.split(":")[0], 10);
-      const startMinutes = parseInt(startTime.split(":")[1], 10);
-      const endMinutes = parseInt(endTime.split(":")[1], 10);
-
-      const startTotalMinutes =
-        startHour * 60 +
-        startMinutes +
-        (startPeriod === "PM" && startHour !== 12 ? 720 : 0);
-      const endTotalMinutes =
-        endHour * 60 +
-        endMinutes +
-        (endPeriod === "PM" && endHour !== 12 ? 720 : 0);
-
-      const minTime = 7 * 60; // 7:00 AM in minutes
-      const maxTime = 19 * 60; // 7:00 PM in minutes
-
-      if (startTotalMinutes < minTime || startTotalMinutes > maxTime) {
-        errors.time = "Start Time must be between 7:00 AM and 7:00 PM.";
-      }
-      if (endTotalMinutes < minTime || endTotalMinutes > maxTime) {
-        errors.time = "End Time must be between 7:00 AM and 7:00 PM.";
-      }
-      if (startTotalMinutes >= endTotalMinutes) {
-        errors.time = "End Time must be after Start Time.";
-      }
+      errors.time = true;
+      hasErrors = true;
     }
 
     // Validate Job Order Section
@@ -120,34 +107,41 @@ const ReservationDetails = () => {
       'input[type="text"][placeholder="Type of Reservation – Event, Seminar, etc"]',
     ) as HTMLInputElement;
     if (!type?.value.trim()) {
-      errors.type = "Type of Reservation is required.";
+      errors.type = true;
+      hasErrors = true;
     }
 
     const dateOfReservation = document.querySelector(
       'input[type="date"]',
     ) as HTMLInputElement;
     if (!dateOfReservation?.value.trim()) {
-      errors.dateOfReservation = "Date of Reservation is required.";
+      errors.dateOfReservation = true;
+      hasErrors = true;
     }
 
     // Validate Nature of Work Checkboxes
-    const checkboxes = document.querySelectorAll(
-      'input[type="checkbox"]:checked',
-    );
-    if (checkboxes.length === 0) {
-      errors.natureOfWork = "At least one checkbox must be selected.";
+    if (!selectedCheckbox) {
+      errors.natureOfWork = true;
+      hasErrors = true;
     }
 
+    // Set errors and error messages
     setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+    setErrorMessages(
+      hasErrors
+        ? ["Insufficient information, please fill up the form properly."]
+        : [],
+    );
+
+    return !hasErrors;
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent the default form submission behavior
+
     if (validateForm()) {
-      alert("Form submitted successfully!");
-      // Navigate to the next page
-      window.location.href = `/rooms/${room?.id}/reserve/page2`;
+      // If the form is valid, navigate to the next page
+      window.location.href = `/rooms/${encodeURIComponent(room?.id)}/reserve/page2`;
     }
   };
 
@@ -206,7 +200,14 @@ const ReservationDetails = () => {
             className="flex flex-col items-center gap-6 px-5"
             onSubmit={handleSubmit}
           >
-            <div className="border-[#B9B9B9] border-[1px] rounded-lg p-2 pl-6 w-full max-w-5xl">
+            {/* Error Messages Box */}
+            {errorMessages.length > 0 && (
+              <div className="bg-red-100 border border-red-500 text-red-700 text-sm w-full px-4 py-2 rounded mb-2">
+                <p>{errorMessages[0]}</p>
+              </div>
+            )}
+
+            <div className="border-[#B9B9B9] border-[1px] my-[-10px] rounded-lg p-2 pl-6 w-full max-w-5xl">
               <h1 className="text-[32px] font-bold text-[#274c77]">
                 Reservation Details
               </h1>
@@ -225,31 +226,34 @@ const ReservationDetails = () => {
                 <div>
                   <label className="text-[16px] font-medium">
                     Contact Name
+                    {formErrors.contactName && (
+                      <span className="text-red-500 ml-1">*</span>
+                    )}
                   </label>
                   <input
                     type="text"
-                    placeholder="Enter your name"
                     className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-full"
                   />
-                  {formErrors.contactName && (
-                    <p className="text-red-500 text-sm">
-                      {formErrors.contactName}
-                    </p>
-                  )}
+                  <p className="text-[13px] text-gray-500 pt-[2px]">
+                    Enter your name (First Name, Last Name)
+                  </p>
                 </div>
 
                 {/* Email Address */}
                 <div>
                   <label className="text-[16px] font-medium">
                     Email Address
+                    {formErrors.email && (
+                      <span className="text-red-500 ml-1">*</span>
+                    )}
                   </label>
                   <input
                     type="email"
                     className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-full"
                   />
-                  {formErrors.email && (
-                    <p className="text-red-500 text-sm">{formErrors.email}</p>
-                  )}
+                  <p className="text-[13px] text-gray-500 pt-[2px]">
+                    Enter your email address
+                  </p>
                 </div>
               </div>
 
@@ -261,6 +265,9 @@ const ReservationDetails = () => {
                   <div>
                     <label className="text-[16px] font-medium">
                       Contact Number
+                      {formErrors.contactNumber && (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
                     </label>
                     <div className="flex items-center gap-1">
                       <input
@@ -271,34 +278,36 @@ const ReservationDetails = () => {
                       />
                       <input
                         type="text"
-                        placeholder="Enter your number"
                         className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] px-2 w-[200px]"
                       />
                     </div>
-                    {formErrors.contactNumber && (
-                      <p className="text-red-500 text-sm">
-                        {formErrors.contactNumber}
-                      </p>
-                    )}
+                    <p className="text-[13px] text-gray-500 pt-[2px] w-[200px]">
+                      Enter your contact number
+                    </p>
                   </div>
 
                   {/* Role */}
                   <div>
-                    <label className="text-[16px] font-medium">Role</label>
+                    <label className="text-[16px] font-medium">
+                      Role
+                      {formErrors.role && (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
+                    </label>
                     <select
                       className="border-[1px] border-[#B9B9B9] rounded-md p-[2px] px-2 w-full"
                       value={selectedOption}
                       onChange={(e) => setSelectedOption(e.target.value)}
                     >
-                      <option value="" disabled>
-                        Select
-                      </option>
+                      <option value="" disabled hidden></option>{" "}
+                      {/* Empty default option */}
                       <option value="Student">Student</option>
-                      <option value="Faculty">Faculty</option>
+                      <option value="Faculty">Professor</option>
+                      <option value="Faculty">Outsider</option>
                     </select>
-                    {formErrors.role && (
-                      <p className="text-red-500 text-sm">{formErrors.role}</p>
-                    )}
+                    <p className="text-[13px] text-gray-500 pt-[2px]">
+                      Select a role
+                    </p>
                   </div>
                 </div>
 
@@ -306,15 +315,17 @@ const ReservationDetails = () => {
                 <div>
                   <label className="text-[16px] font-medium">
                     Course/Department/Organization
+                    {formErrors.course && (
+                      <span className="text-red-500 ml-1">*</span>
+                    )}
                   </label>
                   <input
                     type="text"
-                    placeholder="Enter your current affiliation"
                     className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] px-2 w-full"
                   />
-                  {formErrors.course && (
-                    <p className="text-red-500 text-sm">{formErrors.course}</p>
-                  )}
+                  <p className="text-[13px] text-gray-500 pt-[2px]">
+                    Enter your affiliation
+                  </p>
                 </div>
               </div>
             </div>
@@ -361,29 +372,29 @@ const ReservationDetails = () => {
                   <div>
                     <label className="text-sm font-medium block mb-1">
                       Type
+                      {formErrors.type && (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
                     </label>
                     <input
                       type="text"
                       className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-full"
-                      placeholder="Type of Reservation – Event, Seminar, etc"
                     />
-                    {formErrors.type && (
-                      <p className="text-red-500 text-sm">{formErrors.type}</p>
-                    )}
+                    <p className="text-[13px] text-gray-500 pt-[2px]">
+                      Type of reservation
+                    </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium block mb-1">
                       Date of Reservation
+                      {formErrors.dateOfReservation && (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
                     </label>
                     <input
                       type="date"
                       className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-[180px]"
                     />
-                    {formErrors.dateOfReservation && (
-                      <p className="text-red-500 text-sm">
-                        {formErrors.dateOfReservation}
-                      </p>
-                    )}
                   </div>
                   {/* Time Section in a Box */}
                   <div className="md:col-span-2">
@@ -392,6 +403,9 @@ const ReservationDetails = () => {
                       <div className="flex flex-col w-full md:w-1/2">
                         <label className="text-sm font-medium block mb-1">
                           Start Time
+                          {formErrors.time && (
+                            <span className="text-red-500 ml-1">*</span>
+                          )}
                         </label>
                         <div className="flex gap-1">
                           <select
@@ -426,6 +440,9 @@ const ReservationDetails = () => {
                       <div className="flex flex-col w-full md:w-1/2">
                         <label className="text-sm font-medium block mb-1">
                           End Time
+                          {formErrors.time && (
+                            <span className="text-red-500 ml-1">*</span>
+                          )}
                         </label>
                         <div className="flex gap-1">
                           <select
@@ -456,12 +473,6 @@ const ReservationDetails = () => {
                         </div>
                       </div>
                     </div>
-                    {/* Error Message Below the Gray Box */}
-                    {formErrors.time && (
-                      <p className="text-red-500 text-sm mt-2">
-                        {formErrors.time}
-                      </p>
-                    )}
                   </div>
                 </div>
               </fieldset>
@@ -470,31 +481,41 @@ const ReservationDetails = () => {
               <fieldset className="border border-[#B9B9B9] rounded-lg px-6 py-4 pb-6 mx-10 mb-10 relative">
                 <legend className="text-[18px] font-bold px-2 text-[#274C77]">
                   NATURE OF WORK
+                  {formErrors.natureOfWork && (
+                    <span className="text-red-500 ml-1">*</span>
+                  )}
                 </legend>
                 <div className="flex flex-col gap-1">
                   {/* Reservation/Set-up */}
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      id="reservationCheckbox"
-                      className="h-4 w-4"
+                      value="Reservation/Set-up"
+                      checked={selectedCheckbox === "Reservation/Set-up"}
                       onChange={(e) =>
-                        setReservationInputEnabled(e.target.checked)
+                        setSelectedCheckbox(
+                          e.target.checked ? "Reservation/Set-up" : null,
+                        )
                       }
+                      className="h-4 w-4"
                     />
                     <span>Reservation/Set-up of:</span>
                     <select
                       className="border border-[#B9B9B9] rounded p-[1px] w-full max-w-[250px] text-sm"
-                      disabled={!reservationInputEnabled}
+                      disabled={selectedCheckbox !== "Reservation/Set-up"}
                       value={selectedOption}
                       onChange={(e) => setSelectedOption(e.target.value)}
                     >
                       <option value="" disabled>
                         Select an option
                       </option>
-                      <option value="Event">Event</option>
-                      <option value="Meeting">Meeting</option>
-                      <option value="Recognition">Recognition</option>
+                      <option value="Room/Space">A. Room/Space</option>
+                      <option value="Equipment">
+                        B. Equipment (LCD, Sound System, etc.)
+                      </option>
+                      <option value="Transportation">
+                        C. Vehicle Rental/Means of Transportation
+                      </option>
                     </select>
                   </label>
 
@@ -503,6 +524,10 @@ const ReservationDetails = () => {
                     <input
                       type="checkbox"
                       value="Repairs"
+                      checked={selectedCheckbox === "Repairs"}
+                      onChange={(e) =>
+                        setSelectedCheckbox(e.target.checked ? "Repairs" : null)
+                      }
                       className="h-4 w-4"
                     />
                     <span>Repairs</span>
@@ -513,6 +538,12 @@ const ReservationDetails = () => {
                     <input
                       type="checkbox"
                       value="Activity/Program"
+                      checked={selectedCheckbox === "Activity/Program"}
+                      onChange={(e) =>
+                        setSelectedCheckbox(
+                          e.target.checked ? "Activity/Program" : null,
+                        )
+                      }
                       className="h-4 w-4"
                     />
                     <span>Activity/Program</span>
@@ -522,23 +553,21 @@ const ReservationDetails = () => {
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      id="othersCheckbox"
+                      value="Others"
+                      checked={selectedCheckbox === "Others"}
+                      onChange={(e) =>
+                        setSelectedCheckbox(e.target.checked ? "Others" : null)
+                      }
                       className="h-4 w-4"
-                      onChange={(e) => setOthersInputEnabled(e.target.checked)}
                     />
                     <span>Others/Purpose:</span>
                     <input
                       type="text"
                       className="border border-[#B9B9B9] rounded p-[1px] w-full max-w-[300px] text-sm"
-                      disabled={!othersInputEnabled}
+                      disabled={selectedCheckbox !== "Others"}
                     />
                   </label>
                 </div>
-                {formErrors.natureOfWork && (
-                  <p className="text-red-500 text-sm">
-                    {formErrors.natureOfWork}
-                  </p>
-                )}
               </fieldset>
             </div>
 

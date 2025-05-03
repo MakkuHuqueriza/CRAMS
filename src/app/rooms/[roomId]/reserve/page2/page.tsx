@@ -25,7 +25,7 @@ export default function ReservationSummary() {
       <Navbar />
 
       <section className="flex justify-center py-12 lg:px-4 md:px-[58px] px-8">
-        <div className="w-full max-w-5xl space-y-6">
+        <div className="w-full max-w-5xl space-y-1">
           {/* Breadcrumb */}
           <p className="text-sm text-muted-foreground w-full px-6 max-w-5xl">
             <span
@@ -51,7 +51,7 @@ export default function ReservationSummary() {
             &gt; Reservation Summary
           </p>
 
-          <div className="flex flex-col items-center gap-6 p-8">
+          <div className="flex flex-col items-center gap-6 p-6">
             <div className="border-[#B9B9B9] border-[1px] rounded-lg p-2 pl-6 w-full max-w-5xl">
               <h1 className="text-[32px] font-bold text-[#274c77]">
                 Reservation Summary
@@ -87,7 +87,7 @@ export default function ReservationSummary() {
               <Link href={`/rooms/${roomId}/reserve/page1`}>
                 <button
                   type="button"
-                  className="bg-[#780D29] text-white font-medium px-4 py-[10px] rounded-[50px]"
+                  className="bg-[#780D29] text-white font-medium px-4 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03]"
                 >
                   Edit Details
                 </button>
@@ -95,7 +95,7 @@ export default function ReservationSummary() {
               <Link href={`/rooms/${roomId}/reserve/page3`}>
                 <button
                   type="button"
-                  className="bg-[#274C77] text-white font-medium px-4 py-[10px] rounded-[50px]"
+                  className="bg-[#274C77] text-white font-medium px-4 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03]"
                 >
                   Confirm Details
                 </button>

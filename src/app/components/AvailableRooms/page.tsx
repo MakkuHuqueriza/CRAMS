@@ -28,11 +28,14 @@ import {
 const AvailableRooms = () => {
   const [selectedFloor, setSelectedFloor] = useState("1st Floor, CSM");
   const [showAllRooms, setShowAllRooms] = useState(false);
+  const [showAllRoomsForFloor, setShowAllRoomsForFloor] = useState(false);
 
   // Filter rooms based on the selected floor
-  const filteredRooms = showAllRooms
-    ? roomData
-    : roomData.filter((room) => room.floor === selectedFloor);
+  const filteredRooms = roomData.filter((room) => room.floor === selectedFloor);
+
+  const displayedRooms = showAllRoomsForFloor
+    ? filteredRooms
+    : filteredRooms.slice(0, 5); // Show only the first 5 rooms by default
 
   const RoomCard = ({ room }: { room: Room }) => {
     const [showAllTimes, setShowAllTimes] = useState(false);
@@ -246,23 +249,24 @@ const AvailableRooms = () => {
                   transition={{ duration: 0.3 }}
                   className="flex flex-col items-center space-y-[-30px] md:space-y-4"
                 >
-                  {filteredRooms.map((room, index) => (
+                  {displayedRooms.map((room, index) => (
                     <RoomCard key={index} room={room} />
                   ))}
                 </motion.div>
               </AnimatePresence>
             </div>
-            {!showAllRooms && (
+            {filteredRooms.length > 5 && (
               <div className="flex justify-center pt-12">
                 <Button
-                  onClick={() => {
-                    setSelectedFloor("");
-                    setShowAllRooms(true);
-                  }}
+                  onClick={() => setShowAllRoomsForFloor(!showAllRoomsForFloor)}
                   className="rounded-full bg-primary px-5 py-[18px] font-semibold text-[#274c77] border-[#274c77] border-2 transition-transform transform hover:scale-105"
                 >
-                  Load More
-                  <ArrowDown className="w-4 h-4" />
+                  {showAllRoomsForFloor ? "Show Less" : "Load More"}
+                  <ArrowDown
+                    className={`w-4 h-4 ${
+                      showAllRoomsForFloor ? "rotate-180" : ""
+                    }`}
+                  />
                 </Button>
               </div>
             )}
