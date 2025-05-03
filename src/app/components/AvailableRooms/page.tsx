@@ -27,7 +27,7 @@ import {
 
 const AvailableRooms = () => {
   const [selectedFloor, setSelectedFloor] = useState("1st Floor, CSM");
-  const [showAllRooms, setShowAllRooms] = useState(false);
+  const [, setShowAllRooms] = useState(false);
   const [showAllRoomsForFloor, setShowAllRoomsForFloor] = useState(false);
 
   // Filter rooms based on the selected floor

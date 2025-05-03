@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation"; // Import useRouter for navigation
 import { loginAction, signInWithGoogle } from "@/actions/users";
@@ -37,14 +38,14 @@ export default function LoginPage() {
       {/* Left Section */}
       <div className="color-primary text-white flex flex-col justify-center items-center p-8 md:w-1/2 w-full h-full md:h-auto">
         {/* Mobile Logo */}
-        <img
+        <Image
           src="/CRAMS_white_logo.svg"
           alt="CRAMS Logo"
           className="block md:hidden max-w-[50%] h-auto absolute top-4 left-1/2 transform -translate-x-1/2"
         />
         {/* Desktop Logo */}
         <div className="hidden md:block text-center">
-          <img
+          <Image
             src="/CRAMS_full_logo.png"
             alt="CRAMS Logo"
             className="max-w-[50%] md:max-w-[55%] xl:max-w-[70%] h-auto mx-auto mb-2"
