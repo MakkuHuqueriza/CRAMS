@@ -6,8 +6,8 @@ import { useParams } from "next/navigation";
 import { roomData } from "@/app/roomData";
 
 const ReservationDetails = () => {
-  const [reservationInputEnabled, setReservationInputEnabled] = useState(false);
-  const [othersInputEnabled, setOthersInputEnabled] = useState(false);
+  // const [reservationInputEnabled, setReservationInputEnabled] = useState(false);
+  // const [othersInputEnabled, setOthersInputEnabled] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [startTime, setStartTime] = useState("");
   const [startPeriod, setStartPeriod] = useState("AM");
