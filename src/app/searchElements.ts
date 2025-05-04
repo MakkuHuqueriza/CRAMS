@@ -6,6 +6,16 @@ export type RoomCapacity = {
   roomCapacity: string;
 };
 
+export type RoomFloors = {
+  roomFloors: string;
+};
+
+export const roomFloors: RoomFloors[] = [
+  { roomFloors: "Floor 1" },
+  { roomFloors: "Floor 2" },
+  { roomFloors: "All Rooms" },
+];
+
 export const availableTime: AvailableTime[] = [
   { availableTime: "7:00 AM" },
   { availableTime: "7:30 AM" },
