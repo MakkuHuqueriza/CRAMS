@@ -18,7 +18,7 @@ import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { availableTime } from "@/app/searchElements";
 import { roomCapacity } from "@/app/searchElements";
-import { roomData } from "@/app/roomData";
+import { roomFloors } from "@/app/searchElements";
 import "@/styles/globals.css";
 import "react-day-picker/dist/style.css";
 
@@ -28,20 +28,10 @@ const Hero = () => {
   const [endTime, setEndTime] = useState<string>("");
   const [roomCap, setRoomCap] = useState<string>("");
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
-  const [showAllRooms, setShowAllRooms] = useState(false);
   const [isLocationOpen, setIsLocationOpen] = useState(false);
   const [isStartTimeOpen, setIsStartTimeOpen] = useState(false);
   const [isEndTimeOpen, setIsEndTimeOpen] = useState(false);
   const [isCapacityOpen, setIsCapacityOpen] = useState(false);
-
-  // Extract and sort room names numerically
-  const roomNames = roomData
-    .map((room) => room.name)
-    .sort(
-      (a, b) => parseInt(a.replace(/\D/g, "")) - parseInt(b.replace(/\D/g, "")),
-    );
-
-  const displayedRooms = showAllRooms ? roomNames : roomNames.slice(0, 6);
 
   return (
     <section className="w-full bg-background relative">
@@ -126,34 +116,26 @@ const Hero = () => {
                       onClick={() => setIsLocationOpen(!isLocationOpen)}
                       className={`text-sm ${selectedRoom ? "text-black" : "text-gray-400"}`}
                     >
-                      {selectedRoom || "Select Room"}
+                      {selectedRoom || "Select Time"}
                     </div>
                     {isLocationOpen && (
                       <div className="absolute z-50 top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                        {displayedRooms.map((room) => (
+                        {roomFloors.map((room) => (
                           <div
-                            key={room}
+                            key={room.roomFloors}
                             onClick={() => {
-                              setSelectedRoom(room);
+                              setSelectedRoom(room.roomFloors);
                               setIsLocationOpen(false);
                             }}
                             className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
-                              selectedRoom === room
+                              selectedRoom === room.roomFloors
                                 ? "bg-blue-500 text-white"
                                 : ""
                             }`}
                           >
-                            {room}
+                            {room.roomFloors}
                           </div>
                         ))}
-                        {!showAllRooms && roomNames.length > 6 && (
-                          <div
-                            onClick={() => setShowAllRooms(true)}
-                            className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-gray-500 border-t border-gray-200"
-                          >
-                            List More
-                          </div>
-                        )}
                       </div>
                     )}
                   </div>
