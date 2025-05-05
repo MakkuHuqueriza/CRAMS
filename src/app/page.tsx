@@ -11,9 +11,8 @@ export default async function HomePage() {
   const avatar_url = user?.user_metadata.avatar_url;
   const email = user?.user_metadata.email;
 
-  const data = await getAllRooms();
-  console.log(data);
-
+  // const data = await getAllRooms();
+  // console.log(data);
 
   return (
     <main>

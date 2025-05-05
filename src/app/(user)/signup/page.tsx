@@ -143,7 +143,13 @@ export default function SignupPage() {
         >
           Already have an account? Login
         </button>
-        {message && <p className="text-sm text-red-500">{message}</p>}
+        {message && message === "Signed up successfully!" ? (
+          <p className="text-sm text-green-500">
+            {message + " Check your email."}{" "}
+          </p>
+        ) : (
+          <p className="text-sm text-red-500">{message}</p>
+        )}
       </div>
     </div>
   );
