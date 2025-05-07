@@ -15,7 +15,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { DateRange } from "react-day-picker";
 import { availableTime } from "@/app/searchElements";
 import { roomCapacity } from "@/app/searchElements";
 import { roomFloors } from "@/app/searchElements";
@@ -23,7 +22,7 @@ import "@/styles/globals.css";
 import "react-day-picker/dist/style.css";
 
 const Hero = () => {
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");
   const [roomCap, setRoomCap] = useState<string>("");
@@ -76,27 +75,27 @@ const Hero = () => {
                         <label className="text-sm font-medium text-black mb-1">
                           DATE
                         </label>
-                        <div
-                          className={`text-left ${dateRange?.from ? "text-black" : "text-gray-400"}`}
-                        >
-                          {dateRange?.from
-                            ? dateRange.to
-                              ? `${format(dateRange.from, "MM/dd/yyyy")} - ${format(dateRange.to, "MM/dd/yyyy")}`
-                              : format(dateRange.from, "MM/dd/yyyy")
-                            : "Select Date"}
+                        <div className="flex flex-col">
+                          <div
+                            className={`text-left ${selectedDate ? "text-black" : "text-gray-400"}`}
+                          >
+                            {selectedDate
+                              ? format(selectedDate, "MM/dd/yyyy")
+                              : "Select Date"}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </PopoverTrigger>
                   <PopoverContent
-                    className="w-auto p-0 border-0 shadow-none bg-transparent"
+                    className="w-auto p-0 shadow-none border-none bg-transparent"
                     align="start"
                   >
                     <Calendar
-                      mode="range"
-                      selected={dateRange}
-                      onSelect={setDateRange}
-                      numberOfMonths={2}
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={(date) => setSelectedDate(date)}
+                      className="bg-white rounded-xl shadow-md"
                     />
                   </PopoverContent>
                 </Popover>

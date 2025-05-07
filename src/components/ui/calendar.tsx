@@ -1,18 +1,19 @@
-"use client";
-
-import * as React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import type * as React from "react";
 import { DayPicker } from "react-day-picker";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigation } from "react-day-picker";
+
 import { cn } from "@/lib/utils";
+
+export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
 export function Calendar({
   className,
   classNames,
   showOutsideDays = true,
   ...props
-}: React.ComponentProps<typeof DayPicker>) {
+}: CalendarProps) {
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -34,23 +35,18 @@ export function Calendar({
           "focus-within:relative focus-within:z-20",
         ),
         day: cn(
-          "h-9 w-9 p-0 font-normal text-gray-800 rounded-full",
-          "hover:bg-gray-100 hover:text-gray-900", // Gray tint on hover
+          "h-9 w-9 p-0 font-normal text-gray-800 rounded-full flex items-center justify-center",
+          "hover:bg-blue-100 hover:text-gray-900",
           "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
         ),
         day_selected: cn(
-          "bg-blue-600 text-white hover:bg-blue-700", // Solid blue when selected
-          "focus:bg-blue-700",
+          "bg-blue-600 text-white hover:bg-blue-600", // Solid blue when selected, maintain color on hover
+          "focus:bg-blue-600",
         ),
-        day_today: "border-2 border-blue-500 rounded-full", // Blue circle for current date
-        day_outside: "text-muted opacity-50",
-        day_disabled: "text-muted opacity-50",
-        day_range_start: "bg-blue-600 text-white rounded-l-full",
-        day_range_middle: cn(
-          "bg-blue-100 text-blue-900", // Light blue for range middle
-          "hover:bg-blue-200",
-        ),
-        day_range_end: "bg-blue-600 text-white rounded-r-full",
+        day_today: "border border-blue-500", // Thin blue circle for current date
+        day_outside: "text-muted-foreground opacity-50",
+        day_disabled: "text-muted-foreground opacity-50",
+        day_range_middle: "bg-blue-100 text-blue-900",
         ...classNames,
       }}
       components={{
@@ -66,7 +62,7 @@ export function Calendar({
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              <span className="text-sm font-semibold">
+              <span className="text-sm font-medium">
                 {format(displayMonth, "MMMM yyyy")}
               </span>
               <button
