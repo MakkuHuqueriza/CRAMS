@@ -3,33 +3,33 @@ import Sidebar from "@/app/admin/Sidebar";
 // import { roomData } from "@/app/roomData";
 import { Card } from "@/components/ui/card";
 
-const holidays2024 = [
-  { date: "08/21", day: "Wednesday", name: "Ninoy Aquino Day" },
-  { date: "08/26", day: "Monday", name: "National Heroes Day" },
-  { date: "09/01", day: "Friday", name: "All Saints Day" },
-  { date: "09/02", day: "Saturday", name: "Special Non-working Holiday" },
-  { date: "09/30", day: "Saturday", name: "Bonifacio Day" },
-  {
-    date: "12/08",
-    day: "Sunday",
-    name: "Feast of the Immaculate Conception of Mary",
-  },
-  { date: "12/24", day: "Tuesday", name: "Special Non-working Holiday" },
-  { date: "12/25", day: "Wednesday", name: "Christmas Day" },
-  { date: "12/30", day: "Monday", name: "Rizal Day" },
-];
+// const holidays2024 = [
+//   { date: "08/21", day: "Wednesday", name: "Ninoy Aquino Day" },
+//   { date: "08/26", day: "Monday", name: "National Heroes Day" },
+//   { date: "09/01", day: "Friday", name: "All Saints Day" },
+//   { date: "09/02", day: "Saturday", name: "Special Non-working Holiday" },
+//   { date: "09/30", day: "Saturday", name: "Bonifacio Day" },
+//   {
+//     date: "12/08",
+//     day: "Sunday",
+//     name: "Feast of the Immaculate Conception of Mary",
+//   },
+//   { date: "12/24", day: "Tuesday", name: "Special Non-working Holiday" },
+//   { date: "12/25", day: "Wednesday", name: "Christmas Day" },
+//   { date: "12/30", day: "Monday", name: "Rizal Day" },
+// ];
 
-const holidays2025 = [
-  { date: "01/01", day: "Wednesday", name: "New Year's Day" },
-  { date: "01/29", day: "Wednesday", name: "Lunar New Year" },
-  { date: "02/25", day: "Tuesday", name: "EDSA Anniversary" },
-  { date: "03/01", day: "Saturday", name: "Araw ng Dabaw" },
-  { date: "04/09", day: "Wednesday", name: "Day of Valor" },
-  { date: "04/17", day: "Thursday", name: "Maundy Thursday" },
-  { date: "04/18", day: "Friday", name: "Good Friday" },
-  { date: "05/01", day: "Thursday", name: "Labor Day" },
-  { date: "06/12", day: "Thursday", name: "Independence Day" },
-];
+// const holidays2025 = [
+//   { date: "01/01", day: "Wednesday", name: "New Year's Day" },
+//   { date: "01/29", day: "Wednesday", name: "Lunar New Year" },
+//   { date: "02/25", day: "Tuesday", name: "EDSA Anniversary" },
+//   { date: "03/01", day: "Saturday", name: "Araw ng Dabaw" },
+//   { date: "04/09", day: "Wednesday", name: "Day of Valor" },
+//   { date: "04/17", day: "Thursday", name: "Maundy Thursday" },
+//   { date: "04/18", day: "Friday", name: "Good Friday" },
+//   { date: "05/01", day: "Thursday", name: "Labor Day" },
+//   { date: "06/12", day: "Thursday", name: "Independence Day" },
+// ];
 
 export default function DashboardPage() {
   // const totalRooms = roomData.reduce((acc, room) => acc + (room.count || 0), 0);
@@ -45,11 +45,11 @@ export default function DashboardPage() {
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
-      <main className="flex-1 bg-neutral-50 p-6 overflow-y-auto">
+      <main className="flex-1 bg-[#f5eeea] p-6 overflow-y-auto">
         <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
 
         <div className="flex flex-col md:flex-row flex-wrap gap-6 mb-6 w-full">
-          <Card className="p-4 flex flex-col gap-2 w-full md:w-1/3">
+          <Card className="bg-white p-4 flex flex-col gap-2 w-full md:w-1/3">
             <h2 className="text-sm text-gray-500">New Reservations</h2>
             <p className="text-3xl font-bold text-black">
               {pendingReservations.toString().padStart(2, "0")}
@@ -60,7 +60,7 @@ export default function DashboardPage() {
             </p>
           </Card>
 
-          <Card className="p-4 w-full md:w-2/3">
+          <Card className="bg-white p-4 w-full md:w-2/3">
             <h2 className="text-sm text-gray-500 mb-4">Room Types</h2>
             <div className="flex space-x-2 mb-4">
               <div className="h-4 flex-1 bg-blue-300" />

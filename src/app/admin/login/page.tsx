@@ -31,40 +31,44 @@ export default function AdminLoginPage() {
   return (
     <div className="flex flex-col md:flex-row h-screen">
       {/* Left Section */}
-      <div className="bg-white text-[#274c77] border-l-2 border-[#274c77] flex flex-col justify-center items-center p-8 md:w-1/2 w-full h-full md:h-auto">
+      <div className="bg-white border-l-2 border-[#274c77] flex flex-col justify-center items-center p-8 md:w-1/2 w-full h-full md:h-auto">
         {/* Mobile Logo */}
         <Image
           src="/CRAMS_logo.svg"
           alt="CRAMS Logo"
+          width={200}
+          height={200}
           className="block md:hidden max-w-[50%] h-auto absolute top-4 left-1/2 transform -translate-x-1/2"
         />
         {/* Desktop Logo */}
         <div className="hidden md:block text-center">
           <Image
-            src="/CRAMS_full_logo_blue.png"
+            src="/CRAMS_full_logo_blue.svg"
             alt="CRAMS Logo"
+            width={200}
+            height={200}
             className="max-w-[50%] md:max-w-[55%] xl:max-w-[70%] h-auto mx-auto mb-2"
           />
-          <h1 className="text-[40px] md:text-[80px] lg:text-[110px] xl:text-[140px] font-semibold leading-none tracking-wide">
+          <h1 className="text-[40px] text-[#274c77] placeholder:md:text-[80px] md:text-[70px] lg:text-[110px] xl:text-[140px] font-semibold leading-none tracking-wide">
             CRAMS
           </h1>
-          <p className="text-[9px] md:text-[11px] lg:text-[15px] xl:text-[20px] font-medium">
+          <p className="text-[9px] text-black md:text-[11px] lg:text-[15px] xl:text-[20px] font-medium">
             Classroom Reservation and Management System
           </p>
-          <p className="text-[8px] md:text-[9px] lg:text-[12px] xl:text-sm mt-1">
+          <p className="text-[8px] text-black md:text-[9px] lg:text-[12px] xl:text-sm mt-1">
             Organized Reservations, Even for the Biggest Crammers!
           </p>
         </div>
       </div>
 
       {/* Right Section */}
-      <div className="bg-white flex flex-col justify-center items-center p-4 sm:p-6 md:p-2 lg:p-8 md:w-1/2 w-full rounded-t-[30px] md:rounded-none md:h-auto absolute bottom-0 md:relative">
-        <h1 className="text-[32px] sm:text-[36px] md:text-[44px] lg:text-[50px] xl:text-[56px] font-semibold mb-6 text-left w-[80%] sm:w-[70%] md:w-[60%]">
+      <div className="bg-white flex flex-col justify-center items-center p-4 sm:p-6 md:p-2 lg:p-8 md:w-1/2 w-full border-4 border-t-[#274c77] md:border-none rounded-t-[30px] md:rounded-none md:relative absolute bottom-0 min-h-[85vh] md:h-auto">
+        <h1 className="text-[32px] sm:text-[36px] md:text-[32px] lg:text-[36px] xl:text-[56px] font-semibold mb-6 text-center w-[80%] sm:w-[70%] md:w-[70%]">
           Admin Login
         </h1>
         <form
           onSubmit={handleAdminLogin}
-          className="flex flex-col items-center gap-4 w-[80%] sm:w-[70%] md:w-[60%]"
+          className="flex flex-col items-center gap-3 w-[80%] sm:w-[70%] md:w-[60%] border-2 border-[#274c77] p-6 rounded-lg"
         >
           <label
             htmlFor="email"
@@ -77,7 +81,7 @@ export default function AdminLoginPage() {
             type="email"
             name="email"
             placeholder="Enter your email"
-            className="bg-[#f5f9fc] border-[1px] border-[#B9B9B9] rounded-md p-1 md:p-2 w-full mb-4 text-sm"
+            className="bg-[#f5f9fc] border-[1px] border-[#B9B9B9] rounded-md p-1 md:p-2 w-full mb-4 mt-[-5px] text-sm"
           />
           <label
             htmlFor="password"
@@ -90,7 +94,7 @@ export default function AdminLoginPage() {
             type="password"
             name="password"
             placeholder="Enter your password"
-            className="bg-[#f5f9fc] border-[1px] border-[#B9B9B9] rounded-md p-1 md:p-2 w-full mb-2 text-sm"
+            className="bg-[#f5f9fc] border-[1px] border-[#B9B9B9] rounded-md p-1 md:p-2 w-full mb-2 mt-[-5px] text-sm"
           />
           <button
             type="submit"
