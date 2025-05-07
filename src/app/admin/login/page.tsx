@@ -1,322 +1,115 @@
-export type Room = {
-  id: string;
-  type: string;
-  floor: string;
-  capacity: number;
-  image: string;
-  times: string[];
-  description: string;
-};
+"use client";
 
-export const roomData: Room[] = [
-  {
-    id: "ROOM 102",
-    type: "DBSES LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "The DBSES lab is used for biology and environmental science classes. It has lab benches, microscopes, specimen areas, a chalkboard or whiteboard, a TV, and air conditioning. It supports biology labs, fieldwork analysis, and environmental studies.",
-  },
-  {
-    id: "ROOM 103",
-    type: "DBSES LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "The DBSES lab is used for biology and environmental science classes. It has lab benches, microscopes, specimen areas, a chalkboard or whiteboard, a TV, and air conditioning. It supports biology labs, fieldwork analysis, and environmental studies.",
-  },
-  {
-    id: "ROOM 105",
-    type: "LECTURE ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "Lecture rooms are standard classrooms used across different departments for daily classes. Each room has classroom desks, a whiteboard or chalkboard, a wall-mounted TV, and air conditioning. These rooms support lectures, group discussions, and presentations, and are arranged to accommodate different class sizes efficiently.",
-  },
-  {
-    id: "ROOM 106",
-    type: "DBSES LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "The DBSES lab is used for biology and environmental science classes. It has lab benches, microscopes, specimen areas, a chalkboard or whiteboard, a TV, and air conditioning. It supports biology labs, fieldwork analysis, and environmental studies.",
-  },
-  {
-    id: "ROOM 107",
-    type: "DBSES LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "The DBSES lab is used for biology and environmental science classes. It has lab benches, microscopes, specimen areas, a chalkboard or whiteboard, a TV, and air conditioning. It supports biology labs, fieldwork analysis, and environmental studies.",
-  },
-  {
-    id: "ROOM 108",
-    type: "DFSC LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "The DBSES lab is used for biology and environmental science classes. It has lab benches, microscopes, specimen areas, a chalkboard or whiteboard, a TV, and air conditioning. It supports biology labs, fieldwork analysis, and environmental studies.",
-  },
-  {
-    id: "ROOM 110",
-    type: "LECTURE ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "Lecture rooms are standard classrooms used across different departments for daily classes. Each room has classroom desks, a whiteboard or chalkboard, a wall-mounted TV, and air conditioning. These rooms support lectures, group discussions, and presentations, and are arranged to accommodate different class sizes efficiently.",
-  },
-  {
-    id: "ROOM 111",
-    type: "DBSES LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "The DBSES lab is used for biology and environmental science classes. It has lab benches, microscopes, specimen areas, a chalkboard or whiteboard, a TV, and air conditioning. It supports biology labs, fieldwork analysis, and environmental studies.",
-  },
-  {
-    id: "ROOM 112",
-    type: "LECTURE ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "Lecture rooms are standard classrooms used across different departments for daily classes. Each room has classroom desks, a whiteboard or chalkboard, a wall-mounted TV, and air conditioning. These rooms support lectures, group discussions, and presentations, and are arranged to accommodate different class sizes efficiently.",
-  },
-  {
-    id: "ROOM 118",
-    type: "DBSES LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "The DBSES lab is used for biology and environmental science classes. It has lab benches, microscopes, specimen areas, a chalkboard or whiteboard, a TV, and air conditioning. It supports biology labs, fieldwork analysis, and environmental studies.",
-  },
-  {
-    id: "ROOM 119",
-    type: "DBSES LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "The DBSES lab is used for biology and environmental science classes. It has lab benches, microscopes, specimen areas, a chalkboard or whiteboard, a TV, and air conditioning. It supports biology labs, fieldwork analysis, and environmental studies.",
-  },
-  {
-    id: "ROOM 120",
-    type: "DBSES LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "The DBSES lab is used for biology and environmental science classes. It has lab benches, microscopes, specimen areas, a chalkboard or whiteboard, a TV, and air conditioning. It supports biology labs, fieldwork analysis, and environmental studies.",
-  },
-  {
-    id: "ROOM 121",
-    type: "DBSES LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "The DBSES lab is used for biology and environmental science classes. It has lab benches, microscopes, specimen areas, a chalkboard or whiteboard, a TV, and air conditioning. It supports biology labs, fieldwork analysis, and environmental studies.",
-  },
-  {
-    id: "ROOM 122",
-    type: "DBSES LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "The DBSES lab is used for biology and environmental science classes. It has lab benches, microscopes, specimen areas, a chalkboard or whiteboard, a TV, and air conditioning. It supports biology labs, fieldwork analysis, and environmental studies.",
-  },
-  {
-    id: "ROOM 125a",
-    type: "DBSES LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "The DBSES lab is used for biology and environmental science classes. It has lab benches, microscopes, specimen areas, a chalkboard or whiteboard, a TV, and air conditioning. It supports biology labs, fieldwork analysis, and environmental studies.",
-  },
-  {
-    id: "ROOM 128a",
-    type: "DBSES LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "The DBSES lab is used for biology and environmental science classes. It has lab benches, microscopes, specimen areas, a chalkboard or whiteboard, a TV, and air conditioning. It supports biology labs, fieldwork analysis, and environmental studies.",
-  },
-  {
-    id: "ROOM 128b",
-    type: "DBSES LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "The DBSES lab is used for biology and environmental science classes. It has lab benches, microscopes, specimen areas, a chalkboard or whiteboard, a TV, and air conditioning. It supports biology labs, fieldwork analysis, and environmental studies.",
-  },
-  {
-    id: "ROOM 132",
-    type: "DFSC LABORATORY ROOM",
-    floor: "1st Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "Used by the Department of Food Science and Chemistry, this lab features lab benches, chemical storage, fume hoods, a chalkboard or whiteboard, a TV, and air conditioning. It's where students conduct food testing and chemical experiments.",
-  },
-  {
-    id: "ROOM 204",
-    type: "LECTURE ROOM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "Lecture rooms are standard classrooms used across different departments for daily classes. Each room has classroom desks, a whiteboard or chalkboard, a wall-mounted TV, and air conditioning. These rooms support lectures, group discussions, and presentations, and are arranged to accommodate different class sizes efficiently.",
-  },
-  {
-    id: "ROOM 206",
-    type: "LECTURE ROOM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "Lecture rooms are standard classrooms used across different departments for daily classes. Each room has classroom desks, a whiteboard or chalkboard, a wall-mounted TV, and air conditioning. These rooms support lectures, group discussions, and presentations, and are arranged to accommodate different class sizes efficiently.",
-  },
-  {
-    id: "ROOM 208",
-    type: "LECTURE ROOM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "Lecture rooms are standard classrooms used across different departments for daily classes. Each room has classroom desks, a whiteboard or chalkboard, a wall-mounted TV, and air conditioning. These rooms support lectures, group discussions, and presentations, and are arranged to accommodate different class sizes efficiently.",
-  },
-  {
-    id: "ROOM 221",
-    type: "LECTURE ROOM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "Lecture rooms are standard classrooms used across different departments for daily classes. Each room has classroom desks, a whiteboard or chalkboard, a wall-mounted TV, and air conditioning. These rooms support lectures, group discussions, and presentations, and are arranged to accommodate different class sizes efficiently.",
-  },
-  {
-    id: "ROOM 222",
-    type: "LECTURE ROOM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "Lecture rooms are standard classrooms used across different departments for daily classes. Each room has classroom desks, a whiteboard or chalkboard, a wall-mounted TV, and air conditioning. These rooms support lectures, group discussions, and presentations, and are arranged to accommodate different class sizes efficiently.",
-  },
-  {
-    id: "ROOM 223",
-    type: "DMPCS LABORATORY ROOM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "This lab serves the Department of Mathematics, Physics, and Computer Science. It includes workstations with computers, lab tables, a chalkboard or whiteboard, a TV, and air conditioning. It’s used for programming classes, physics experiments, and technical demonstrations.",
-  },
-  {
-    id: "ROOM 224",
-    type: "LECTURE ROOM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "Lecture rooms are standard classrooms used across different departments for daily classes. Each room has classroom desks, a whiteboard or chalkboard, a wall-mounted TV, and air conditioning. These rooms support lectures, group discussions, and presentations, and are arranged to accommodate different class sizes efficiently.",
-  },
-  {
-    id: "ROOM 225A",
-    type: "DMPCS LABORATORY ROOM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "This lab serves the Department of Mathematics, Physics, and Computer Science. It includes workstations with computers, lab tables, a chalkboard or whiteboard, a TV, and air conditioning. It’s used for programming classes, physics experiments, and technical demonstrations.",
-  },
-  {
-    id: "ROOM 226",
-    type: "LECTURE ROOM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "Lecture rooms are standard classrooms used across different departments for daily classes. Each room has classroom desks, a whiteboard or chalkboard, a wall-mounted TV, and air conditioning. These rooms support lectures, group discussions, and presentations, and are arranged to accommodate different class sizes efficiently.",
-  },
-  {
-    id: "ROOM 227",
-    type: "LECTURE ROOM/AUDITORIUM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "The Lecture Room/Auditorium is a larger space used for general assemblies, guest lectures, and special classes. It includes classroom desks, a chalkboard, and air conditioning. It's ideal for sessions that require wider participation or presentations.",
-  },
-  {
-    id: "ROOM 228",
-    type: "LECTURE ROOM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "Lecture rooms are standard classrooms used across different departments for daily classes. Each room has classroom desks, a whiteboard or chalkboard, a wall-mounted TV, and air conditioning. These rooms support lectures, group discussions, and presentations, and are arranged to accommodate different class sizes efficiently.",
-  },
-  {
-    id: "ROOM 229",
-    type: "DMPCS LABORATORY ROOM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "This lab serves the Department of Mathematics, Physics, and Computer Science. It includes workstations with computers, lab tables, a chalkboard or whiteboard, a TV, and air conditioning. It’s used for programming classes, physics experiments, and technical demonstrations.",
-  },
-  {
-    id: "ROOM 230",
-    type: "DMPCS LABORATORY ROOM",
-    floor: "2nd Floor, CSM",
-    capacity: 50,
-    image: "/room_sample.png",
-    times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
-    description:
-      "This lab serves the Department of Mathematics, Physics, and Computer Science. It includes workstations with computers, lab tables, a chalkboard or whiteboard, a TV, and air conditioning. It’s used for programming classes, physics experiments, and technical demonstrations.",
-  },
-];
+import { useState } from "react";
+import Image from "next/image";
+import { adminLoginAction } from "@/actions/admin";
+
+export default function AdminLoginPage() {
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleAdminLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); // Prevent default form submission
+    setIsSubmitting(true);
+    setMessage("");
+
+    const formData = new FormData(event.currentTarget);
+
+    try {
+      const result = await adminLoginAction(formData);
+      if (result?.message) {
+        setMessage(result.message); // Display error message if login fails
+      }
+    } catch (error) {
+      console.error("Error during admin login:", error);
+      setMessage("An unexpected error occurred.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col md:flex-row h-screen">
+      {/* Left Section */}
+      <div className="bg-white border-l-2 border-[#274c77] flex flex-col justify-center items-center p-8 md:w-1/2 w-full h-full md:h-auto">
+        {/* Mobile Logo */}
+        <Image
+          src="/CRAMS_logo.svg"
+          alt="CRAMS Logo"
+          width={200}
+          height={200}
+          className="block md:hidden max-w-[50%] h-auto absolute top-4 left-1/2 transform -translate-x-1/2"
+        />
+        {/* Desktop Logo */}
+        <div className="hidden md:block text-center">
+          <Image
+            src="/CRAMS_full_logo_blue.svg"
+            alt="CRAMS Logo"
+            width={200}
+            height={200}
+            className="max-w-[50%] md:max-w-[55%] xl:max-w-[70%] h-auto mx-auto mb-2"
+          />
+          <h1 className="text-[40px] text-[#274c77] placeholder:md:text-[80px] md:text-[70px] lg:text-[110px] xl:text-[140px] font-semibold leading-none tracking-wide">
+            CRAMS
+          </h1>
+          <p className="text-[9px] text-black md:text-[11px] lg:text-[15px] xl:text-[20px] font-medium">
+            Classroom Reservation and Management System
+          </p>
+          <p className="text-[8px] text-black md:text-[9px] lg:text-[12px] xl:text-sm mt-1">
+            Organized Reservations, Even for the Biggest Crammers!
+          </p>
+        </div>
+      </div>
+
+      {/* Right Section */}
+      <div className="bg-white flex flex-col justify-center items-center p-4 sm:p-6 md:p-2 lg:p-8 md:w-1/2 w-full border-4 border-t-[#274c77] md:border-none rounded-t-[30px] md:rounded-none md:relative absolute bottom-0 min-h-[85vh] md:h-auto">
+        <h1 className="text-[32px] sm:text-[36px] md:text-[32px] lg:text-[36px] xl:text-[56px] font-semibold mb-6 text-center w-[80%] sm:w-[70%] md:w-[70%]">
+          Admin Login
+        </h1>
+        <form
+          onSubmit={handleAdminLogin}
+          className="flex flex-col items-center gap-3 w-[80%] sm:w-[70%] md:w-[60%] border-2 border-[#274c77] p-6 rounded-lg"
+        >
+          <label
+            htmlFor="email"
+            className="text-left text-[12px] sm:text-[14px] lg:text-[16px] font-medium w-full"
+          >
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            placeholder="Enter your email"
+            className="bg-[#f5f9fc] border-[1px] border-[#B9B9B9] rounded-md p-1 md:p-2 w-full mb-4 mt-[-5px] text-sm"
+          />
+          <label
+            htmlFor="password"
+            className="text-left text-[12px] sm:text-[14px] lg:text-[16px] font-medium w-full"
+          >
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            name="password"
+            placeholder="Enter your password"
+            className="bg-[#f5f9fc] border-[1px] border-[#B9B9B9] rounded-md p-1 md:p-2 w-full mb-2 mt-[-5px] text-sm"
+          />
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`bg-[#9BB2FC] text-black font-medium text-[12px] sm:text-[13px] lg:text-[16px] px-6 sm:px-8 py-[6px] rounded-[50px] mb-2 transition hover:scale-[103%] ${
+              isSubmitting ? "bg-gray-400" : ""
+            }`}
+          >
+            {isSubmitting ? "Logging in..." : "Log In"}
+          </button>
+        </form>
+        {message && (
+          <p className="text-sm text-[#cf2626] mt-4 text-center">{message}</p>
+        )}
+      </div>
+    </div>
+  );
+}
