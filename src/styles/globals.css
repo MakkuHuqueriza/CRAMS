@@ -144,6 +144,9 @@ h6 {
   .dark-blue-bg {
     background-color: #034078;
   }
+  .primary-border {
+    border-color: #274c77;
+  }
   .dark-blue-text {
     color: #034078;
   }

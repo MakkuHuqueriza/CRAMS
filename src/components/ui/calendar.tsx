@@ -3,6 +3,7 @@ import { DayPicker } from "react-day-picker";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigation } from "react-day-picker";
+import "@/styles/globals.css";
 
 import { cn } from "@/lib/utils";
 
@@ -17,7 +18,7 @@ export function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-4 bg-white rounded-xl shadow-md", className)}
+      className={cn("p-4 bg-white rounded-sm shadow-md", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
@@ -37,13 +38,13 @@ export function Calendar({
         day: cn(
           "h-9 w-9 p-0 font-normal text-gray-800 rounded-full flex items-center justify-center",
           "hover:bg-blue-100 hover:text-gray-900",
-          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+          "focus:outline-none",
         ),
         day_selected: cn(
-          "bg-blue-600 text-white hover:bg-blue-600", // Solid blue when selected, maintain color on hover
-          "focus:bg-blue-600",
+          "color-primary text-black hover:bg-blue-700",
+          "focus:color-primary focus:text-white focus:semibold",
         ),
-        day_today: "border border-blue-500", // Thin blue circle for current date
+        day_today: "border border-primary-border",
         day_outside: "text-muted-foreground opacity-50",
         day_disabled: "text-muted-foreground opacity-50",
         day_range_middle: "bg-blue-100 text-blue-900",

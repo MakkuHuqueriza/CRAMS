@@ -67,7 +67,7 @@ const Hero = () => {
                 {/* DATE PICKER */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <div className="flex items-start gap-4 p-2 rounded-md hover:bg-secondary cursor-pointer w-[270px]">
+                    <div className="flex items-start gap-4 p-2 rounded-md hover:bg-secondary cursor-pointer w-[210px]">
                       <div className="flex items-center justify-center w-10 h-10">
                         <CalendarIcon className="text-color-primary w-6 h-6" />
                       </div>
@@ -95,6 +95,7 @@ const Hero = () => {
                       mode="single"
                       selected={selectedDate}
                       onSelect={(date) => setSelectedDate(date)}
+                      initialFocus
                       className="bg-white rounded-xl shadow-md"
                     />
                   </PopoverContent>
