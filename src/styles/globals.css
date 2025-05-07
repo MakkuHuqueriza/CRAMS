@@ -134,6 +134,12 @@ h6 {
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+@layer components { 
+  .primary-border {
+    border-color: #274c77;
+  }
+}
+
 @layer utilities {
   .color-primary {
     background-color: #274c77;
@@ -143,9 +149,6 @@ h6 {
   }
   .dark-blue-bg {
     background-color: #034078;
-  }
-  .primary-border {
-    border-color: #274c77;
   }
   .dark-blue-text {
     color: #034078;

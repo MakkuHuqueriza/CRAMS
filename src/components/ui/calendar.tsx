@@ -44,7 +44,7 @@ export function Calendar({
           "color-primary text-black hover:bg-blue-700",
           "focus:color-primary focus:text-white focus:semibold",
         ),
-        day_today: "border border-primary-border",
+        day_today: "border primary-border",
         day_outside: "text-muted-foreground opacity-50",
         day_disabled: "text-muted-foreground opacity-50",
         day_range_middle: "bg-blue-100 text-blue-900",
