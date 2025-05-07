@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation"; // Import useRouter for navigation
 import { loginAction, signInWithGoogle } from "@/actions/users";
