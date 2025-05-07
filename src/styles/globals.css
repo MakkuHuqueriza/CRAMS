@@ -134,7 +134,7 @@ h6 {
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-@layer components { 
+@layer components {
   .primary-border {
     border-color: #274c77;
   }
