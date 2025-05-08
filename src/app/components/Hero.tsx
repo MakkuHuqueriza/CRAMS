@@ -6,6 +6,7 @@ import {
   LogIn,
   LogOut,
   Users,
+  Search,
   Calendar as CalendarIcon,
 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
@@ -57,6 +58,7 @@ const Hero = () => {
           <div className="absolute bottom-10 left-0 right-0 px-8">
             <div className="bg-white shadow-lg rounded-lg p-4 mx-auto max-w-[1450px]">
               <div className="flex flex-wrap items-center justify-between gap-2">
+                
                 {/* DATE PICKER */}
                 <Popover>
                   <PopoverTrigger asChild>
@@ -126,7 +128,7 @@ const Hero = () => {
                           onClick={() => setSelectedRoom(room.roomFloors)}
                           className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
                             selectedRoom === room.roomFloors
-                              ? "bg-blue-500 text-white"
+                              ? "color-primary text-white font-semibold"
                               : ""
                           }`}
                         >
@@ -169,7 +171,7 @@ const Hero = () => {
                           onClick={() => setStartTime(time.availableTime)}
                           className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
                             startTime === time.availableTime
-                              ? "bg-blue-500 text-white"
+                              ? "color-primary text-white font-semibold"
                               : ""
                           }`}
                         >
@@ -212,7 +214,7 @@ const Hero = () => {
                           onClick={() => setEndTime(time.availableTime)}
                           className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
                             endTime === time.availableTime
-                              ? "bg-blue-500 text-white"
+                              ? "color-primary text-white font-semibold"
                               : ""
                           }`}
                         >
@@ -255,7 +257,7 @@ const Hero = () => {
                           onClick={() => setRoomCap(cap.roomCapacity)}
                           className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
                             roomCap === cap.roomCapacity
-                              ? "bg-blue-500 text-white"
+                              ? "color-primary text-white font-semibold"
                               : ""
                           }`}
                         >
@@ -268,7 +270,8 @@ const Hero = () => {
 
                 {/* Search Button */}
                 <div className="flex items-end">
-                  <button className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
+                  <button className="dark-blue-bg text-white font-semibold px-6 py-2 rounded-lg hover:bg-[#182657] h-[55px] flex items-center gap-2">
+                    <Search size={20} />
                     Search
                   </button>
                 </div>

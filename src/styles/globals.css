@@ -180,6 +180,9 @@ h6 {
   .default-text {
     color: #b9b9b9;
   }
+  .hover-color {
+    background-color: #D4DBE4;
+  }
   body {
     @apply bg-background text-foreground;
   }
