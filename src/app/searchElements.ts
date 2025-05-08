@@ -13,7 +13,7 @@ export type RoomFloors = {
 export const roomFloors: RoomFloors[] = [
   { roomFloors: "Floor 1" },
   { roomFloors: "Floor 2" },
-  { roomFloors: "All Rooms" },
+  { roomFloors: "All Floors" },
 ];
 
 export const availableTime: AvailableTime[] = [

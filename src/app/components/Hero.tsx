@@ -104,22 +104,31 @@ const Hero = () => {
                 <div className="h-12 w-px bg-secondary" />
 
                 {/* LOCATION PICKER */}
-                <div className="relative flex items-start gap-4 p-2 rounded-md hover:bg-secondary cursor-pointer w-[200px]">
-                  <div className="flex items-center justify-center w-10 h-10">
-                    <MapPin className="text-color-primary w-6 h-6" />
-                  </div>
-                  <div className="flex flex-col">
-                    <label className="text-sm font-medium text-black mb-1">
-                      LOCATION
-                    </label>
-                    <div
-                      onClick={() => setIsLocationOpen(!isLocationOpen)}
-                      className={`text-sm ${selectedRoom ? "text-black" : "text-gray-400"}`}
-                    >
-                      {selectedRoom || "Select Time"}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <div className="relative flex items-start gap-4 p-2 rounded-md hover:bg-secondary cursor-pointer w-[200px]">
+                      <div className="flex items-center justify-center w-10 h-10">
+                        <MapPin className="text-color-primary w-6 h-6" />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-medium text-black mb-1">
+                          LOCATION
+                        </label>
+                        <div
+                          onClick={() => setIsLocationOpen(!isLocationOpen)}
+                          className={`text-sm ${selectedRoom ? "text-black" : "text-gray-400"}`}
+                        >
+                          {selectedRoom || "Select Floor"}
+                        </div>
+                      </div>
                     </div>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-auto p-0 shadow-none border-none bg-transparent"
+                    align="start"
+                  >
                     {isLocationOpen && (
-                      <div className="absolute z-50 top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      <div className="z-50 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
                         {roomFloors.map((room) => (
                           <div
                             key={room.roomFloors}
@@ -138,8 +147,8 @@ const Hero = () => {
                         ))}
                       </div>
                     )}
-                  </div>
-                </div>
+                  </PopoverContent>
+                </Popover>
 
                 <div className="h-12 w-px bg-secondary" />
 
