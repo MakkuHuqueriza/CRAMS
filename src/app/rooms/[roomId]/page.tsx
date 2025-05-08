@@ -13,7 +13,16 @@ import {
   Laptop,
   Beaker,
   ChefHat,
+  CalendarIcon,
 } from "lucide-react";
+import { useState } from "react";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const RoomDetails = () => {
   const params = useParams();
@@ -21,6 +30,7 @@ const RoomDetails = () => {
   const decodedRoomId =
     typeof roomId === "string" ? decodeURIComponent(roomId) : "";
   const room = roomData.find((room) => room.name === decodedRoomId);
+  const [date, setDate] = useState<Date | undefined>(new Date());
 
   const getRoomIcon = (type: string) => {
     switch (type) {
@@ -73,7 +83,7 @@ const RoomDetails = () => {
 
           {/* Room Image */}
           <Image
-            src={room.image}
+            src={room.image || "/placeholder.svg"}
             alt={room.name}
             width={900}
             height={500}
@@ -115,6 +125,35 @@ const RoomDetails = () => {
 
           {/* Available Times Card */}
           <div className="bg-white rounded-xl border-[1px] border-[#B9B9B9] p-6 space-y-4">
+            {/* Date Selector */}
+            <div className="border-b border-gray-200 pb-4">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <div className="flex items-center cursor-pointer">
+                    <h2 className="text-[24px] font-semibold text-[#274c77]">
+                      {date ? format(date, "MMMM d, yyyy") : "Select a date"}
+                    </h2>
+                    <CalendarIcon className="ml-2 h-5 w-5 text-[#274c77]" />
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-auto p-0 shadow-none border-none bg-transparent rounded-lg"
+                  align="start"
+                >
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    initialFocus
+                    className="border-none"
+                  />
+                </PopoverContent>
+              </Popover>
+              <p className="text-xs text-gray-500 italic mt-1">
+                (Click calendar to see more dates)
+              </p>
+            </div>
+
             <h2 className="text-lg font-semibold text-[#274c77]">
               Available Time
             </h2>

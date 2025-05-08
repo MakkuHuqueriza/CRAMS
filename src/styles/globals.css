@@ -181,7 +181,7 @@ h6 {
     color: #b9b9b9;
   }
   .hover-color {
-    background-color: #D4DBE4;
+    background-color: #d4dbe4;
   }
   body {
     @apply bg-background text-foreground;

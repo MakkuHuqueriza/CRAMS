@@ -58,7 +58,6 @@ const Hero = () => {
           <div className="absolute bottom-10 left-0 right-0 px-8">
             <div className="bg-white shadow-lg rounded-lg p-4 mx-auto max-w-[1450px]">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                
                 {/* DATE PICKER */}
                 <Popover>
                   <PopoverTrigger asChild>
@@ -72,7 +71,7 @@ const Hero = () => {
                         </label>
                         <div className="flex flex-col">
                           <div
-                            className={`text-left ${selectedDate ? "text-black" : "text-gray-400"}`}
+                            className={`text-md ${selectedDate ? "text-black" : "text-gray-400"}`}
                           >
                             {selectedDate
                               ? format(selectedDate, "MM/dd/yyyy")
@@ -110,7 +109,7 @@ const Hero = () => {
                           LOCATION
                         </label>
                         <div
-                          className={`text-sm ${selectedRoom ? "text-black" : "text-gray-400"}`}
+                          className={`text-md ${selectedRoom ? "text-black" : "text-gray-400"}`}
                         >
                           {selectedRoom || "Select Room"}
                         </div>
@@ -119,14 +118,14 @@ const Hero = () => {
                   </PopoverTrigger>
                   <PopoverContent
                     align="start"
-                    className="w-auto p-0 bg-white rounded-md shadow-lg"
+                    className="w-auto p-0 bg-white rounded-lg shadow-lg"
                   >
-                    <div className="w-48 max-h-60 overflow-y-auto">
+                    <div className="w-48 max-h-60 overflow-y-auto rounded-lg">
                       {roomFloors.map((room) => (
                         <div
                           key={room.roomFloors}
                           onClick={() => setSelectedRoom(room.roomFloors)}
-                          className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                          className={`px-4 py-2 cursor-pointer hover:hover-color ${
                             selectedRoom === room.roomFloors
                               ? "color-primary text-white font-semibold"
                               : ""
@@ -153,7 +152,7 @@ const Hero = () => {
                           START TIME
                         </label>
                         <div
-                          className={`text-sm ${startTime ? "text-black" : "text-gray-400"}`}
+                          className={`text-md ${startTime ? "text-black" : "text-gray-400"}`}
                         >
                           {startTime || "Select Time"}
                         </div>
@@ -162,14 +161,14 @@ const Hero = () => {
                   </PopoverTrigger>
                   <PopoverContent
                     align="start"
-                    className="w-auto p-0 bg-white rounded-md shadow-lg"
+                    className="w-auto p-0 bg-white rounded-lg shadow-lg"
                   >
-                    <div className="w-48 max-h-60 overflow-y-auto">
+                    <div className="w-48 max-h-60 overflow-y-auto rounded-lg">
                       {availableTime.map((time) => (
                         <div
                           key={time.availableTime}
                           onClick={() => setStartTime(time.availableTime)}
-                          className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                          className={`px-4 py-2 cursor-pointer hover:hover-color ${
                             startTime === time.availableTime
                               ? "color-primary text-white font-semibold"
                               : ""
@@ -196,7 +195,7 @@ const Hero = () => {
                           END TIME
                         </label>
                         <div
-                          className={`text-sm ${endTime ? "text-black" : "text-gray-400"}`}
+                          className={`text-md ${endTime ? "text-black" : "text-gray-400"}`}
                         >
                           {endTime || "Select Time"}
                         </div>
@@ -205,14 +204,14 @@ const Hero = () => {
                   </PopoverTrigger>
                   <PopoverContent
                     align="start"
-                    className="w-auto p-0 bg-white rounded-md shadow-lg"
+                    className="w-auto p-0 bg-white rounded-lg shadow-lg"
                   >
-                    <div className="w-48 max-h-60 overflow-y-auto">
+                    <div className="w-48 max-h-60 overflow-y-auto rounded-lg">
                       {availableTime.map((time) => (
                         <div
                           key={time.availableTime}
                           onClick={() => setEndTime(time.availableTime)}
-                          className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                          className={`px-4 py-2 cursor-pointer hover:hover-color ${
                             endTime === time.availableTime
                               ? "color-primary text-white font-semibold"
                               : ""
@@ -239,7 +238,7 @@ const Hero = () => {
                           CAPACITY
                         </label>
                         <div
-                          className={`text-sm ${roomCap ? "text-black" : "text-gray-400"}`}
+                          className={`text-md ${roomCap ? "text-black" : "text-gray-400"}`}
                         >
                           {roomCap || "Select Capacity"}
                         </div>
@@ -248,14 +247,14 @@ const Hero = () => {
                   </PopoverTrigger>
                   <PopoverContent
                     align="start"
-                    className="w-auto p-0 bg-white rounded-md shadow-lg"
+                    className="w-auto p-0 bg-white rounded-lg shadow-lg"
                   >
-                    <div className="w-48 max-h-60 overflow-y-auto">
+                    <div className="w-48 max-h-60 overflow-y-auto rounded-lg">
                       {roomCapacity.map((cap) => (
                         <div
                           key={cap.roomCapacity}
                           onClick={() => setRoomCap(cap.roomCapacity)}
-                          className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                          className={`px-4 py-2 cursor-pointer hover:hover-color ${
                             roomCap === cap.roomCapacity
                               ? "color-primary text-white font-semibold"
                               : ""

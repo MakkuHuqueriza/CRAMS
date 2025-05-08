@@ -37,12 +37,12 @@ export function Calendar({
         ),
         day: cn(
           "h-9 w-9 p-0 font-normal text-gray-800 rounded-full flex items-center justify-center",
-          "hover:bg-blue-100 hover:text-gray-900",
+          "hover:hover-color hover:text-gray-900",
           "focus:outline-none",
         ),
         day_selected: cn(
           "color-primary text-black hover:bg-blue-700",
-          "focus:color-primary focus:text-white focus:semibold",
+          "focus:color-primary focus:text-white focus:font-semibold",
         ),
         day_today: "border primary-border",
         day_outside: "text-muted-foreground opacity-50",
