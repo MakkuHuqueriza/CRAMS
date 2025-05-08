@@ -83,7 +83,7 @@ const RoomDetails = () => {
 
           {/* Room Image */}
           <Image
-            src={room.image || "/placeholder.svg"}
+            src={room.image || "/room-pic.jpg"}
             alt={room.name}
             width={900}
             height={500}
