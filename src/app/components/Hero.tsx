@@ -82,7 +82,7 @@ const Hero = () => {
                     </div>
                   </PopoverTrigger>
                   <PopoverContent
-                    className="w-auto p-0 shadow-none border-none bg-transparent"
+                    className="w-auto p-0 shadow-none border-none bg-transparent outline-none"
                     align="start"
                   >
                     <Calendar
@@ -118,7 +118,7 @@ const Hero = () => {
                   </PopoverTrigger>
                   <PopoverContent
                     align="start"
-                    className="w-auto p-0 bg-white rounded-lg shadow-lg"
+                    className="w-auto p-0 bg-white rounded-lg shadow-lg outline-none"
                   >
                     <div className="w-48 max-h-60 overflow-y-auto rounded-lg">
                       {roomFloors.map((room) => (
@@ -161,7 +161,7 @@ const Hero = () => {
                   </PopoverTrigger>
                   <PopoverContent
                     align="start"
-                    className="w-auto p-0 bg-white rounded-lg shadow-lg"
+                    className="w-auto p-0 bg-white rounded-lg shadow-lg outline-none"
                   >
                     <div className="w-48 max-h-60 overflow-y-auto rounded-lg">
                       {availableTime.map((time) => (
@@ -204,7 +204,7 @@ const Hero = () => {
                   </PopoverTrigger>
                   <PopoverContent
                     align="start"
-                    className="w-auto p-0 bg-white rounded-lg shadow-lg"
+                    className="w-auto p-0 bg-white rounded-lg shadow-lg outline-none"
                   >
                     <div className="w-48 max-h-60 overflow-y-auto rounded-lg">
                       {availableTime.map((time) => (
@@ -247,7 +247,7 @@ const Hero = () => {
                   </PopoverTrigger>
                   <PopoverContent
                     align="start"
-                    className="w-auto p-0 bg-white rounded-lg shadow-lg"
+                    className="w-auto p-0 bg-white rounded-lg shadow-lg outline-none"
                   >
                     <div className="w-48 max-h-60 overflow-y-auto rounded-lg">
                       {roomCapacity.map((cap) => (
