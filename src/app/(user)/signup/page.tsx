@@ -4,7 +4,6 @@ import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation"; // Import useRouter for navigation
 import { signUpAction, signInWithGoogle } from "@/actions/users";
-import Image from "next/image";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");

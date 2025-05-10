@@ -4,7 +4,6 @@ import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { resetPasswordAction } from "@/actions/users";
-import Image from "next/image";
 
 export default function ResetPasswordPage() {
   const router = useRouter(); // Initialize router
