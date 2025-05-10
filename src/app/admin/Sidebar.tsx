@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Home, CalendarDays, LayoutGrid, LogOut } from "lucide-react";
 import { adminLogoutAction } from "@/actions/admin";
@@ -31,43 +32,49 @@ const Sidebar = () => {
       </div>
       <nav className="space-y-2">
         {/* Dashboard Button */}
-        <Button
-          variant="ghost"
-          className={`w-full justify-start ${
-            pathname === "/admin"
-              ? "bg-blue-100 text-blue-800"
-              : "hover:bg-blue-100 hover:text-blue-800"
-          } transition duration-200 ease-in-out`}
-        >
-          <Home className="mr-2" size={16} />
-          Dashboard
-        </Button>
+        <Link href="/admin">
+          <Button
+            variant="ghost"
+            className={`w-full justify-start ${
+              pathname === "/admin"
+                ? "bg-blue-100 text-blue-800"
+                : "hover:bg-blue-100 hover:text-blue-800"
+            } transition duration-200 ease-in-out`}
+          >
+            <Home className="mr-2" size={16} />
+            Dashboard
+          </Button>
+        </Link>
 
         {/* Booking Management Button */}
-        <Button
-          variant="ghost"
-          className={`w-full justify-start ${
-            pathname === "/admin/booking-management"
-              ? "bg-blue-100 text-blue-800"
-              : "hover:bg-blue-100 hover:text-blue-800"
-          } transition duration-200 ease-in-out`}
-        >
-          <CalendarDays className="mr-2" size={16} />
-          Booking Management
-        </Button>
+        <Link href="/admin/booking-management">
+          <Button
+            variant="ghost"
+            className={`w-full justify-start ${
+              pathname === "/admin/booking-management"
+                ? "bg-blue-100 text-blue-800"
+                : "hover:bg-blue-100 hover:text-blue-800"
+            } transition duration-200 ease-in-out`}
+          >
+            <CalendarDays className="mr-2" size={16} />
+            Booking Management
+          </Button>
+        </Link>
 
         {/* Room Management Button */}
-        <Button
-          variant="ghost"
-          className={`w-full justify-start ${
-            pathname === "/admin/room-management"
-              ? "bg-blue-100 text-blue-800"
-              : "hover:bg-blue-100 hover:text-blue-800"
-          } transition duration-200 ease-in-out`}
-        >
-          <LayoutGrid className="mr-2" size={16} />
-          Room Management
-        </Button>
+        <Link href="/admin/room-management">
+          <Button
+            variant="ghost"
+            className={`w-full justify-start ${
+              pathname === "/admin/room-management"
+                ? "bg-blue-100 text-blue-800"
+                : "hover:bg-blue-100 hover:text-blue-800"
+            } transition duration-200 ease-in-out`}
+          >
+            <LayoutGrid className="mr-2" size={16} />
+            Room Management
+          </Button>
+        </Link>
 
         {/* Logout Button */}
         <button
