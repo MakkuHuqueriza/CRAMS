@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -45,7 +46,7 @@ interface AvailableRoomsProps {
   roomTimes: Timeslot[];
 }
 
-const AvailableRooms = ( { roomDetails, roomTimes }: AvailableRoomsProps ) => {
+const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
   const [selectedFloor, setSelectedFloor] = useState("1st Floor, CSM");
   const [showAllRooms, setShowAllRooms] = useState(false);
 
@@ -124,7 +125,7 @@ const AvailableRooms = ( { roomDetails, roomTimes }: AvailableRoomsProps ) => {
                   >
                     <Clock className="w-4 h-4 text-[#274c77]" />
                     {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(
-                      time.end_time
+                      time.end_time,
                     )}`}
                   </p>
                 ),

@@ -72,7 +72,11 @@ function NewPasswordPage() {
           {isSubmitting ? "Submitting..." : "Update Password"}
         </button>
       </form>
-      {message && <p className="text-sm text-red-500">{message}</p>}
+      {message && message === "Password updated successfully!" ? (
+        <p className="text-sm text-green-500">{message}</p>
+      ) : (
+        <p className="text-sm text-red-500">{message}</p>
+      )}
 
       <button
         onClick={() => router.push("/login")}

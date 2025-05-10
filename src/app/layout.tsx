@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Montserrat, Manrope } from "next/font/google";
 import "@/styles/globals.css";
 
-
 const montserrat = Montserrat({
   variable: "--font-primary",
   subsets: ["latin"],
@@ -19,12 +18,11 @@ export const metadata: Metadata = {
   title: "CRAMS - Classroom Reservation and Management System",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
-}: Readonly<{ 
+}: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
     <html lang="en">
       <body

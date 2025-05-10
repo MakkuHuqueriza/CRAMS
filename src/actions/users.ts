@@ -68,9 +68,11 @@ export const signInWithGoogle = async () => {
 export const resetPasswordAction = async (FormData: FormData) => {
   const email = FormData.get("email") as string;
 
-  const { auth } = await createClient();
+  const supabase = await createClient();
 
-  const { error } = await auth.resetPasswordForEmail(email);
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+
+  console.log("data", data);
 
   if (error) {
     return handleError(error);
@@ -104,7 +106,6 @@ export const getAllRooms = async () => {
 };
 
 export const getAllTimeslots = async () => {
-
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -117,5 +118,4 @@ export const getAllTimeslots = async () => {
     return [];
   }
   return data;
-}
-
+};

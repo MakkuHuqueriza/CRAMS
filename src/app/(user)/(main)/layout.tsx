@@ -4,7 +4,6 @@ import "@/styles/globals.css";
 import Navbar from "@/app/components/Navbar";
 import { getUser } from "@/utils/supabase/server";
 
-
 const montserrat = Montserrat({
   variable: "--font-primary",
   subsets: ["latin"],
@@ -23,10 +22,9 @@ export const metadata: Metadata = {
 
 export default async function UserLayout({
   children,
-}: Readonly<{ 
+}: Readonly<{
   children: React.ReactNode;
 }>) {
-
   const user = await getUser();
 
   const name = user?.user_metadata.full_name;
@@ -34,13 +32,9 @@ export default async function UserLayout({
   const email = user?.user_metadata.email;
 
   return (
-    <html lang="en">
-      <body
-        className={`${montserrat.variable} ${manrope.variable} antialiased`}
-      >
-        <Navbar name={name} avatar_url={avatar_url} email={email} />
-        {children}
-      </body>
-    </html>
+    <main className={`${montserrat.variable} ${manrope.variable} antialiased`}>
+      <Navbar name={name} avatar_url={avatar_url} email={email} />
+      {children}
+    </main>
   );
 }

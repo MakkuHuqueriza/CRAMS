@@ -43,7 +43,7 @@ interface RoomsProps {
   roomTimes: Timeslot[];
 }
 
-const RoomDetails = ( { roomDetails, roomTimes }: RoomsProps ) => {
+const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
 
     const params = useParams();
     const roomId = params.roomId;
@@ -83,63 +83,65 @@ const RoomDetails = ( { roomDetails, roomTimes }: RoomsProps ) => {
         </div>
       );
     }
-  
-    return (
-      <>
-        <section className="flex justify-center py-12 lg:px-4 md:px-[58px] px-8">
-          <div className="w-full max-w-4xl space-y-6">
-            {/* Breadcrumb */}
-            <p className="text-sm text-muted-foreground">
-              <span
-                className="text-[#274c77] hover:underline cursor-pointer"
-                onClick={() => history.back()}
-              >
-                Available Rooms
-              </span>{" "}
-              &gt; {room.name}
-            </p>
-  
-            {/* Room Image */}
-            <Image
-              src="/room_sample.png"
-              alt={room.name}
-              width={900}
-              height={500}
-              className="rounded-xl object-cover w-full h-[300px] md:h-[400px]"
-            />
-  
-            {/* Room Info Card */}
-            <div className="bg-white rounded-xl border-[1px] border-[#B9B9B9] p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <h1 className="text-2xl sm:text-3xl font-bold text-[#1b1b1b]">
-                  {room.name}
-                </h1>
+
+
+
+  return (
+    <>
+      <section className="flex justify-center py-12 lg:px-4 md:px-[58px] px-8">
+        <div className="w-full max-w-4xl space-y-6">
+          {/* Breadcrumb */}
+          <p className="text-sm text-muted-foreground">
+            <span
+              className="text-[#274c77] hover:underline cursor-pointer"
+              onClick={() => history.back()}
+            >
+              Available Rooms
+            </span>{" "}
+            &gt; {room.name}
+          </p>
+
+          {/* Room Image */}
+          <Image
+            src="/room_sample.png"
+            alt={room.name}
+            width={900}
+            height={500}
+            className="rounded-xl object-cover w-full h-[300px] md:h-[400px]"
+          />
+
+          {/* Room Info Card */}
+          <div className="bg-white rounded-xl border-[1px] border-[#B9B9B9] p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#1b1b1b]">
+                {room.name}
+              </h1>
+            </div>
+
+            <div className="flex items-center gap-4 text-muted-foreground text-[12px] md:text-sm">
+              <div className="flex items-center gap-1">
+                <Building className="w-4 h-4" />
+                {room.room_location}
               </div>
-  
-              <div className="flex items-center gap-4 text-muted-foreground text-[12px] md:text-sm">
-                <div className="flex items-center gap-1">
-                  <Building className="w-4 h-4" />
-                  {room.room_location}
-                </div>
-                <span className="mx-[4px] mr-[6px]">|</span>
-                <div className="flex items-center gap-1">
-                  <Users className="w-4 h-4" />
-                  {room.capacity}
-                </div>
+              <span className="mx-[4px] mr-[6px]">|</span>
+              <div className="flex items-center gap-1">
+                <Users className="w-4 h-4" />
+                {room.capacity}
               </div>
-  
-              <div className="flex items-center gap-2 mt-6 mb-6">
-                {getRoomIcon(room.room_type)}
-                <p className="text-[#274c77] font-semibold uppercase tracking-wide text-[10px] md:text-[16px]">
-                  {room.room_type}
-                </p>
-              </div>
-  
-              <hr className="border-[1px] border-[#B9B9B9] rounded-md"></hr>
-              <p className="text-sm text-gray-700 leading-relaxed mt-4 font-medium">
-                {room.room_description}
+            </div>
+
+            <div className="flex items-center gap-2 mt-6 mb-6">
+              {getRoomIcon(room.room_type)}
+              <p className="text-[#274c77] font-semibold uppercase tracking-wide text-[10px] md:text-[16px]">
+                {room.room_type}
               </p>
             </div>
+
+            <hr className="border-[1px] border-[#B9B9B9] rounded-md"></hr>
+            <p className="text-sm text-gray-700 leading-relaxed mt-4 font-medium">
+              {room.room_description}
+            </p>
+          </div>
   
             {/* Available Times Card */}
             <div className="bg-white rounded-xl border-[1px] border-[#B9B9B9] p-6 space-y-4">
@@ -188,17 +190,18 @@ const RoomDetails = ( { roomDetails, roomTimes }: RoomsProps ) => {
                 ))}
               </div>
             </div>
-  
-            {/* Reserve Button */}
-            <div className="flex justify-start">
-              <Button className="bg-[#274c77] text-white text-[14px] hover:bg-[#182657] px-5 py-6 rounded-[30px]">
-                Reserve Room
-              </Button>
-            </div>
+
+
+          {/* Reserve Button */}
+          <div className="flex justify-start">
+            <Button className="bg-[#274c77] text-white text-[14px] hover:bg-[#182657] px-5 py-6 rounded-[30px]">
+              Reserve Room
+            </Button>
           </div>
-        </section>
-      </>
-    );
-  };
-  
-  export default RoomDetails;
+        </div>
+      </section>
+    </>
+  );
+};
+
+export default RoomDetails;

@@ -13,7 +13,7 @@ export const handleError = (error: unknown) => {
   }
 };
 
- // Helper function to convert 24-hour time to 12-hour format
+// Helper function to convert 24-hour time to 12-hour format
 export const formatTimeTo12Hour = (time: string) => {
   const [hours, minutes] = time.split(":").map(Number);
   const period = hours >= 12 ? "PM" : "AM";
