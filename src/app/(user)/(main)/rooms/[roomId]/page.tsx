@@ -5,7 +5,5 @@ export default async function RoomInfo() {
   const roomData = await getAllRooms();
   const roomTimes = await getAllTimeslots();
 
-  return (
-    <RoomDetails roomDetails={roomData} roomTimes={roomTimes} />
-  )
+  return <RoomDetails roomDetails={roomData} roomTimes={roomTimes} />;
 }

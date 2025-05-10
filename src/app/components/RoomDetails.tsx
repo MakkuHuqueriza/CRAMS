@@ -44,47 +44,44 @@ interface RoomsProps {
 }
 
 const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
+  const params = useParams();
+  const roomId = params.roomId;
+  const decodedRoomId =
+    typeof roomId === "string" ? decodeURIComponent(roomId) : "";
+  const room = roomDetails.find((room: Room) => room.name === decodedRoomId);
+  const [date, setDate] = useState<Date | undefined>(new Date());
 
-    const params = useParams();
-    const roomId = params.roomId;
-    const decodedRoomId =
-      typeof roomId === "string" ? decodeURIComponent(roomId) : "";
-    const room = roomDetails.find((room: Room) => room.name === decodedRoomId);
-    const [date, setDate] = useState<Date | undefined>(new Date());
-  
-    const getRoomIcon = (type: string) => {
-      switch (type) {
-        case "LECTURE ROOM/AUDITORIUM":
-        case "LECTURE ROOM":
-          return (
-            <BookOpen className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
-          );
-        case "DMPCS LABORATORY ROOM":
-          return (
-            <Laptop className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
-          );
-        case "DBSES LABORATORY ROOM":
-          return (
-            <Beaker className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
-          );
-        case "DFSC LABORATORY ROOM":
-          return (
-            <ChefHat className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
-          );
-        default:
-          return null;
-      }
-    };
-  
-    if (!room) {
-      return (
-        <div className="flex justify-center items-center h-screen">
-          <h1 className="text-2xl font-bold text-red-500">Room not found</h1>
-        </div>
-      );
+  const getRoomIcon = (type: string) => {
+    switch (type) {
+      case "LECTURE ROOM/AUDITORIUM":
+      case "LECTURE ROOM":
+        return (
+          <BookOpen className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
+        );
+      case "DMPCS LABORATORY ROOM":
+        return (
+          <Laptop className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
+        );
+      case "DBSES LABORATORY ROOM":
+        return (
+          <Beaker className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
+        );
+      case "DFSC LABORATORY ROOM":
+        return (
+          <ChefHat className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
+        );
+      default:
+        return null;
     }
+  };
 
-
+  if (!room) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <h1 className="text-2xl font-bold text-red-500">Room not found</h1>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -142,10 +139,10 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
               {room.room_description}
             </p>
           </div>
-  
-            {/* Available Times Card */}
-            <div className="bg-white rounded-xl border-[1px] border-[#B9B9B9] p-6 space-y-4">
-                          {/* Date Selector */}
+
+          {/* Available Times Card */}
+          <div className="bg-white rounded-xl border-[1px] border-[#B9B9B9] p-6 space-y-4">
+            {/* Date Selector */}
             <div className="border-b border-gray-200 pb-4">
               <Popover>
                 <PopoverTrigger asChild>
@@ -173,24 +170,23 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
                 (Click calendar to see more dates)
               </p>
             </div>
-              <h2 className="text-lg font-semibold text-[#274c77]">
-                Available Time
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                {roomTimes.map((time, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center text-sm text-muted-foreground"
-                  >
-                    <Clock className="w-4 h-4 mr-2 text-[#274c77]" />
-                    {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(
-                      time.end_time
-                    )}`}
-                  </div>
-                ))}
-              </div>
+            <h2 className="text-lg font-semibold text-[#274c77]">
+              Available Time
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              {roomTimes.map((time, index) => (
+                <div
+                  key={index}
+                  className="flex items-center text-sm text-muted-foreground"
+                >
+                  <Clock className="w-4 h-4 mr-2 text-[#274c77]" />
+                  {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(
+                    time.end_time,
+                  )}`}
+                </div>
+              ))}
             </div>
-
+          </div>
 
           {/* Reserve Button */}
           <div className="flex justify-start">
