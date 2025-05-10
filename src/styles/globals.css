@@ -134,9 +134,24 @@ h6 {
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+@layer components {
+  .primary-border {
+    border-color: #274c77;
+  }
+}
+
 @layer utilities {
   .color-primary {
     background-color: #274c77;
+  }
+  .text-color-primary {
+    color: #274c77;
+  }
+  .dark-blue-bg {
+    background-color: #034078;
+  }
+  .dark-blue-text {
+    color: #034078;
   }
   .text-primary-foreground {
     color: #0a1128;
@@ -158,6 +173,15 @@ h6 {
   }
   .text-foreground {
     color: var(--foreground);
+  }
+  .hero-bg-blue {
+    background-color: #6096ba;
+  }
+  .default-text {
+    color: #b9b9b9;
+  }
+  .hover-color {
+    background-color: #d4dbe4;
   }
   body {
     @apply bg-background text-foreground;

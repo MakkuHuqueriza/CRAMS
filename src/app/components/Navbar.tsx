@@ -36,6 +36,17 @@ const Navbar = (props: NavbarProps) => {
             </div>
           </div>
 
+          {/* ===== ADDED FOR TESTING - CONTACT US LINK ===== */}
+          {/* <div className="hidden md:flex items-center space-x-4">
+            <Link 
+              href="/contact" 
+              className="text-secondary-foreground hover:text-white transition-colors"
+            >
+              Contact Us
+            </Link>
+          </div> */}
+          {/* ===== END ADDED FOR TESTING ===== */}
+
           {/* Right Section: Profile with Popover */}
           <Popover>
             <PopoverTrigger asChild>
@@ -80,6 +91,7 @@ const Navbar = (props: NavbarProps) => {
                     <span>Pending Reservations</span>
                   </Link>
                 </li>
+
                 <li>
                   <button
                     onClick={logoutAction}
