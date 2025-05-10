@@ -1,6 +1,5 @@
 "use client";
 
-import Navbar from "@/app/components/Navbar";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -44,7 +43,7 @@ interface RoomsProps {
   roomTimes: Timeslot[];
 }
 
-const RoomDetails = ( { roomDetails, roomTimes}: RoomsProps ) => {
+const RoomDetails = ( { roomDetails, roomTimes }: RoomsProps ) => {
 
     const params = useParams();
     const roomId = params.roomId;
@@ -87,8 +86,6 @@ const RoomDetails = ( { roomDetails, roomTimes}: RoomsProps ) => {
   
     return (
       <>
-        <Navbar />
-  
         <section className="flex justify-center py-12 lg:px-4 md:px-[58px] px-8">
           <div className="w-full max-w-4xl space-y-6">
             {/* Breadcrumb */}
