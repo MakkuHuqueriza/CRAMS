@@ -28,7 +28,7 @@ export const adminLoginAction = async (FormData: FormData) => {
     redirect("/admin");
   } else {
     await supabase.auth.signOut();
-    return { message : "You are not an admin" };
+    return { message: "You are not an admin" };
   }
 };
 
