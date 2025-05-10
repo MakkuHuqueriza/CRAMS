@@ -1,12 +1,14 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-// import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-// import { cn } from "@/lib/utils";
-import { Home, CalendarDays, LayoutGrid } from "lucide-react";
+import { Home, CalendarDays, LayoutGrid, LogOut } from "lucide-react";
+import { adminLogoutAction } from "@/actions/admin";
+import { usePathname } from "next/navigation"; // Import usePathname
 
 const Sidebar = () => {
+  const pathname = usePathname(); // Get the current route
+
   return (
     <aside className="bg-white w-[270px] h-screen p-6 shadow-xl">
       <div className="flex flex-col items-center mb-10">
@@ -28,27 +30,53 @@ const Sidebar = () => {
         </p>
       </div>
       <nav className="space-y-2">
+        {/* Dashboard Button */}
         <Button
           variant="ghost"
-          className="w-full justify-start text-blue-800 bg-blue-100"
+          className={`w-full justify-start ${
+            pathname === "/admin"
+              ? "bg-blue-100 text-blue-800"
+              : "hover:bg-blue-100 hover:text-blue-800"
+          } transition duration-200 ease-in-out`}
         >
           <Home className="mr-2" size={16} />
           Dashboard
         </Button>
+
+        {/* Booking Management Button */}
         <Button
           variant="ghost"
-          className="w-full justify-start hover:text-blue-800 hover:bg-blue-100"
+          className={`w-full justify-start ${
+            pathname === "/admin/booking-management"
+              ? "bg-blue-100 text-blue-800"
+              : "hover:bg-blue-100 hover:text-blue-800"
+          } transition duration-200 ease-in-out`}
         >
           <CalendarDays className="mr-2" size={16} />
           Booking Management
         </Button>
+
+        {/* Room Management Button */}
         <Button
           variant="ghost"
-          className="w-full justify-start hover:text-blue-800 hover:bg-blue-100"
+          className={`w-full justify-start ${
+            pathname === "/admin/room-management"
+              ? "bg-blue-100 text-blue-800"
+              : "hover:bg-blue-100 hover:text-blue-800"
+          } transition duration-200 ease-in-out`}
         >
           <LayoutGrid className="mr-2" size={16} />
           Room Management
         </Button>
+
+        {/* Logout Button */}
+        <button
+          onClick={adminLogoutAction}
+          className="flex items-center gap-2 px-4 py-2 w-full text-[14px] hover:bg-gray-100 active:bg-[#274c77] active:text-white rounded-md transition duration-200 ease-in-out"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Log out</span>
+        </button>
       </nav>
     </aside>
   );
