@@ -5,7 +5,6 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
-import { roomData, Room } from "@/app/roomData";
 import {
   Select,
   SelectContent,
@@ -24,15 +23,36 @@ import {
   ChefHat,
   ArrowDown,
 } from "lucide-react";
+import { formatTimeTo12Hour } from "@/lib/utils";
 
-const AvailableRooms = () => {
+interface Room {
+  id: string;
+  name: string;
+  room_type: string;
+  room_location: string;
+  capacity: number;
+  room_description: string;
+}
+
+interface Timeslot {
+  id: string;
+  start_time: string;
+  end_time: string;
+}
+
+interface AvailableRoomsProps {
+  roomDetails: Room[];
+  roomTimes: Timeslot[];
+}
+
+const AvailableRooms = ( { roomDetails, roomTimes }: AvailableRoomsProps ) => {
   const [selectedFloor, setSelectedFloor] = useState("1st Floor, CSM");
   const [showAllRooms, setShowAllRooms] = useState(false);
 
   // Filter rooms based on the selected floor
   const filteredRooms = showAllRooms
-    ? roomData
-    : roomData.filter((room) => room.floor === selectedFloor);
+    ? roomDetails
+    : roomDetails.filter((room) => room.room_location === selectedFloor);
 
   const RoomCard = ({ room }: { room: Room }) => {
     const [showAllTimes, setShowAllTimes] = useState(false);
@@ -65,7 +85,7 @@ const AvailableRooms = () => {
       <Card className="w-[98%] flex md:flex-row bg-[#e7edf1] border-none p-4 md:p-4 scale-[0.90] md:scale-[0.97] gap-6 md:gap-5">
         <div className="flex-shrink-0 flex items-stretch">
           <Image
-            src={room.image}
+            src="/room_sample.png"
             alt={room.name}
             width={315}
             height={315}
@@ -80,14 +100,14 @@ const AvailableRooms = () => {
             </h2>
 
             <div className="flex items-center gap-2">
-              {getRoomIcon(room.type)}
+              {getRoomIcon(room.room_type)}
               <span className="text-primary-foreground text-[10px] lg:text-[16px] md:text-[12px] font-semibold">
-                {room.type}
+                {room.room_type}
               </span>
             </div>
 
             <div className="flex items-center gap-2 text-[10px] lg:text-[16px] md:text-[12px] text-primary-foreground">
-              <Building className="w-4 h-4" /> {room.floor}
+              <Building className="w-4 h-4" /> {room.room_location}
               <span className="mx-2 mr-[-5px]">|</span>
               <Users className="w-4 h-4 ml-4" /> {room.capacity}
             </div>
@@ -96,14 +116,16 @@ const AvailableRooms = () => {
               <p className="text-[15px] lg:text-[16px] md:text-[12px] text-primary-foreground font-semibold">
                 Available Time
               </p>
-              {(showAllTimes ? room.times : room.times.slice(0, 2)).map(
+              {(showAllTimes ? roomTimes : roomTimes.slice(0, 2)).map(
                 (time, i) => (
                   <p
                     key={i}
                     className="text-primary-foreground text-[13px] lg:text-sm md:text-[11px] tracking-wider flex items-center gap-2"
                   >
                     <Clock className="w-4 h-4 text-[#274c77]" />
-                    {time}
+                    {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(
+                      time.end_time
+                    )}`}
                   </p>
                 ),
               )}
@@ -111,7 +133,7 @@ const AvailableRooms = () => {
           </div>
 
           {/* Dots Button */}
-          {room.times.length > 2 && (
+          {roomTimes.length > 2 && (
             <button
               onClick={() => setShowAllTimes(!showAllTimes)}
               className="bg-primary text-black rounded-full p-1 w-6 h-3 flex items-center justify-center"

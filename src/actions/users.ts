@@ -97,7 +97,25 @@ export const getAllRooms = async () => {
     .order("name", { ascending: true });
 
   if (error) {
-    return handleError(error);
+    console.error("Error fetching rooms:", error);
+    return [];
   }
   return data;
 };
+
+export const getAllTimeslots = async () => {
+
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("schedule")
+    .select("*")
+    .order("start_time", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching timeslots:", error);
+    return [];
+  }
+  return data;
+}
+
