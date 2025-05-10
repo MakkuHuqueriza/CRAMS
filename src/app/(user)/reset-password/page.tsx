@@ -72,7 +72,11 @@ export default function ResetPasswordPage() {
           {isSubmitting ? "Submitting..." : "Reset Password"}
         </button>
       </form>
-      {message && <p className="text-sm text-red-500">{message}</p>}
+      {message && message === "Password reset email sent successfully!" ? (
+        <p className="text-sm text-green-500">{message}</p>
+      ) : (
+        <p className="text-sm text-red-500">{message}</p>
+      )}
 
       <p className="text-black font-medium text-[17px] mt-2">
         Check your email inbox for steps to create a new password.

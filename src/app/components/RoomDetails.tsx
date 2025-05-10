@@ -1,8 +1,6 @@
 "use client";
 
-import Navbar from "@/app/components/Navbar";
 import { useParams } from "next/navigation";
-import { roomData } from "@/app/roomData";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,13 +21,34 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { formatTimeTo12Hour } from "@/lib/utils";
 
-const RoomDetails = () => {
+interface Room {
+  id: string;
+  name: string;
+  room_type: string;
+  room_location: string;
+  capacity: number;
+  room_description: string;
+}
+
+interface Timeslot {
+  id: string;
+  start_time: string;
+  end_time: string;
+}
+
+interface RoomsProps {
+  roomDetails: Room[];
+  roomTimes: Timeslot[];
+}
+
+const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
   const params = useParams();
   const roomId = params.roomId;
   const decodedRoomId =
     typeof roomId === "string" ? decodeURIComponent(roomId) : "";
-  const room = roomData.find((room) => room.name === decodedRoomId);
+  const room = roomDetails.find((room: Room) => room.name === decodedRoomId);
   const [date, setDate] = useState<Date | undefined>(new Date());
 
   const getRoomIcon = (type: string) => {
@@ -66,8 +85,6 @@ const RoomDetails = () => {
 
   return (
     <>
-      <Navbar />
-
       <section className="flex justify-center py-12 lg:px-4 md:px-[58px] px-8">
         <div className="w-full max-w-4xl space-y-6">
           {/* Breadcrumb */}
@@ -83,7 +100,7 @@ const RoomDetails = () => {
 
           {/* Room Image */}
           <Image
-            src={room.image || "/room-pic.jpg"}
+            src="/room_sample.png"
             alt={room.name}
             width={900}
             height={500}
@@ -101,7 +118,7 @@ const RoomDetails = () => {
             <div className="flex items-center gap-4 text-muted-foreground text-[12px] md:text-sm">
               <div className="flex items-center gap-1">
                 <Building className="w-4 h-4" />
-                {room.floor}
+                {room.room_location}
               </div>
               <span className="mx-[4px] mr-[6px]">|</span>
               <div className="flex items-center gap-1">
@@ -111,15 +128,15 @@ const RoomDetails = () => {
             </div>
 
             <div className="flex items-center gap-2 mt-6 mb-6">
-              {getRoomIcon(room.type)}
+              {getRoomIcon(room.room_type)}
               <p className="text-[#274c77] font-semibold uppercase tracking-wide text-[10px] md:text-[16px]">
-                {room.type}
+                {room.room_type}
               </p>
             </div>
 
             <hr className="border-[1px] border-[#B9B9B9] rounded-md"></hr>
             <p className="text-sm text-gray-700 leading-relaxed mt-4 font-medium">
-              {room.description}
+              {room.room_description}
             </p>
           </div>
 
@@ -153,18 +170,19 @@ const RoomDetails = () => {
                 (Click calendar to see more dates)
               </p>
             </div>
-
             <h2 className="text-lg font-semibold text-[#274c77]">
               Available Time
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-              {room.times.map((time, index) => (
+              {roomTimes.map((time, index) => (
                 <div
                   key={index}
                   className="flex items-center text-sm text-muted-foreground"
                 >
                   <Clock className="w-4 h-4 mr-2 text-[#274c77]" />
-                  {time}
+                  {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(
+                    time.end_time,
+                  )}`}
                 </div>
               ))}
             </div>

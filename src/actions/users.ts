@@ -68,9 +68,11 @@ export const signInWithGoogle = async () => {
 export const resetPasswordAction = async (FormData: FormData) => {
   const email = FormData.get("email") as string;
 
-  const { auth } = await createClient();
+  const supabase = await createClient();
 
-  const { error } = await auth.resetPasswordForEmail(email);
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+
+  console.log("data", data);
 
   if (error) {
     return handleError(error);
@@ -86,4 +88,34 @@ export const updatePasswordAction = async (FormData: FormData) => {
   if (error) {
     return handleError(error);
   }
+};
+
+export const getAllRooms = async () => {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("room")
+    .select("*")
+    .order("name", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching rooms:", error);
+    return [];
+  }
+  return data;
+};
+
+export const getAllTimeslots = async () => {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("schedule")
+    .select("*")
+    .order("start_time", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching timeslots:", error);
+    return [];
+  }
+  return data;
 };

@@ -13,6 +13,7 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     const result = await loginAction(email, password);
+
     if (result?.errorMessage) {
       setMessage(result.errorMessage);
     } else {
@@ -128,7 +129,11 @@ export default function LoginPage() {
         >
           Don&apos;t have an account? Signup
         </button>
-        {message && <p className="text-sm text-[#cf2626]">{message}</p>}
+        {message && message === "Redirecting to Google..." ? (
+          <p className="text-sm text-green-500">{message}</p>
+        ) : (
+          <p className="text-sm text-red-500">{message}</p>
+        )}
       </div>
     </div>
   );

@@ -27,6 +27,15 @@ const Hero = () => {
   const [roomCap, setRoomCap] = useState<string>("");
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
 
+  // Function to filter end times based on the selected start time
+  const getFilteredEndTimes = () => {
+    const startIndex = availableTime.findIndex(
+      (time) => time.availableTime === startTime,
+    );
+    if (startIndex === -1) return [];
+    return availableTime.slice(startIndex + 1); // End times start after the selected start time
+  };
+
   return (
     <section className="w-full bg-background relative">
       <div className="mx-auto px-4 h-full">
@@ -164,19 +173,21 @@ const Hero = () => {
                     className="w-auto p-0 bg-white rounded-lg shadow-lg outline-none"
                   >
                     <div className="w-48 max-h-60 overflow-y-auto rounded-lg">
-                      {availableTime.map((time) => (
-                        <div
-                          key={time.availableTime}
-                          onClick={() => setStartTime(time.availableTime)}
-                          className={`px-4 py-2 cursor-pointer hover:hover-color ${
-                            startTime === time.availableTime
-                              ? "color-primary text-white font-semibold"
-                              : ""
-                          }`}
-                        >
-                          {time.availableTime}
-                        </div>
-                      ))}
+                      {availableTime
+                        .filter((time) => time.availableTime !== "7:00 PM")
+                        .map((time) => (
+                          <div
+                            key={time.availableTime}
+                            onClick={() => setStartTime(time.availableTime)}
+                            className={`px-4 py-2 cursor-pointer hover:hover-color ${
+                              startTime === time.availableTime
+                                ? "color-primary text-white font-semibold"
+                                : ""
+                            }`}
+                          >
+                            {time.availableTime}
+                          </div>
+                        ))}
                     </div>
                   </PopoverContent>
                 </Popover>
@@ -207,7 +218,7 @@ const Hero = () => {
                     className="w-auto p-0 bg-white rounded-lg shadow-lg outline-none"
                   >
                     <div className="w-48 max-h-60 overflow-y-auto rounded-lg">
-                      {availableTime.map((time) => (
+                      {getFilteredEndTimes().map((time) => (
                         <div
                           key={time.availableTime}
                           onClick={() => setEndTime(time.availableTime)}
