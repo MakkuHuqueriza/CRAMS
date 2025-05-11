@@ -134,6 +134,35 @@ h6 {
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Custom scrollbar styles */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #4a90e2;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #3a7bc8;
+}
+
+.custom-scrollbar::-webkit-scrollbar-button {
+  display: none;
+}
+
+/* For Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #4a90e2 transparent;
+}
+
 @layer components {
   .primary-border {
     border-color: #274c77;
