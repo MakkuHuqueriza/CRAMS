@@ -24,14 +24,14 @@ export default function RoomSchedulePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-  const [sidebarWidth, setSidebarWidth] = useState(400);
+  const [sidebarWidth, setSidebarWidth] = useState(700);
   const [isResizing, setIsResizing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showUnsavedChangesAlert, setShowUnsavedChangesAlert] = useState(false);
   const [editedDescription, setEditedDescription] = useState("");
-  const minWidth = 300;
-  const maxWidth = 600;
+  const minWidth = 700;
+  const maxWidth = 1150;
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   // Extract unique floor values for filtering
