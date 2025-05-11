@@ -1,9 +1,22 @@
 "use client";
 
+import type React from "react";
+
 import { useState, useRef, useEffect } from "react";
-import { Search, Clock, X } from "lucide-react";
+import { Search, Clock, X, ImageIcon, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { roomData, Room } from "@/app/roomData";
 import Sidebar from "@/app/admin/Sidebar";
 
@@ -11,10 +24,14 @@ export default function RoomSchedulePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-  const [sidebarWidth, setSidebarWidth] = useState(600);
+  const [sidebarWidth, setSidebarWidth] = useState(400);
   const [isResizing, setIsResizing] = useState(false);
-  const minWidth = 600;
-  const maxWidth = 900;
+  const [isEditing, setIsEditing] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showUnsavedChangesAlert, setShowUnsavedChangesAlert] = useState(false);
+  const [editedDescription, setEditedDescription] = useState("");
+  const minWidth = 300;
+  const maxWidth = 600;
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   // Extract unique floor values for filtering
@@ -62,8 +79,70 @@ export default function RoomSchedulePage() {
     };
   }, [isResizing]);
 
+  // Initialize edit form when a room is selected or editing mode changes
+  useEffect(() => {
+    if (selectedRoom && isEditing) {
+      setEditedDescription(selectedRoom.description);
+    }
+  }, [selectedRoom, isEditing]);
+
   const startResizing = () => {
     setIsResizing(true);
+  };
+
+  const handleEditRoom = () => {
+    setIsEditing(true);
+    setHasUnsavedChanges(false);
+  };
+
+  const handleCloseDetails = () => {
+    if (isEditing && hasUnsavedChanges) {
+      setShowUnsavedChangesAlert(true);
+    } else {
+      setSelectedRoom(null);
+      setIsEditing(false);
+      setHasUnsavedChanges(false);
+    }
+  };
+
+  const handleSaveChanges = () => {
+    // In a real app, you would save changes to the database here
+    // For now, we'll just update our local state
+    if (selectedRoom) {
+      const updatedRooms = roomData.map((room) => {
+        if (room.id === selectedRoom.id) {
+          return {
+            ...room,
+            description: editedDescription,
+          };
+        }
+        return room;
+      });
+
+      // This is just for demonstration - in a real app you'd update the database
+      console.log("Updated rooms:", updatedRooms);
+
+      // Update the selected room with the new description
+      setSelectedRoom({
+        ...selectedRoom,
+        description: editedDescription,
+      });
+    }
+
+    setIsEditing(false);
+    setHasUnsavedChanges(false);
+  };
+
+  const handleDiscardChanges = () => {
+    setIsEditing(false);
+    setHasUnsavedChanges(false);
+  };
+
+  const handleDescriptionChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    setEditedDescription(e.target.value);
+    setHasUnsavedChanges(true);
   };
 
   return (
@@ -91,7 +170,7 @@ export default function RoomSchedulePage() {
           </div>
         </div>
 
-        {/* Floor filter buttons */}
+        {/* Floor filter buttons - now below search bar */}
         <div className="flex gap-4 mb-6">
           <Button
             variant={selectedFloor === "1st Floor, CSM" ? "default" : "outline"}
@@ -163,16 +242,32 @@ export default function RoomSchedulePage() {
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold">Room Details</h2>
-                <button
-                  onClick={() => setSelectedRoom(null)}
-                  className="p-1 rounded-full hover:bg-gray-100"
-                >
-                  <X className="h-5 w-5" />
-                </button>
+                <div className="flex items-center gap-2">
+                  {isEditing && (
+                    <span className="text-sm text-gray-500">Editing Mode</span>
+                  )}
+                  <button
+                    onClick={handleCloseDetails}
+                    className="p-1 rounded-full hover:bg-gray-100"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
 
               {/* Room Image */}
-              <div className="bg-gray-200 h-[200px] rounded-lg mb-6"></div>
+              <div className="bg-gray-200 h-[200px] rounded-lg mb-6 relative">
+                {isEditing && (
+                  <Button
+                    className="absolute bottom-2 right-2 bg-blue-400 hover:bg-blue-500 text-white"
+                    size="sm"
+                    onClick={() => setHasUnsavedChanges(true)}
+                  >
+                    <ImageIcon className="h-4 w-4 mr-1" />
+                    Edit Room Photo
+                  </Button>
+                )}
+              </div>
 
               {/* Room Name */}
               <div className="mb-6">
@@ -186,9 +281,30 @@ export default function RoomSchedulePage() {
               {/* Description */}
               <div className="mb-6">
                 <h3 className="text-lg font-bold mb-2">Description</h3>
-                <p className="text-sm text-gray-700">
-                  {selectedRoom.description}
-                </p>
+                {isEditing ? (
+                  <Textarea
+                    value={editedDescription}
+                    onChange={handleDescriptionChange}
+                    className="min-h-[100px] text-sm"
+                  />
+                ) : (
+                  <p className="text-sm text-gray-700">
+                    {selectedRoom.description}
+                  </p>
+                )}
+              </div>
+
+              {/* Equipments */}
+              <div className="mb-6">
+                <h3 className="text-lg font-bold mb-2">Equipments</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
+                    <div key={item} className="flex items-center">
+                      <div className="w-3 h-3 bg-black mr-2"></div>
+                      <div className="h-[1px] bg-gray-300 flex-grow"></div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Available Time */}
@@ -208,19 +324,82 @@ export default function RoomSchedulePage() {
 
               {/* Action Buttons */}
               <div className="flex justify-end gap-4 mt-8">
-                <Button
-                  variant="outline"
-                  className="bg-gray-400 hover:bg-gray-500 text-white border-none"
-                >
-                  Delete Room
-                </Button>
-                <Button className="bg-blue-400 hover:bg-blue-500 text-white">
-                  Edit Room
-                </Button>
+                {isEditing ? (
+                  <>
+                    <Button
+                      variant="outline"
+                      className="bg-gray-400 hover:bg-gray-500 text-white border-none"
+                      onClick={handleDiscardChanges}
+                    >
+                      Discard Changes
+                    </Button>
+                    <Button
+                      className="bg-blue-400 hover:bg-blue-500 text-white"
+                      onClick={handleSaveChanges}
+                    >
+                      Save Changes
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      className="bg-gray-400 hover:bg-gray-500 text-white border-none"
+                    >
+                      Delete Room
+                    </Button>
+                    <Button
+                      className="bg-blue-400 hover:bg-blue-500 text-white"
+                      onClick={handleEditRoom}
+                    >
+                      Edit Room
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
         )}
+
+        {/* Unsaved Changes Alert */}
+        <AlertDialog
+          open={showUnsavedChangesAlert}
+          onOpenChange={setShowUnsavedChangesAlert}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                Unsaved Changes
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                You have unsaved changes. Would you like to save your changes
+                before exiting?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel
+                onClick={() => {
+                  setSelectedRoom(null);
+                  setIsEditing(false);
+                  setHasUnsavedChanges(false);
+                  setShowUnsavedChangesAlert(false);
+                }}
+              >
+                Discard
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  handleSaveChanges();
+                  setSelectedRoom(null);
+                  setShowUnsavedChangesAlert(false);
+                }}
+              >
+                Save
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
     </div>
   );
