@@ -1,26 +1,27 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Search } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Clock } from "lucide-react"
-import { roomData, Room } from "@/app/roomData"
-import Sidebar from "@/app/admin/Sidebar"
+import { useState } from "react";
+import { Search, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { roomData, Room } from "@/app/roomData";
+import Sidebar from "@/app/admin/Sidebar";
 
 export default function RoomSchedulePage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedFloor, setSelectedFloor] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
 
   // Extract unique floor values for filtering
-  const floors = Array.from(new Set(roomData.map((room) => room.floor)))
+  const floors = Array.from(new Set(roomData.map((room) => room.floor)));
 
   // Filter rooms based on search query and selected floor
   const filteredRooms = roomData.filter((room) => {
-    const matchesSearch = room.id.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesFloor = selectedFloor === null || room.floor === selectedFloor
-    return matchesSearch && matchesFloor
-  })
+    const matchesSearch = room.id
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesFloor = selectedFloor === null || room.floor === selectedFloor;
+    return matchesSearch && matchesFloor;
+  });
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -33,39 +34,55 @@ export default function RoomSchedulePage() {
           <h1 className="text-3xl font-bold">Room Schedule</h1>
         </div>
 
-        {/* Search and filters */}
-        <div className="mb-6">
-          <div className="flex gap-4 items-center flex-wrap">
-            <div className="relative w-full max-w-xs">
-              <Input
-                type="text"
-                placeholder="Search Room Number"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-white"
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            </div>
+        {/* Search bar */}
+        <div className="mb-4">
+          <div className="relative w-full max-w-xs">
+            <Input
+              type="text"
+              placeholder="Search Room Number"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-white"
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          </div>
+        </div>
 
-            {floors.map((floor) => (
-              <Button
-                key={floor}
-                variant={selectedFloor === floor ? "default" : "outline"}
-                onClick={() => setSelectedFloor(selectedFloor === floor ? null : floor)}
-                className={`${selectedFloor === floor ? "bg-blue-800 hover:bg-blue-700" : "bg-white"}`}
-              >
-                {floor}
-              </Button>
-            ))}
+        {/* Floor filter buttons - now below search bar */}
+        <div className="flex gap-4 mb-6">
+          <Button
+            variant={selectedFloor === "1st Floor, CSM" ? "default" : "outline"}
+            onClick={() =>
+              setSelectedFloor(
+                selectedFloor === "1st Floor, CSM" ? null : "1st Floor, CSM",
+              )
+            }
+            className={`${selectedFloor === "1st Floor, CSM" ? "bg-blue-800 hover:bg-blue-700" : "bg-white"}`}
+          >
+            Floor 1 - CSM Lobby
+          </Button>
 
-            <div className="ml-auto">
-              <Button className="bg-blue-400 hover:bg-blue-500 text-white">Edit Room</Button>
-            </div>
+          <Button
+            variant={selectedFloor === "2nd Floor, CSM" ? "default" : "outline"}
+            onClick={() =>
+              setSelectedFloor(
+                selectedFloor === "2nd Floor, CSM" ? null : "2nd Floor, CSM",
+              )
+            }
+            className={`${selectedFloor === "2nd Floor, CSM" ? "bg-blue-800 hover:bg-blue-700" : "bg-white"}`}
+          >
+            Floor 2 - Rooms
+          </Button>
+
+          <div className="ml-auto">
+            <Button className="bg-blue-400 hover:bg-blue-500 text-white">
+              Edit Room
+            </Button>
           </div>
         </div>
 
         {/* White container with custom scrollbar */}
-        <div className="bg-white rounded-lg shadow-md p-6 h-[calc(100vh-220px)] overflow-hidden">
+        <div className="bg-white rounded-lg shadow-md p-6 h-[calc(100vh-280px)] overflow-hidden">
           {/* Scrollable content area with custom scrollbar */}
           <div className="h-full overflow-y-auto pr-2 custom-scrollbar">
             {/* Room cards grid */}
@@ -78,15 +95,15 @@ export default function RoomSchedulePage() {
         </div>
       </main>
     </div>
-  )
+  );
 }
 
 // Room card component
 function RoomCard({ room }: { room: Room }) {
-  const [showAllTimes, setShowAllTimes] = useState(false)
+  const [showAllTimes, setShowAllTimes] = useState(false);
 
   // Show only 2 times initially, or all times if showAllTimes is true
-  const displayTimes = showAllTimes ? room.times : room.times.slice(0, 2)
+  const displayTimes = showAllTimes ? room.times : room.times.slice(0, 2);
 
   return (
     <div className="bg-[#e9f0f5] rounded-lg p-6 relative">
@@ -104,30 +121,44 @@ function RoomCard({ room }: { room: Room }) {
           </div>
         ))}
 
-        {room.times.length > 2 && !showAllTimes && (
-          <button
-            onClick={() => setShowAllTimes(true)}
-            className="w-full text-center mt-1 text-blue-500 hover:text-blue-700 transition-colors"
-          >
-            ...
-          </button>
+        {room.times.length > 2 && (
+          <div className="flex justify-between items-center mt-1">
+            {!showAllTimes ? (
+              <button
+                onClick={() => setShowAllTimes(true)}
+                className="text-left text-gray-500"
+              >
+                ...
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowAllTimes(false)}
+                className="text-left text-sm text-blue-500 hover:text-blue-700"
+              >
+                Show less
+              </button>
+            )}
+
+            <Button
+              variant="outline"
+              className="bg-blue-400 hover:bg-blue-500 text-white border-none"
+            >
+              View Room Details
+            </Button>
+          </div>
         )}
 
-        {showAllTimes && room.times.length > 2 && (
-          <button
-            onClick={() => setShowAllTimes(false)}
-            className="w-full text-center mt-2 text-sm text-blue-500 hover:text-blue-700 transition-colors"
-          >
-            Show less
-          </button>
+        {room.times.length <= 2 && (
+          <div className="text-right mt-4">
+            <Button
+              variant="outline"
+              className="bg-blue-400 hover:bg-blue-500 text-white border-none"
+            >
+              View Room Details
+            </Button>
+          </div>
         )}
-      </div>
-
-      <div className="text-right">
-        <Button variant="outline" className="bg-blue-400 hover:bg-blue-500 text-white border-none">
-          View Room Details
-        </Button>
       </div>
     </div>
-  )
+  );
 }
