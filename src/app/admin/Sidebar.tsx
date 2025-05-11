@@ -30,7 +30,7 @@ const Sidebar = () => {
           Welcome <span className="text-[#274c77]">Admin!</span>
         </p>
       </div>
-      <nav className="space-y-2">
+      <nav className="space-y-1">
         {/* Dashboard Button */}
         <Link href="/admin">
           <Button
