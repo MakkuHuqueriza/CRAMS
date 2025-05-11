@@ -33,6 +33,7 @@ export const signUpAction = async (email: string, password: string) => {
   }
   revalidatePath("/", "layout");
 };
+
 export const logoutAction = async () => {
   const { auth } = await createClient();
 

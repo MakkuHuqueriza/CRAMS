@@ -18,21 +18,17 @@ export const adminLoginAction = async (FormData: FormData) => {
     return error;
   }
 
-  const { data: adminData, error: adminError } = await supabase
+  const { data: adminData } = await supabase
     .from("admin")
     .select("admin_id")
     .eq("admin_id", data.user?.id)
     .single();
 
-  if (adminError) {
-    return adminError;
-  }
-
   if (adminData) {
     redirect("/admin");
   } else {
     await supabase.auth.signOut();
-    redirect("/admin/login");
+    return { message: "You are not an admin" };
   }
 };
 

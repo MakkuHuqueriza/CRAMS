@@ -1,9 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updatePasswordAction } from "@/actions/users";
-import Image from "next/image";
 
 function NewPasswordPage() {
   const router = useRouter(); // Initialize router
