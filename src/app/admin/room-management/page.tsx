@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Clock } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Search, Clock, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { roomData, Room } from "@/app/roomData";
@@ -10,6 +10,12 @@ import Sidebar from "@/app/admin/Sidebar";
 export default function RoomSchedulePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [sidebarWidth, setSidebarWidth] = useState(600);
+  const [isResizing, setIsResizing] = useState(false);
+  const minWidth = 600;
+  const maxWidth = 900;
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   // Extract unique floor values for filtering
   const floors = Array.from(new Set(roomData.map((room) => room.floor)));
@@ -23,13 +29,50 @@ export default function RoomSchedulePage() {
     return matchesSearch && matchesFloor;
   });
 
+  // Handle mouse events for resizing
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+
+      // Calculate new width based on mouse position
+      const newWidth = window.innerWidth - e.clientX;
+
+      // Apply constraints
+      if (newWidth >= minWidth && newWidth <= maxWidth) {
+        setSidebarWidth(newWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      document.body.style.cursor = "default";
+      document.body.style.userSelect = "auto";
+    };
+
+    if (isResizing) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "ew-resize";
+      document.body.style.userSelect = "none";
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing]);
+
+  const startResizing = () => {
+    setIsResizing(true);
+  };
+
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar on the left */}
       <Sidebar />
 
       {/* Main content area */}
-      <main className="flex-1 bg-[#f2ede4] py-6 px-10 overflow-y-auto">
+      <main className="flex-1 bg-[#f2ede4] py-6 px-10 overflow-y-auto relative">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Room Schedule</h1>
         </div>
@@ -48,7 +91,7 @@ export default function RoomSchedulePage() {
           </div>
         </div>
 
-        {/* Floor filter buttons - now below search bar */}
+        {/* Floor filter buttons */}
         <div className="flex gap-4 mb-6">
           <Button
             variant={selectedFloor === "1st Floor, CSM" ? "default" : "outline"}
@@ -86,20 +129,111 @@ export default function RoomSchedulePage() {
           {/* Scrollable content area with custom scrollbar */}
           <div className="h-full overflow-y-auto pr-2 custom-scrollbar">
             {/* Room cards grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {filteredRooms.map((room) => (
-                <RoomCard key={room.id} room={room} />
-              ))}
-            </div>
+            {filteredRooms.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {filteredRooms.map((room) => (
+                  <RoomCard
+                    key={room.id}
+                    room={room}
+                    onViewDetails={() => setSelectedRoom(room)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="flex justify-center items-center h-full">
+                <p className="text-gray-500 text-lg">No room exists</p>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Resizable Room Details Sidebar */}
+        {selectedRoom && (
+          <div
+            ref={sidebarRef}
+            className="fixed inset-y-0 right-0 bg-white shadow-lg z-10 overflow-y-auto custom-scrollbar"
+            style={{ width: `${sidebarWidth}px` }}
+          >
+            {/* Resize handle */}
+            <div
+              className="absolute inset-y-0 left-0 w-1 cursor-ew-resize hover:bg-blue-400 transition-colors"
+              onMouseDown={startResizing}
+            ></div>
+
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">Room Details</h2>
+                <button
+                  onClick={() => setSelectedRoom(null)}
+                  className="p-1 rounded-full hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Room Image */}
+              <div className="bg-gray-200 h-[200px] rounded-lg mb-6"></div>
+
+              {/* Room Name */}
+              <div className="mb-6">
+                <h3 className="text-lg font-bold mb-2">Room Name</h3>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 bg-black mr-2"></div>
+                  <span className="uppercase">{selectedRoom.type}</span>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="mb-6">
+                <h3 className="text-lg font-bold mb-2">Description</h3>
+                <p className="text-sm text-gray-700">
+                  {selectedRoom.description}
+                </p>
+              </div>
+
+              {/* Available Time */}
+              <div className="mb-6">
+                <h3 className="text-lg font-bold mb-2">Available Time</h3>
+                <div className="grid grid-cols-3 gap-2">
+                  {selectedRoom.times.map((time, index) => (
+                    <div key={index} className="mb-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-3 h-3 rounded-full bg-black"></div>
+                        <span className="text-xs">{time}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-4 mt-8">
+                <Button
+                  variant="outline"
+                  className="bg-gray-400 hover:bg-gray-500 text-white border-none"
+                >
+                  Delete Room
+                </Button>
+                <Button className="bg-blue-400 hover:bg-blue-500 text-white">
+                  Edit Room
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
 }
 
 // Room card component
-function RoomCard({ room }: { room: Room }) {
+function RoomCard({
+  room,
+  onViewDetails,
+}: {
+  room: Room;
+  onViewDetails: () => void;
+}) {
   const [showAllTimes, setShowAllTimes] = useState(false);
 
   // Show only 2 times initially, or all times if showAllTimes is true
@@ -142,6 +276,7 @@ function RoomCard({ room }: { room: Room }) {
             <Button
               variant="outline"
               className="bg-blue-400 hover:bg-blue-500 text-white border-none"
+              onClick={onViewDetails}
             >
               View Room Details
             </Button>
@@ -153,6 +288,7 @@ function RoomCard({ room }: { room: Room }) {
             <Button
               variant="outline"
               className="bg-blue-400 hover:bg-blue-500 text-white border-none"
+              onClick={onViewDetails}
             >
               View Room Details
             </Button>
