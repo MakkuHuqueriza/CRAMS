@@ -3,7 +3,7 @@
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
 import { ArrowDownWideNarrow, Search, X } from "lucide-react";
-import Sidebar from "@/app/admin/Sidebar";
+import Sidebar from "../Sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -117,7 +117,7 @@ const reservationDetails = {
   jobOrder: {
     room: "CSM 227",
     location: "CSM, 2nd Floor",
-    type: "Kita",
+    type: "Event",
     date: "04/13/2025",
     time: "12:00 AM - 12:00 PM",
     natureOfWork: "Reservation/Setup",
@@ -130,7 +130,6 @@ export default function BookingManagementPage() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("");
-  // const [bookings, setBookings] = useState(bookingsData)
   const [filteredBookings, setFilteredBookings] = useState(bookingsData);
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
@@ -259,25 +258,25 @@ export default function BookingManagementPage() {
     switch (status) {
       case "Pending":
         return (
-          <Badge className="bg-yellow-500 hover:bg-yellow-600 rounded-lg px-2 text-[13px]">
+          <Badge className="bg-[#FFC442] hover:bg-[#ffbe33] text-[#fdf7ec] rounded-lg px-2 text-[13px] cursor-pointer">
             Pending
           </Badge>
         );
       case "Accepted":
         return (
-          <Badge className="bg-green-600 hover:bg-green-700 rounded-lg px-2 text-[13px]">
+          <Badge className="bg-[#006225] text-[#A5EEC0] rounded-lg px-2 text-[13px] cursor-default">
             Accepted
           </Badge>
         );
       case "Completed":
         return (
-          <Badge className="bg-blue-600 hover:bg-blue-700 rounded-lg px-2 text-[13px]">
+          <Badge className="bg-[#034078] text-[#92C2F9] rounded-lg px-2 text-[13px] cursor-default">
             Completed
           </Badge>
         );
       case "Rejected":
         return (
-          <Badge className="bg-red-600 hover:bg-red-700 rounded-lg px-2 text-[13px]">
+          <Badge className="bg-[#780D29] text-[#ffb7ca] rounded-lg px-2 text-[13px] cursor-default">
             Rejected
           </Badge>
         );
@@ -296,16 +295,15 @@ export default function BookingManagementPage() {
         <div className="container mx-auto px-8 py-6">
           <h1 className="text-3xl font-bold mb-6">Booking Management</h1>
 
-          {/* Main content container with white background */}
-          <div className="bg-white rounded-2xl shadow-md p-6 w-full max-w-screen-xl mx-auto">
-            {/* Search and filter controls */}
-            <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
-              <div className="relative w-full md:w-64">
+          {/* Search and filter controls - moved outside the white container */}
+          <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
+            <div className="relative w-full md:w-64">
+              <div className="bg-white rounded-md shadow-sm">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
                 <Input
                   ref={searchInputRef}
                   placeholder="Search Room Number"
-                  className="pl-10 pr-10 w-full h-9"
+                  className="pl-10 pr-10 w-full h-9 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                   value={searchTerm}
                   onChange={handleSearch}
                 />
@@ -319,59 +317,79 @@ export default function BookingManagementPage() {
                   </button>
                 )}
               </div>
+            </div>
+            <div className="w-full md:w-[180px] bg-white rounded-lg shadow-sm">
               <Select value={sortOption} onValueChange={handleSortChange}>
-                <SelectTrigger className="w-full md:w-[180px] h-9">
+                <SelectTrigger className="w-full h-9 border-0 focus:ring-0">
                   <div className="flex items-center gap-2">
                     <ArrowDownWideNarrow className="h-4 w-4" />
                     <SelectValue placeholder="Sort by" />
                   </div>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="w-full bg-white">
                   <SelectItem value="latest">Latest</SelectItem>
                   <SelectItem value="oldest">Oldest</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+          </div>
 
-            {/* Table of bookings - with fixed height to show 5 rows */}
-            <div className="overflow-x-auto" ref={tableRef}>
-              <div className="max-h-[380px] overflow-y-auto">
+          {/* Main content container with white background */}
+          <div
+            className="bg-white rounded-lg shadow-md w-full max-w-screen-xl mx-auto"
+            ref={tableRef}
+          >
+            {/* Table with properly aligned columns */}
+            <div className="relative overflow-hidden">
+              <Table>
+                <TableHeader className="rounded-t-lg overflow-hidden">
+                  <TableRow className="hover:bg-white rounded-t-lg">
+                    <TableHead className="text-center text-[16px] py-5 w-1/4 bg-white rounded-tl-lg">
+                      Booking ID
+                    </TableHead>
+                    <TableHead className="text-center text-[16px] py-5 w-1/4 bg-white">
+                      Room Number
+                    </TableHead>
+                    <TableHead className="text-center text-[16px] py-5 w-1/4 bg-white">
+                      Submitted On
+                    </TableHead>
+                    <TableHead className="text-center text-[16px] py-5 pr-[25px] w-1/4 bg-white rounded-tr-lg">
+                      Status
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+              </Table>
+
+              {/* Scrollable Table Body with custom scrollbar */}
+              <div
+                className="max-h-[355px] overflow-y-auto scrollbar-custom"
+                style={{
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "#274c77 #f0f0f0",
+                }}
+              >
                 <Table>
-                  <TableHeader className="sticky top-0 bg-white z-10">
-                    <TableRow>
-                      <TableHead className="text-center">Booking ID</TableHead>
-                      <TableHead className="text-center">Room Number</TableHead>
-                      <TableHead className="text-center">
-                        Submitted On
-                      </TableHead>
-                      <TableHead className="text-center">Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
                   <TableBody>
                     {filteredBookings.length > 0 ? (
                       filteredBookings.map((booking) => (
                         <TableRow
                           key={booking.id}
-                          className={`hover:bg-blue-50 rounded-md ${
-                            selectedBooking === booking.id
-                              ? "bg-blue-200 rounded-md"
-                              : ""
-                          }`}
+                          className={`hover:bg-blue-50 ${selectedBooking === booking.id ? "bg-[#9BB2FC]" : ""}`}
                           onClick={() =>
                             handleRowClick(booking.id, booking.status)
                           }
                         >
-                          <TableCell className="font-medium text-center text-lg py-4">
+                          <TableCell className="font-medium text-center py-4 w-1/4">
                             {booking.id}
                           </TableCell>
-                          <TableCell className="text-center text-lg py-4">
+                          <TableCell className="text-center py-4 w-1/4">
                             {booking.room}
                           </TableCell>
-                          <TableCell className="text-center text-lg py-4">
+                          <TableCell className="text-center py-4 w-1/4">
                             {booking.time}
                           </TableCell>
-                          <TableCell className="text-center text-lg py-4">
+                          <TableCell className="text-center py-4 w-1/4">
                             {getStatusBadge(booking.status)}
                           </TableCell>
                         </TableRow>
@@ -396,11 +414,14 @@ export default function BookingManagementPage() {
 
       {/* Reservation details sheet */}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="w-full sm:max-w-md p-4 overflow-y-auto">
+        <SheetContent
+          className="w-full sm:max-w-md p-4 overflow-y-auto transition-transform duration-300 ease-in-out"
+          side="right"
+        >
           <div className="relative">
             {/* Reservation Details */}
             <div
-              className={showRejectForm ? "blur-[2px] pointer-events-none" : ""}
+              className={`transition-all duration-300 ease-in-out ${showRejectForm ? "blur-[2px] pointer-events-none" : ""}`}
             >
               <SheetHeader>
                 <SheetTitle className="text-2xl text-bold text-center text-blue-800">
@@ -491,8 +512,8 @@ export default function BookingManagementPage() {
 
             {/* Reject Confirmation Popup */}
             {showRejectForm && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-white border rounded-lg shadow-lg p-6 w-[90%] max-w-md">
+              <div className="absolute inset-0 flex items-center justify-center transition-opacity duration-200 ease-in-out">
+                <div className="bg-white border rounded-lg shadow-lg p-6 w-[90%] max-w-md transform transition-all duration-300 ease-in-out animate-in fade-in slide-in-from-bottom-4">
                   <h3 className="text-lg font-semibold text-center mb-4">
                     Are you sure you want to reject this reservation?
                   </h3>

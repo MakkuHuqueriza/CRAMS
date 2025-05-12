@@ -47,7 +47,7 @@ const Sidebar = () => {
         </Link>
 
         {/* Booking Management Button */}
-        <Link href="/admin/booking-management">
+        <Link href="/admin/booking-management" className="block my-2">
           <Button
             variant="ghost"
             className={`w-full justify-start ${
@@ -62,7 +62,7 @@ const Sidebar = () => {
         </Link>
 
         {/* Room Management Button */}
-        <Link href="/admin/room-management">
+        <Link href="/admin/room-management" className="block my-2">
           <Button
             variant="ghost"
             className={`w-full justify-start ${
