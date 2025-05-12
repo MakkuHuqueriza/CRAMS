@@ -106,8 +106,7 @@ export default function RoomSchedulePage() {
   };
 
   const handleSaveChanges = () => {
-    // In a real app, you would save changes to the database here
-    // For now, we'll just update our local state
+    // saving room changes @ local :)
     if (selectedRoom) {
       const updatedRooms = roomData.map((room) => {
         if (room.id === selectedRoom.id) {
@@ -119,7 +118,7 @@ export default function RoomSchedulePage() {
         return room;
       });
 
-      // This is just for demonstration - in a real app you'd update the database
+      // demo
       console.log("Updated rooms:", updatedRooms);
 
       // Update the selected room with the new description
