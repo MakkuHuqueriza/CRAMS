@@ -65,7 +65,7 @@ export async function updateSession(request: NextRequest) {
   const { data: isAdmin } = await supabase
     .from("admin")
     .select("admin_id")
-    .eq("admin_id", user?.id)
+    .eq("id", user?.id)
     .single();
 
   if (user && !isAdmin && request.nextUrl.pathname.startsWith("/admin")) {

@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import Link from 'next/link';
 import {
   Clock,
   Building,
@@ -24,7 +24,7 @@ import {
 import { formatTimeTo12Hour } from "@/lib/utils";
 
 interface Room {
-  id: string;
+  room_id: string;
   name: string;
   room_type: string;
   room_location: string;
@@ -190,9 +190,12 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
 
           {/* Reserve Button */}
           <div className="flex justify-start">
-            <Button className="bg-[#274c77] text-white text-[14px] hover:bg-[#182657] px-5 py-6 rounded-[30px]">
+            <Link 
+              className="bg-[#274c77] text-white text-[14px] hover:bg-[#182657] px-5 py-6 rounded-[30px]"
+              href={`/reservations/new/${room.room_id}?name=${encodeURIComponent(room.name)}`}
+            >
               Reserve Room
-            </Button>
+            </Link>
           </div>
         </div>
       </section>
