@@ -3,7 +3,20 @@
 import type React from "react";
 
 import { useState, useRef, useEffect } from "react";
-import { Search, Clock, X, ImageIcon, AlertTriangle } from "lucide-react";
+import {
+  Search,
+  Clock,
+  X,
+  ImageIcon,
+  AlertTriangle,
+  Laptop,
+  FlaskRoundIcon as Flask,
+  Microscope,
+  Presentation,
+  School,
+  ChefHat,
+  MoreHorizontal,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,8 +30,28 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { roomData, Room } from "@/app/roomData";
+import { roomData, type Room } from "@/app/roomData";
 import Sidebar from "@/app/admin/Sidebar";
+
+// Function to get the appropriate icon based on room type
+const getRoomTypeIcon = (type: string) => {
+  const typeUpperCase = type.toUpperCase();
+
+  if (
+    typeUpperCase.includes("LECTURE") ||
+    typeUpperCase.includes("AUDITORIUM")
+  ) {
+    return <Presentation className="h-4 w-4 mr-2" />;
+  } else if (typeUpperCase.includes("DMPCS")) {
+    return <Laptop className="h-4 w-4 mr-2" />;
+  } else if (typeUpperCase.includes("DBSES")) {
+    return <Microscope className="h-4 w-4 mr-2" />;
+  } else if (typeUpperCase.includes("DFSC")) {
+    return <ChefHat className="h-4 w-4 mr-2" />;
+  } else {
+    return <School className="h-4 w-4 mr-2" />;
+  }
+};
 
 export default function RoomSchedulePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,6 +63,7 @@ export default function RoomSchedulePage() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showUnsavedChangesAlert, setShowUnsavedChangesAlert] = useState(false);
   const [editedDescription, setEditedDescription] = useState("");
+  const [roomImage, setRoomImage] = useState<string | null>("/classroom.jpg");
   const minWidth = 700;
   const maxWidth = 1150;
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -157,7 +191,7 @@ export default function RoomSchedulePage() {
 
         {/* Search bar */}
         <div className="mb-4">
-          <div className="relative w-full max-w-xs">
+          <div className="relative w-full max-w-[21rem]">
             <Input
               type="text"
               placeholder="Search Room Number"
@@ -169,8 +203,8 @@ export default function RoomSchedulePage() {
           </div>
         </div>
 
-        {/* Floor filter buttons - now below search bar */}
-        <div className="flex gap-4 mb-6">
+        {/* Floor filter buttons */}
+        <div className="flex gap-5 mb-6">
           <Button
             variant={selectedFloor === "1st Floor, CSM" ? "default" : "outline"}
             onClick={() =>
@@ -197,13 +231,13 @@ export default function RoomSchedulePage() {
 
           <div className="ml-auto">
             <Button className="bg-blue-400 hover:bg-blue-500 text-white">
-              Edit Room
+              Create Room
             </Button>
           </div>
         </div>
 
         {/* White container with custom scrollbar */}
-        <div className="bg-white rounded-lg shadow-md p-6 h-[calc(100vh-280px)] overflow-hidden">
+        <div className="bg-white rounded-lg shadow-md p-6 h-[calc(100vh-220px)] overflow-hidden">
           {/* Scrollable content area with custom scrollbar */}
           <div className="h-full overflow-y-auto pr-2 custom-scrollbar">
             {/* Room cards grid */}
@@ -255,16 +289,53 @@ export default function RoomSchedulePage() {
               </div>
 
               {/* Room Image */}
-              <div className="bg-gray-200 h-[200px] rounded-lg mb-6 relative">
+              <div className="relative mb-6">
+                {roomImage ? (
+                  <img
+                    src={roomImage || "/placeholder.svg"}
+                    alt="Room"
+                    className="w-full h-[200px] object-cover rounded-lg"
+                  />
+                ) : (
+                  <div className="bg-gray-200 h-[200px] rounded-lg flex items-center justify-center text-gray-500">
+                    No Room Image
+                  </div>
+                )}
+
                 {isEditing && (
-                  <Button
-                    className="absolute bottom-2 right-2 bg-blue-400 hover:bg-blue-500 text-white"
-                    size="sm"
-                    onClick={() => setHasUnsavedChanges(true)}
-                  >
-                    <ImageIcon className="h-4 w-4 mr-1" />
-                    Edit Room Photo
-                  </Button>
+                  <div className="absolute bottom-2 right-2">
+                    <label htmlFor="roomImageUpload">
+                      <Button
+                        className="bg-blue-400 hover:bg-blue-500 text-white"
+                        size="sm"
+                        asChild
+                      >
+                        <span>
+                          <ImageIcon className="h-4 w-4 mr-1" />
+                          Edit Room Photo
+                        </span>
+                      </Button>
+                    </label>
+                    <input
+                      id="roomImageUpload"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            if (typeof reader.result === "string") {
+                              setRoomImage(reader.result);
+                              setHasUnsavedChanges(true);
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </div>
                 )}
               </div>
 
@@ -272,7 +343,7 @@ export default function RoomSchedulePage() {
               <div className="mb-6">
                 <h3 className="text-lg font-bold mb-2">Room Name</h3>
                 <div className="flex items-center">
-                  <div className="w-3 h-3 bg-black mr-2"></div>
+                  {getRoomTypeIcon(selectedRoom.type)}
                   <span className="uppercase">{selectedRoom.type}</span>
                 </div>
               </div>
@@ -293,19 +364,6 @@ export default function RoomSchedulePage() {
                 )}
               </div>
 
-              {/* Equipments */}
-              <div className="mb-6">
-                <h3 className="text-lg font-bold mb-2">Equipments</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
-                    <div key={item} className="flex items-center">
-                      <div className="w-3 h-3 bg-black mr-2"></div>
-                      <div className="h-[1px] bg-gray-300 flex-grow"></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               {/* Available Time */}
               <div className="mb-6">
                 <h3 className="text-lg font-bold mb-2">Available Time</h3>
@@ -313,7 +371,7 @@ export default function RoomSchedulePage() {
                   {selectedRoom.times.map((time, index) => (
                     <div key={index} className="mb-2">
                       <div className="flex items-center gap-2 mb-1">
-                        <div className="w-3 h-3 rounded-full bg-black"></div>
+                        <Clock className="h-4 w-4 text-gray-700" />
                         <span className="text-xs">{time}</span>
                       </div>
                     </div>
@@ -418,14 +476,17 @@ function RoomCard({
   const displayTimes = showAllTimes ? room.times : room.times.slice(0, 2);
 
   return (
-    <div className="bg-[#e9f0f5] rounded-lg p-6 relative">
-      <div className="mb-4">
+    <div className="bg-[#e9f0f5] rounded-lg p-5 pb-3 relative">
+      <div className="mb-3">
         <h2 className="text-xl font-bold">{room.id}</h2>
-        <p className="text-gray-600">{room.type}</p>
+        <div className="flex items-center text-gray-600">
+          {getRoomTypeIcon(room.type)}
+          <span>{room.type}</span>
+        </div>
       </div>
 
-      <div className="mb-4">
-        <h3 className="font-medium mb-2">Available Time</h3>
+      <div className="mb-2">
+        <h3 className="font-medium mb-1">Available Time</h3>
         {displayTimes.map((time, index) => (
           <div key={index} className="flex items-center gap-2 mb-1">
             <Clock className="h-4 w-4 text-gray-700" />
@@ -438,9 +499,9 @@ function RoomCard({
             {!showAllTimes ? (
               <button
                 onClick={() => setShowAllTimes(true)}
-                className="text-left text-gray-500"
+                className="bg-white text-black rounded-full p-1 w-6 h-3 flex items-center justify-center"
               >
-                ...
+                <MoreHorizontal className="w-4 h-4" />
               </button>
             ) : (
               <button
@@ -462,7 +523,7 @@ function RoomCard({
         )}
 
         {room.times.length <= 2 && (
-          <div className="text-right mt-4">
+          <div className="text-right mt-2">
             <Button
               variant="outline"
               className="bg-blue-400 hover:bg-blue-500 text-white border-none"
