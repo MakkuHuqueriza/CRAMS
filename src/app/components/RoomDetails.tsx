@@ -100,14 +100,13 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
           </p>
 
           {/* Room Image */}
-          <div className="relative w-full aspect-video">
-            <Image
-              src="/wide_room_sample.png"
-              alt={room.name}
-              fill
-              className="rounded-xl object-cover"
-            />
-          </div>
+          <Image
+            src="/classroom.jpg"
+            alt={room.name}
+            width={900}
+            height={500}
+            className="rounded-xl object-cover w-full h-[300px] md:h-[400px]"
+          />
 
           {/* Room Info Card */}
           <div className="bg-white rounded-xl border-[1px] border-[#B9B9B9] p-6">

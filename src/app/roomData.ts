@@ -14,7 +14,7 @@ export const roomData: Room[] = [
     type: "DBSES LABORATORY ROOM",
     floor: "1st Floor, CSM",
     capacity: 50,
-    image: "/room_sample.png",
+    image: "/classroom.jpg",
     times: ["10:00 AM – 11:00 PM", "11:30 AM – 12:30 PM", "1:00 PM - 2:30 PM"],
     description:
       "The DBSES lab is used for biology and environmental science classes. It has lab benches, microscopes, specimen areas, a chalkboard or whiteboard, a TV, and air conditioning. It supports biology labs, fieldwork analysis, and environmental studies.",
