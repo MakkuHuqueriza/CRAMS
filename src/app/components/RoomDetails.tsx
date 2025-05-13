@@ -100,7 +100,7 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
 
           {/* Room Image */}
           <Image
-            src="/room_sample.png"
+            src="/classroom.jpg"
             alt={room.name}
             width={900}
             height={500}

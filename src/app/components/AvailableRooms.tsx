@@ -86,7 +86,7 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
       <Card className="w-[98%] flex md:flex-row bg-[#e7edf1] border-none p-4 md:p-4 scale-[0.90] md:scale-[0.97] gap-6 md:gap-5">
         <div className="flex-shrink-0 flex items-stretch">
           <Image
-            src="/room_sample.png"
+            src="/classroom.jpg"
             alt={room.name}
             width={315}
             height={315}
