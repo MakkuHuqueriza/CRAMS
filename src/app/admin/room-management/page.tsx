@@ -447,25 +447,23 @@ export default function RoomSchedulePage() {
             ></div>
 
             <div className="p-6">
-              {/* Room Details Header with Border */}
-              <div className="border border-gray-300 rounded-lg p-4 mb-6">
-                <h2 className="text-xl font-bold text-[#2d4a73]">
-                  Room Details
-                </h2>
-              </div>
-
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-0.5">
+                <div className="border border-gray-300 rounded-lg px-8 py-2 mb-4 w-fit">
+                  <h2 className="text-xl font-bold text-color-primary">
+                    Room Details
+                  </h2>
+                </div>
                 <div className="flex items-center gap-2">
                   {isEditing && (
                     <span className="text-sm text-gray-500">Editing Mode</span>
                   )}
+                  <button
+                    onClick={handleCloseDetails}
+                    className="p-1 rounded-full hover:bg-gray-100"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
                 </div>
-                <button
-                  onClick={handleCloseDetails}
-                  className="p-1 rounded-full hover:bg-gray-100"
-                >
-                  <X className="h-5 w-5" />
-                </button>
               </div>
 
               {/* Room Image */}
@@ -521,7 +519,7 @@ export default function RoomSchedulePage() {
 
               {/* Room Name */}
               <div className="mb-6">
-                <h3 className="text-lg font-bold mb-2">Room Name</h3>
+                <h3 className="text-lg font-bold mb-2">{selectedRoom.id}</h3>
                 <div className="flex items-center">
                   {getRoomTypeIcon(selectedRoom.type)}
                   <span className="uppercase">{selectedRoom.type}</span>
@@ -582,7 +580,6 @@ export default function RoomSchedulePage() {
                     <Button
                       variant="outline"
                       className="bg-gray-400 hover:bg-gray-500 text-white border-none"
-                      onClick={handleDeleteRoom}
                     >
                       Delete Room
                     </Button>
@@ -672,7 +669,7 @@ export default function RoomSchedulePage() {
           open={showCreateRoomDialog}
           onOpenChange={setShowCreateRoomDialog}
         >
-          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto shadow-sm rounded-lg">
             <DialogHeader>
               <DialogTitle>Create New Room</DialogTitle>
               <DialogDescription>
