@@ -67,7 +67,6 @@ const Hero = () => {
           <div className="absolute bottom-10 left-0 right-0 px-8">
             <div className="bg-white shadow-lg rounded-lg p-4 mx-auto max-w-[1450px]">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                
                 {/* DATE PICKER */}
                 <Popover>
                   <PopoverTrigger asChild>
