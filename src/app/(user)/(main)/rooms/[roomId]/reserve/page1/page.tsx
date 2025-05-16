@@ -34,7 +34,9 @@ const TimePeriodSelector = ({
   periodFieldName,
 }: TimePeriodSelectorProps) => {
   const { values, setFieldValue } = useFormikContext<ReservationFormValues>();
-  const selectedTime = values[timeFieldName as keyof ReservationFormValues] as string;
+  const selectedTime = values[
+    timeFieldName as keyof ReservationFormValues
+  ] as string;
 
   useEffect(() => {
     if (selectedTime) {
