@@ -21,6 +21,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
+    "formik": "^2.4.6",
     "framer-motion": "^12.9.2",
     "lucide-react": "^0.503.0",
     "next": "15.2.4",
@@ -29,7 +30,8 @@
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
     "tailwind-merge": "^3.1.0",
-    "tw-animate-css": "^1.2.5"
+    "tw-animate-css": "^1.2.5",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

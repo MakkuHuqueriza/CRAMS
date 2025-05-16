@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Navbar from "@/app/components/Navbar";
 import { CircleCheckBig, ClipboardCopy } from "lucide-react";
 
 export default function Confirmation() {
@@ -15,7 +14,6 @@ export default function Confirmation() {
 
   return (
     <>
-      <Navbar />
       <div className="flex flex-col items-center border-[#B9B9B9] border-[1px] rounded-lg p-2 my-10 pl-6 w-full max-w-5xl mx-auto mt-10">
         <div className="text-[#274c77] mb-[60px] mt-[70px]">
           <CircleCheckBig className="w-32 h-32 scale-[2]" />
