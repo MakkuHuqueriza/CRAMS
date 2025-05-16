@@ -45,14 +45,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+// import { Calendar } from "@/components/ui/calendar";
+// import {
+//   Popover,
+//   PopoverContent,
+//   PopoverTrigger,
+// } from "@/components/ui/popover";
+// import { format } from "date-fns";
+// import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { roomData, type Room } from "@/app/roomData";
 import "@/styles/globals.css";
@@ -90,37 +90,37 @@ const roomTypes = [
 const floorOptions = ["1st Floor, CSM", "2nd Floor, CSM"];
 
 // Time options for dropdowns
-const timeOptions = [
-  "7:00 AM",
-  "7:30 AM",
-  "8:00 AM",
-  "8:30 AM",
-  "9:00 AM",
-  "9:30 AM",
-  "10:00 AM",
-  "10:30 AM",
-  "11:00 AM",
-  "11:30 AM",
-  "12:00 PM",
-  "12:30 PM",
-  "1:00 PM",
-  "1:30 PM",
-  "2:00 PM",
-  "2:30 PM",
-  "3:00 PM",
-  "3:30 PM",
-  "4:00 PM",
-  "4:30 PM",
-  "5:00 PM",
-  "5:30 PM",
-  "6:00 PM",
-  "6:30 PM",
-  "7:00 PM",
-  "7:30 PM",
-  "8:00 PM",
-  "8:30 PM",
-  "9:00 PM",
-];
+// const timeOptions = [
+//   "7:00 AM",
+//   "7:30 AM",
+//   "8:00 AM",
+//   "8:30 AM",
+//   "9:00 AM",
+//   "9:30 AM",
+//   "10:00 AM",
+//   "10:30 AM",
+//   "11:00 AM",
+//   "11:30 AM",
+//   "12:00 PM",
+//   "12:30 PM",
+//   "1:00 PM",
+//   "1:30 PM",
+//   "2:00 PM",
+//   "2:30 PM",
+//   "3:00 PM",
+//   "3:30 PM",
+//   "4:00 PM",
+//   "4:30 PM",
+//   "5:00 PM",
+//   "5:30 PM",
+//   "6:00 PM",
+//   "6:30 PM",
+//   "7:00 PM",
+//   "7:30 PM",
+//   "8:00 PM",
+//   "8:30 PM",
+//   "9:00 PM",
+// ];
 
 export default function RoomSchedulePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -839,7 +839,7 @@ export default function RoomSchedulePage() {
               />
             </div>
 
-            {/* Date Picker */}
+            {/* Date Picker
             <div className="grid grid-cols-4 items-center gap-4">
               <Label className="text-right">Date</Label>
               <div className="col-span-3">
@@ -871,10 +871,10 @@ export default function RoomSchedulePage() {
                   </PopoverContent>
                 </Popover>
               </div>
-            </div>
+            </div> */}
 
             {/* Available Time */}
-            <div className="grid grid-cols-4 items-start gap-4">
+            {/* <div className="grid grid-cols-4 items-start gap-4">
               <Label className="text-right pt-2">Available Time</Label>
               <div className="col-span-3 space-y-4">
                 <div className="flex items-center gap-4">
@@ -926,7 +926,7 @@ export default function RoomSchedulePage() {
                   </Button>
                 </div>
 
-                {/* Display added time slots */}
+                Display added time slots
                 {timeSlots.length > 0 && (
                   <div className="border rounded-md p-3 bg-gray-50">
                     <h4 className="font-medium mb-2">Added Time Slots:</h4>
@@ -953,7 +953,7 @@ export default function RoomSchedulePage() {
                   </div>
                 )}
               </div>
-            </div>
+            </div> */}
           </div>
 
           <DialogFooter>
