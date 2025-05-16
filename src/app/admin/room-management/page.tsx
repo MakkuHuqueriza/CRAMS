@@ -149,7 +149,7 @@ export default function RoomSchedulePage() {
     times: [],
     description: "",
   });
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [timeSlots, setTimeSlots] = useState<
     { startTime: string; endTime: string }[]
   >([]);
@@ -342,7 +342,7 @@ export default function RoomSchedulePage() {
       setTimeSlots([]);
       setCurrentStartTime("");
       setCurrentEndTime("");
-      setDate(new Date());
+      setSelectedDate(new Date());
 
       // Close dialog
       setShowCreateRoomDialog(false);
@@ -831,32 +831,33 @@ export default function RoomSchedulePage() {
 
               {/* Date Picker */}
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">Date</Label>
-                <div className="col-span-3">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !date && "text-muted-foreground",
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? format(date, "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </div>
+      <Label className="text-right">Date</Label>
+      <div className="col-span-3">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={cn(
+                "w-full justify-start text-left font-normal",
+                !selectedDate && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              initialFocus
+              className="bg-white rounded-xl shadow-md"
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+    </div>
 
               {/* Available Time */}
               <div className="grid grid-cols-4 items-start gap-4">
