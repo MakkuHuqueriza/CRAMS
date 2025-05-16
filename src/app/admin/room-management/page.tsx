@@ -347,13 +347,18 @@ export default function RoomSchedulePage() {
     }
   };
 
+  // Function to clear search
+  const clearSearch = () => {
+    setSearchQuery("");
+  };
+
   return (
     <>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Room Schedule</h1>
       </div>
 
-      {/* Search bar */}
+      {/* Search bar with clear button */}
       <div className="mb-4">
         <div className="relative w-full max-w-[21rem]">
           <Input
@@ -361,9 +366,17 @@ export default function RoomSchedulePage() {
             placeholder="Search Room Number"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-white"
+            className="pl-10 pr-10 bg-white"
           />
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          {searchQuery && (
+            <button
+              onClick={clearSearch}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 hover:text-gray-700 transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -395,7 +408,7 @@ export default function RoomSchedulePage() {
 
         <div className="ml-auto">
           <Button
-            className="bg-[#034078] hover:bg-[#182657] text-white font-semibold"
+            className="bg-[#034078] hover:bg-[#274c77] text-white font-semibold transition-colors duration-200"
             onClick={handleCreateRoom}
           >
             Create Room
@@ -556,13 +569,13 @@ export default function RoomSchedulePage() {
                 <>
                   <Button
                     variant="outline"
-                    className="bg-gray-400 hover:bg-gray-500 text-white border-none"
+                    className="bg-gray-400 hover:bg-red-500 text-white border-none transition-colors duration-200"
                     onClick={handleDiscardChanges}
                   >
                     Discard Changes
                   </Button>
                   <Button
-                    className="bg-blue-400 hover:bg-blue-500 text-white"
+                    className="bg-blue-400 hover:bg-[#274c77] text-white transition-colors duration-200"
                     onClick={handleSaveChanges}
                   >
                     Save Changes
@@ -572,7 +585,7 @@ export default function RoomSchedulePage() {
                 <>
                   <Button
                     variant="outline"
-                    className="bg-gray-400 hover:bg-gray-500 text-white border-none"
+                    className="bg-black hover:bg-red-500 text-white border-none transition-colors duration-200"
                     onClick={handleDeleteRoom}
                   >
                     Delete Room
@@ -608,6 +621,7 @@ export default function RoomSchedulePage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel
+              className="hover:bg-slate-100 hover:text-gray-700"
               onClick={() => {
                 setSelectedRoom(null);
                 setIsEditing(false);
@@ -618,6 +632,7 @@ export default function RoomSchedulePage() {
               Discard
             </AlertDialogCancel>
             <AlertDialogAction
+              className="hover:color-primary hover:text-white hover:font-semibold"
               onClick={() => {
                 handleSaveChanges();
                 setSelectedRoom(null);
@@ -647,10 +662,12 @@ export default function RoomSchedulePage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>No</AlertDialogCancel>
+            <AlertDialogCancel className="hover:bg-slate-100 hover:text-gray-700">
+              No
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDeleteRoom}
-              className="bg-red-500 hover:bg-red-600"
+              className="bg-red-500 hover:bg-red-700 hover:text-white"
             >
               Yes
             </AlertDialogAction>
@@ -659,7 +676,7 @@ export default function RoomSchedulePage() {
       </AlertDialog>
 
       {/* Create Room Dialog */}
-      <Dialog 
+      <Dialog
         modal={false}
         open={showCreateRoomDialog}
         onOpenChange={setShowCreateRoomDialog}
@@ -734,9 +751,7 @@ export default function RoomSchedulePage() {
                 placeholder="e.g., ROOM 101"
                 className="col-span-3"
                 value={newRoom.id}
-                onChange={(e) =>
-                  setNewRoom({ ...newRoom, id: e.target.value })
-                }
+                onChange={(e) => setNewRoom({ ...newRoom, id: e.target.value })}
               />
             </div>
 
@@ -832,12 +847,17 @@ export default function RoomSchedulePage() {
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className={cn("w-full justify-start text-left font-normal",
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
                         !selectedDate && "text-muted-foreground",
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {selectedDate ? (format(selectedDate, "MM/dd/yyyy")) : (<span>Pick a date</span>)}
+                      {selectedDate ? (
+                        format(selectedDate, "MM/dd/yyyy")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
@@ -940,11 +960,13 @@ export default function RoomSchedulePage() {
             <Button
               variant="outline"
               onClick={() => setShowCreateRoomDialog(false)}
+              className="hover:bg-red-500 hover:text-white border-none transition-colors duration-200"
             >
               Cancel
             </Button>
             <Button
               onClick={handleSaveNewRoom}
+              className="bg-blue-400 hover:bg-[#274c77] text-white transition-colors duration-200"
               disabled={
                 !newRoom.id ||
                 !newRoom.type ||

@@ -8,7 +8,6 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="flex h-screen overflow-hidden">
-        
       {/* Sidebar on the left */}
       <Sidebar />
 
