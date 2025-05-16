@@ -1,34 +1,177 @@
 "use client";
 
-import { useState } from "react";
-import Navbar from "@/app/components/Navbar";
+import { useEffect } from "react";
 import { useParams } from "next/navigation";
 import { roomData } from "@/app/roomData";
+import { Field, Form, Formik, useFormikContext } from "formik";
+import * as Yup from "yup";
+
+type TimePeriodSelectorProps = {
+  timeFieldName: string;
+  periodFieldName: string;
+};
+
+type ReservationFormValues = {
+  contactName: string;
+  email: string;
+  contactNumber: string;
+  role: string;
+  course: string;
+  type: string;
+  dateOfReservation: string;
+  startTime: string;
+  startPeriod: string;
+  endTime: string;
+  endPeriod: string;
+  natureOfWork: string;
+  reservationOption?: string;
+  otherPurpose?: string;
+};
+
+// Time Period Component to handle the AM/PM logic
+const TimePeriodSelector = ({
+  timeFieldName,
+  periodFieldName,
+}: TimePeriodSelectorProps) => {
+  const { values, setFieldValue } = useFormikContext<ReservationFormValues>();
+  const selectedTime = values[timeFieldName as keyof ReservationFormValues] as string;
+
+  useEffect(() => {
+    if (selectedTime) {
+      // For AM times (7:30-11:30), force AM
+      if (
+        [
+          "07:30",
+          "08:00",
+          "08:30",
+          "09:00",
+          "09:30",
+          "10:00",
+          "10:30",
+          "11:00",
+          "11:30",
+        ].includes(selectedTime)
+      ) {
+        setFieldValue(periodFieldName, "AM");
+      }
+      // For PM times (12:00-6:30), force PM
+      else if (
+        [
+          "12:00",
+          "12:30",
+          "01:00",
+          "01:30",
+          "02:00",
+          "02:30",
+          "03:00",
+          "03:30",
+          "04:00",
+          "04:30",
+          "05:00",
+          "05:30",
+          "06:00",
+          "06:30",
+        ].includes(selectedTime)
+      ) {
+        setFieldValue(periodFieldName, "PM");
+      }
+      // For 07:00, don't force either AM or PM - user can choose
+    }
+  }, [selectedTime, setFieldValue, periodFieldName]);
+
+  // Determine if the time period is locked based on selected time (07:00 is NOT locked)
+  const isLocked = [
+    "07:30",
+    "08:00",
+    "08:30",
+    "09:00",
+    "09:30",
+    "10:00",
+    "10:30",
+    "11:00",
+    "11:30",
+    "12:00",
+    "12:30",
+    "01:00",
+    "01:30",
+    "02:00",
+    "02:30",
+    "03:00",
+    "03:30",
+    "04:00",
+    "04:30",
+    "05:00",
+    "05:30",
+    "06:00",
+    "06:30",
+  ].includes(selectedTime);
+
+  return (
+    <Field
+      name={periodFieldName}
+      as="select"
+      className={`border rounded p-1 text-sm w-[60px] ${isLocked ? "bg-gray-100" : ""}`}
+      disabled={isLocked}
+    >
+      {["AM", "PM"].map((period) => {
+        // Disable PM option for morning times (except 07:00)
+        if (
+          period === "PM" &&
+          [
+            "07:30",
+            "08:00",
+            "08:30",
+            "09:00",
+            "09:30",
+            "10:00",
+            "10:30",
+            "11:00",
+            "11:30",
+          ].includes(selectedTime)
+        ) {
+          return (
+            <option key={period} value={period} disabled>
+              {period}
+            </option>
+          );
+        }
+        // Disable AM option for afternoon times
+        else if (
+          period === "AM" &&
+          [
+            "12:00",
+            "12:30",
+            "01:00",
+            "01:30",
+            "02:00",
+            "02:30",
+            "03:00",
+            "03:30",
+            "04:00",
+            "04:30",
+            "05:00",
+            "05:30",
+            "06:00",
+            "06:30",
+          ].includes(selectedTime)
+        ) {
+          return (
+            <option key={period} value={period} disabled>
+              {period}
+            </option>
+          );
+        }
+        return (
+          <option key={period} value={period}>
+            {period}
+          </option>
+        );
+      })}
+    </Field>
+  );
+};
 
 const ReservationDetails = () => {
-  // const [reservationInputEnabled, setReservationInputEnabled] = useState(false);
-  // const [othersInputEnabled, setOthersInputEnabled] = useState(false);
-  const [selectedOption, setSelectedOption] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [startPeriod, setStartPeriod] = useState("AM");
-  const [endTime, setEndTime] = useState("");
-  const [endPeriod, setEndPeriod] = useState("AM");
-  const [selectedCheckbox, setSelectedCheckbox] = useState<string | null>(null);
-  const [errorMessages, setErrorMessages] = useState<string[]>([]);
-  interface FormErrors {
-    contactName?: boolean;
-    email?: boolean;
-    contactNumber?: boolean;
-    role?: boolean;
-    course?: boolean;
-    time?: boolean;
-    type?: boolean;
-    dateOfReservation?: boolean;
-    natureOfWork?: boolean;
-  }
-
-  const [formErrors, setFormErrors] = useState<FormErrors>({});
-
   const params = useParams();
   const roomId = params.roomId;
   const decodedRoomId =
@@ -43,106 +186,41 @@ const ReservationDetails = () => {
     );
   }
 
-  const validateForm = () => {
-    const errors: FormErrors = {};
-    let hasErrors = false;
+  const validationSchema = Yup.object({
+    contactName: Yup.string().required("Contact Name is required"),
+    email: Yup.string()
+      .email("Invalid email address")
+      .required("Email is required"),
+    contactNumber: Yup.string()
+      .matches(/^\d{10}$/, "Contact Number must be 10 digits")
+      .required("Contact Number is required"),
+    role: Yup.string().required("Role is required"),
+    course: Yup.string().required("Course/Department/Organization is required"),
+    type: Yup.string().required("Type is required"),
+    dateOfReservation: Yup.date().required("Date of Reservation is required"),
+    startTime: Yup.string().required("Start Time is required"),
+    startPeriod: Yup.string().required("Start Period is required"),
+    endTime: Yup.string().required("End Time is required"),
+    endPeriod: Yup.string().required("End Period is required"),
+    natureOfWork: Yup.string().required("Nature of Work is required"),
+    reservationOption: Yup.string().when("natureofWork", {
+      is: (val: string) => val === "Reservation/Set-up",
+      then: (schema) =>
+        schema.required("Please select the reason from the choices"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    otherPurpose: Yup.string().when("natureOfWork", {
+      is: (val: string) => val === "Others",
+      then: (schema) => schema.required("Please describe your purpose"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+  });
 
-    // Reset errors
-    setFormErrors({});
-    setErrorMessages([]);
+  const handleSubmit = (values: ReservationFormValues) => {
+    // If the form is valid, navigate to the next page
+    alert(JSON.stringify(values, null, 2));
 
-    // Validate Contact Name
-    const contactName = document.querySelector(
-      'input[type="text"][placeholder="Enter your name"]',
-    ) as HTMLInputElement;
-    if (!contactName?.value.trim()) {
-      errors.contactName = true;
-      hasErrors = true;
-    }
-
-    // Validate Email Address
-    const email = document.querySelector(
-      'input[type="email"]',
-    ) as HTMLInputElement;
-    if (!email?.value.trim()) {
-      errors.email = true;
-      hasErrors = true;
-    } else if (!/\S+@\S+\.\S+/.test(email.value)) {
-      errors.email = true;
-      hasErrors = true;
-    }
-
-    // Validate Contact Number
-    const contactNumber = document.querySelector(
-      'input[type="text"][placeholder="Enter your number"]',
-    ) as HTMLInputElement;
-    if (!contactNumber?.value.trim()) {
-      errors.contactNumber = true;
-      hasErrors = true;
-    }
-
-    // Validate Role
-    if (!selectedOption) {
-      errors.role = true;
-      hasErrors = true;
-    }
-
-    // Validate Course/Department/Organization
-    const course = document.querySelector(
-      'input[type="text"][placeholder="Enter your current affiliation"]',
-    ) as HTMLInputElement;
-    if (!course?.value.trim()) {
-      errors.course = true;
-      hasErrors = true;
-    }
-
-    // Validate Start and End Times
-    if (!startTime || !endTime) {
-      errors.time = true;
-      hasErrors = true;
-    }
-
-    // Validate Job Order Section
-    const type = document.querySelector(
-      'input[type="text"][placeholder="Type of Reservation – Event, Seminar, etc"]',
-    ) as HTMLInputElement;
-    if (!type?.value.trim()) {
-      errors.type = true;
-      hasErrors = true;
-    }
-
-    const dateOfReservation = document.querySelector(
-      'input[type="date"]',
-    ) as HTMLInputElement;
-    if (!dateOfReservation?.value.trim()) {
-      errors.dateOfReservation = true;
-      hasErrors = true;
-    }
-
-    // Validate Nature of Work Checkboxes
-    if (!selectedCheckbox) {
-      errors.natureOfWork = true;
-      hasErrors = true;
-    }
-
-    // Set errors and error messages
-    setFormErrors(errors);
-    setErrorMessages(
-      hasErrors
-        ? ["Insufficient information, please fill up the form properly."]
-        : [],
-    );
-
-    return !hasErrors;
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent the default form submission behavior
-
-    if (validateForm()) {
-      // If the form is valid, navigate to the next page
-      window.location.href = `/rooms/${encodeURIComponent(room?.id)}/reserve/page2`;
-    }
+    window.location.href = `/rooms/${encodeURIComponent(room?.id)}/reserve/page2`;
   };
 
   const timeOptions = [
@@ -171,12 +249,26 @@ const ReservationDetails = () => {
     "06:00",
     "06:30",
   ];
-  const periodOptions = ["AM", "PM"];
+
+  const initialValues = {
+    contactName: "",
+    email: "",
+    contactNumber: "",
+    role: "",
+    course: "",
+    type: "",
+    dateOfReservation: "",
+    startTime: "",
+    startPeriod: "AM",
+    endTime: "",
+    endPeriod: "AM",
+    natureOfWork: "",
+    reservationOption: "",
+    otherPurpose: "",
+  };
 
   return (
     <>
-      <Navbar />
-
       <section className="flex justify-center py-12 lg:px-4 md:px-[58px] px-8">
         <div className="w-full max-w-5xl space-y-6">
           {/* Breadcrumb */}
@@ -196,14 +288,24 @@ const ReservationDetails = () => {
             </span>{" "}
             &gt; Reservation Form
           </p>
-          <form
-            className="flex flex-col items-center gap-6 px-5"
-            onSubmit={handleSubmit}
-          >
+        </div>
+      </section>
+
+      <Formik<ReservationFormValues>
+        enableReinitialize
+        initialValues={initialValues}
+        onSubmit={handleSubmit}
+        validationSchema={validationSchema}
+        validateOnChange={false}
+        validateOnBlur={false}
+      >
+        {({ values, errors }) => (
+          <Form className="flex flex-col items-center gap-6 px-5">
             {/* Error Messages Box */}
-            {errorMessages.length > 0 && (
+            {Object.keys(errors).length > 0 && (
               <div className="bg-red-100 border border-red-500 text-red-700 text-sm w-full px-4 py-2 rounded mb-2">
-                <p>{errorMessages[0]}</p>
+                <p>{Object.values(errors)[0]}</p>{" "}
+                {/* Display the first error message */}
               </div>
             )}
 
@@ -226,14 +328,15 @@ const ReservationDetails = () => {
                 <div>
                   <label className="text-[16px] font-medium">
                     Contact Name
-                    {formErrors.contactName && (
+                    {errors.contactName && (
                       <span className="text-red-500 ml-1">*</span>
                     )}
+                    <Field
+                      name="contactName"
+                      type="text"
+                      className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-full"
+                    ></Field>
                   </label>
-                  <input
-                    type="text"
-                    className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-full"
-                  />
                   <p className="text-[13px] text-gray-500 pt-[2px]">
                     Enter your name (First Name, Last Name)
                   </p>
@@ -243,14 +346,15 @@ const ReservationDetails = () => {
                 <div>
                   <label className="text-[16px] font-medium">
                     Email Address
-                    {formErrors.email && (
+                    {errors.email && (
                       <span className="text-red-500 ml-1">*</span>
                     )}
+                    <Field
+                      name="email"
+                      type="email"
+                      className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-full"
+                    ></Field>
                   </label>
-                  <input
-                    type="email"
-                    className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-full"
-                  />
                   <p className="text-[13px] text-gray-500 pt-[2px]">
                     Enter your email address
                   </p>
@@ -265,22 +369,23 @@ const ReservationDetails = () => {
                   <div>
                     <label className="text-[16px] font-medium">
                       Contact Number
-                      {formErrors.contactNumber && (
+                      {errors.contactNumber && (
                         <span className="text-red-500 ml-1">*</span>
                       )}
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="text"
+                          value="+63"
+                          readOnly
+                          className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] w-[65px] bg-gray-100 text-center"
+                        />
+                        <Field
+                          name="contactNumber"
+                          type="text"
+                          className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] px-2 w-[200px]"
+                        ></Field>
+                      </div>
                     </label>
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="text"
-                        value="+63"
-                        readOnly
-                        className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] w-[65px] bg-gray-100 text-center"
-                      />
-                      <input
-                        type="text"
-                        className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] px-2 w-[200px]"
-                      />
-                    </div>
                     <p className="text-[13px] text-gray-500 pt-[2px] w-[200px]">
                       Enter your contact number
                     </p>
@@ -290,21 +395,20 @@ const ReservationDetails = () => {
                   <div>
                     <label className="text-[16px] font-medium">
                       Role
-                      {formErrors.role && (
+                      {errors.role && (
                         <span className="text-red-500 ml-1">*</span>
                       )}
+                      <Field
+                        name="role"
+                        className="border-[1px] border-[#B9B9B9] rounded-md p-[2px] px-2 w-full"
+                        as="select"
+                      >
+                        <option value="" disabled hidden></option>
+                        <option value="Student">Student</option>
+                        <option value="Faculty">Professor</option>
+                        <option value="Outsider">Outsider</option>
+                      </Field>
                     </label>
-                    <select
-                      className="border-[1px] border-[#B9B9B9] rounded-md p-[2px] px-2 w-full"
-                      value={selectedOption}
-                      onChange={(e) => setSelectedOption(e.target.value)}
-                    >
-                      <option value="" disabled hidden></option>{" "}
-                      {/* Empty default option */}
-                      <option value="Student">Student</option>
-                      <option value="Faculty">Professor</option>
-                      <option value="Faculty">Outsider</option>
-                    </select>
                     <p className="text-[13px] text-gray-500 pt-[2px]">
                       Select a role
                     </p>
@@ -315,14 +419,15 @@ const ReservationDetails = () => {
                 <div>
                   <label className="text-[16px] font-medium">
                     Course/Department/Organization
-                    {formErrors.course && (
+                    {errors.course && (
                       <span className="text-red-500 ml-1">*</span>
                     )}
+                    <Field
+                      name="course"
+                      type="text"
+                      className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] px-2 w-full"
+                    ></Field>
                   </label>
-                  <input
-                    type="text"
-                    className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] px-2 w-full"
-                  />
                   <p className="text-[13px] text-gray-500 pt-[2px]">
                     Enter your affiliation
                   </p>
@@ -372,14 +477,15 @@ const ReservationDetails = () => {
                   <div>
                     <label className="text-sm font-medium block mb-1">
                       Type
-                      {formErrors.type && (
+                      {errors.type && (
                         <span className="text-red-500 ml-1">*</span>
                       )}
+                      <Field
+                        name="type"
+                        type="text"
+                        className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-full"
+                      ></Field>
                     </label>
-                    <input
-                      type="text"
-                      className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-full"
-                    />
                     <p className="text-[13px] text-gray-500 pt-[2px]">
                       Type of reservation
                     </p>
@@ -387,14 +493,15 @@ const ReservationDetails = () => {
                   <div>
                     <label className="text-sm font-medium block mb-1">
                       Date of Reservation
-                      {formErrors.dateOfReservation && (
+                      {errors.dateOfReservation && (
                         <span className="text-red-500 ml-1">*</span>
                       )}
+                      <Field
+                        name="dateOfReservation"
+                        type="date"
+                        className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-[180px]"
+                      ></Field>
                     </label>
-                    <input
-                      type="date"
-                      className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-[180px]"
-                    />
                   </div>
                   {/* Time Section in a Box */}
                   <div className="md:col-span-2">
@@ -403,74 +510,60 @@ const ReservationDetails = () => {
                       <div className="flex flex-col w-full md:w-1/2">
                         <label className="text-sm font-medium block mb-1">
                           Start Time
-                          {formErrors.time && (
+                          {errors.startTime && (
                             <span className="text-red-500 ml-1">*</span>
                           )}
+                          <div className="flex gap-1">
+                            <Field
+                              name="startTime"
+                              as="select"
+                              className="w-[70px] border rounded px-1 py-[2px] text-sm"
+                            >
+                              <option value="" disabled>
+                                00:00
+                              </option>
+                              {timeOptions.map((time) => (
+                                <option key={`start-${time}`} value={time}>
+                                  {time}
+                                </option>
+                              ))}
+                            </Field>
+                            <TimePeriodSelector
+                              timeFieldName="startTime"
+                              periodFieldName="startPeriod"
+                            />
+                          </div>
                         </label>
-                        <div className="flex gap-1">
-                          <select
-                            className="w-[70px] border rounded px-1 py-[2px] text-sm"
-                            value={startTime}
-                            onChange={(e) => setStartTime(e.target.value)}
-                          >
-                            <option value="" disabled>
-                              00:00
-                            </option>
-                            {timeOptions.map((time) => (
-                              <option key={`start-${time}`} value={time}>
-                                {time}
-                              </option>
-                            ))}
-                          </select>
-                          <select
-                            className="border rounded p-1 text-sm w-[60px]"
-                            value={startPeriod}
-                            onChange={(e) => setStartPeriod(e.target.value)}
-                          >
-                            {periodOptions.map((period) => (
-                              <option key={`start-${period}`} value={period}>
-                                {period}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
                       </div>
 
                       {/* End Time */}
                       <div className="flex flex-col w-full md:w-1/2">
                         <label className="text-sm font-medium block mb-1">
                           End Time
-                          {formErrors.time && (
+                          {errors.endTime && (
                             <span className="text-red-500 ml-1">*</span>
                           )}
+                          <div className="flex gap-1">
+                            <Field
+                              name="endTime"
+                              as="select"
+                              className="w-[70px] border rounded px-1 py-[2px] text-sm"
+                            >
+                              <option value="" disabled>
+                                00:00
+                              </option>
+                              {timeOptions.map((time) => (
+                                <option key={`end-${time}`} value={time}>
+                                  {time}
+                                </option>
+                              ))}
+                            </Field>
+                            <TimePeriodSelector
+                              timeFieldName="endTime"
+                              periodFieldName="endPeriod"
+                            />
+                          </div>
                         </label>
-                        <div className="flex gap-1">
-                          <select
-                            className="w-[70px] border rounded px-1 py-[2px] text-sm"
-                            value={endTime}
-                            onChange={(e) => setEndTime(e.target.value)}
-                          >
-                            <option value="" disabled>
-                              00:00
-                            </option>
-                            {timeOptions.map((time) => (
-                              <option key={`end-${time}`} value={time}>
-                                {time}
-                              </option>
-                            ))}
-                          </select>
-                          <select
-                            className="border rounded p-1 text-sm w-[60px]"
-                            value={endPeriod}
-                            onChange={(e) => setEndPeriod(e.target.value)}
-                          >
-                            {periodOptions.map((period) => (
-                              <option key={`end-${period}`} value={period}>
-                                {period}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -481,53 +574,46 @@ const ReservationDetails = () => {
               <fieldset className="border border-[#B9B9B9] rounded-lg px-6 py-4 pb-6 mx-10 mb-10 relative">
                 <legend className="text-[18px] font-bold px-2 text-[#274C77]">
                   NATURE OF WORK
-                  {formErrors.natureOfWork && (
+                  {errors.natureOfWork && (
                     <span className="text-red-500 ml-1">*</span>
                   )}
                 </legend>
                 <div className="flex flex-col gap-1">
-                  {/* Reservation/Set-up */}
                   <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                    {/* Reservation/Set-up */}
+                    <Field
+                      type="radio"
+                      name="natureOfWork"
                       value="Reservation/Set-up"
-                      checked={selectedCheckbox === "Reservation/Set-up"}
-                      onChange={(e) =>
-                        setSelectedCheckbox(
-                          e.target.checked ? "Reservation/Set-up" : null,
-                        )
-                      }
                       className="h-4 w-4"
                     />
                     <span>Reservation/Set-up of:</span>
-                    <select
-                      className="border border-[#B9B9B9] rounded p-[1px] w-full max-w-[250px] text-sm"
-                      disabled={selectedCheckbox !== "Reservation/Set-up"}
-                      value={selectedOption}
-                      onChange={(e) => setSelectedOption(e.target.value)}
-                    >
-                      <option value="" disabled>
-                        Select an option
-                      </option>
-                      <option value="Room/Space">A. Room/Space</option>
-                      <option value="Equipment">
-                        B. Equipment (LCD, Sound System, etc.)
-                      </option>
-                      <option value="Transportation">
-                        C. Vehicle Rental/Means of Transportation
-                      </option>
-                    </select>
+                    {values.natureOfWork === "Reservation/Set-up" && (
+                      <Field
+                        as="select"
+                        name="reservationOption"
+                        className="border border-[#B9B9B9] rounded p-[1px] w-full max-w-[250px] text-sm"
+                      >
+                        <option value="" disabled>
+                          Select an option
+                        </option>
+                        <option value="Room/Space">A. Room/Space</option>
+                        <option value="Equipment">
+                          B. Equipment (LCD, Sound System, etc.)
+                        </option>
+                        <option value="Transportation">
+                          C. Vehicle Rental/Means of Transportation
+                        </option>
+                      </Field>
+                    )}
                   </label>
 
                   {/* Repairs */}
                   <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                    <Field
+                      type="radio"
                       value="Repairs"
-                      checked={selectedCheckbox === "Repairs"}
-                      onChange={(e) =>
-                        setSelectedCheckbox(e.target.checked ? "Repairs" : null)
-                      }
+                      name="natureOfWork"
                       className="h-4 w-4"
                     />
                     <span>Repairs</span>
@@ -535,15 +621,10 @@ const ReservationDetails = () => {
 
                   {/* Activity/Program */}
                   <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                    <Field
+                      type="radio"
                       value="Activity/Program"
-                      checked={selectedCheckbox === "Activity/Program"}
-                      onChange={(e) =>
-                        setSelectedCheckbox(
-                          e.target.checked ? "Activity/Program" : null,
-                        )
-                      }
+                      name="natureOfWork"
                       className="h-4 w-4"
                     />
                     <span>Activity/Program</span>
@@ -551,22 +632,22 @@ const ReservationDetails = () => {
 
                   {/* Others */}
                   <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                    <Field
+                      type="radio"
                       value="Others"
-                      checked={selectedCheckbox === "Others"}
-                      onChange={(e) =>
-                        setSelectedCheckbox(e.target.checked ? "Others" : null)
-                      }
+                      name="natureOfWork"
                       className="h-4 w-4"
                     />
                     <span>Others/Purpose:</span>
-                    <input
-                      type="text"
-                      className="border border-[#B9B9B9] rounded p-[1px] w-full max-w-[300px] text-sm"
-                      disabled={selectedCheckbox !== "Others"}
-                    />
                   </label>
+                  {values.natureOfWork === "Others" && (
+                    <Field
+                      type="text"
+                      name="otherPurpose"
+                      className="border border-[#B9B9B9] rounded p-[1px] w-full max-w-[300px] text-sm"
+                      placeholder="Please specify"
+                    />
+                  )}
                 </div>
               </fieldset>
             </div>
@@ -587,9 +668,9 @@ const ReservationDetails = () => {
                 Submit for Approval
               </button>
             </div>
-          </form>
-        </div>
-      </section>
+          </Form>
+        )}
+      </Formik>
     </>
   );
 };
