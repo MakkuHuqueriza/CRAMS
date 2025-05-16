@@ -14,8 +14,8 @@ import {
   ChefHat,
   MoreHorizontal,
   Trash2,
-  // Plus,
-  // CalendarIcon,
+  Plus,
+  CalendarIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -147,19 +147,19 @@ export default function RoomSchedulePage() {
     times: [],
     description: "",
   });
-  // const [selectedDate, setSelectedDate] = useState<Date | undefined>();
-  // const [timeSlots, setTimeSlots] = useState<
-  //   { startTime: string; endTime: string }[]
-  // >([]);
-  // const [currentStartTime, setCurrentStartTime] = useState<string>("");
-  // const [currentEndTime, setCurrentEndTime] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [timeSlots, setTimeSlots] = useState<
+    { startTime: string; endTime: string }[]
+  >([]);
+  const [currentStartTime, setCurrentStartTime] = useState<string>("");
+  const [currentEndTime, setCurrentEndTime] = useState<string>("");
 
   const minWidth = 700;
   const maxWidth = 1150;
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   // Extract unique floor values for filtering
-  // const floors = Array.from(new Set(localRoomData.map((room) => room.floor)));
+  const floors = Array.from(new Set(localRoomData.map((room) => room.floor)));
 
   // Filter rooms based on search query and selected floor
   const filteredRooms = localRoomData.filter((room) => {
@@ -294,24 +294,24 @@ export default function RoomSchedulePage() {
     setShowCreateRoomDialog(true);
   };
 
-  // const handleAddTimeSlot = () => {
-  //   if (currentStartTime && currentEndTime) {
-  //     const timeSlot = `${currentStartTime} - ${currentEndTime}`;
-  //     setTimeSlots([
-  //       ...timeSlots,
-  //       { startTime: currentStartTime, endTime: currentEndTime },
-  //     ]);
-  //     setCurrentStartTime("");
-  //     setCurrentEndTime("");
-  //   }
-  // };
+  const handleAddTimeSlot = () => {
+    if (currentStartTime && currentEndTime) {
+      const timeSlot = `${currentStartTime} - ${currentEndTime}`;
+      setTimeSlots([
+        ...timeSlots,
+        { startTime: currentStartTime, endTime: currentEndTime },
+      ]);
+      setCurrentStartTime("");
+      setCurrentEndTime("");
+    }
+  };
 
   const handleSaveNewRoom = () => {
     if (newRoom.id && newRoom.type && newRoom.floor && newRoom.description) {
       // Format time slots
-      // const formattedTimes = timeSlots.map(
-      //   (slot) => `${slot.startTime} - ${slot.endTime}`,
-      // );
+      const formattedTimes = timeSlots.map(
+        (slot) => `${slot.startTime} - ${slot.endTime}`,
+      );
 
       // Create new room object
       const roomToAdd: Room = {
@@ -320,7 +320,7 @@ export default function RoomSchedulePage() {
         floor: newRoom.floor,
         capacity: newRoom.capacity || 50,
         image: newRoom.image || "/classroom.jpg",
-        // times: formattedTimes,
+        times: formattedTimes,
         description: newRoom.description,
       };
 
@@ -337,10 +337,10 @@ export default function RoomSchedulePage() {
         times: [],
         description: "",
       });
-      // setTimeSlots([]);
-      // setCurrentStartTime("");
-      // setCurrentEndTime("");
-      // setSelectedDate(new Date());
+      setTimeSlots([]);
+      setCurrentStartTime("");
+      setCurrentEndTime("");
+      setSelectedDate(new Date());
 
       // Close dialog
       setShowCreateRoomDialog(false);

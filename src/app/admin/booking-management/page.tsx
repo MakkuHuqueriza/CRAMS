@@ -285,6 +285,10 @@ export default function BookingManagementPage() {
     }
   };
 
+import React from "react";
+import Sidebar from "@/app/admin/Sidebar";
+
+const page = () => {
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
