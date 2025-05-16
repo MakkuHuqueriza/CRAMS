@@ -1,5 +1,4 @@
 import React from "react";
-import Sidebar from "@/app/admin/Sidebar";
 
 const page = () => {
   return (
