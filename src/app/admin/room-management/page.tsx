@@ -1,8 +1,6 @@
 "use client";
 
-import type React from "react";
-
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Search,
   Clock,
@@ -57,7 +55,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { roomData, type Room } from "@/app/roomData";
-import Sidebar from "@/app/admin/Sidebar";
+import "@/styles/globals.css";
 
 // Function to get the appropriate icon based on room type
 const getRoomTypeIcon = (type: string) => {
@@ -350,351 +348,134 @@ export default function RoomSchedulePage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Sidebar on the left */}
-      <Sidebar />
+    <>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Room Schedule</h1>
+      </div>
 
-      {/* Main content area */}
-      <main className="flex-1 bg-[#f2ede4] py-6 px-10 overflow-y-auto relative">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Room Schedule</h1>
+      {/* Search bar */}
+      <div className="mb-4">
+        <div className="relative w-full max-w-[21rem]">
+          <Input
+            type="text"
+            placeholder="Search Room Number"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 bg-white"
+          />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         </div>
+      </div>
 
-        {/* Search bar */}
-        <div className="mb-4">
-          <div className="relative w-full max-w-[21rem]">
-            <Input
-              type="text"
-              placeholder="Search Room Number"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white"
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          </div>
-        </div>
+      {/* Floor filter buttons */}
+      <div className="flex gap-5 mb-6">
+        <Button
+          variant={selectedFloor === "1st Floor, CSM" ? "default" : "outline"}
+          onClick={() =>
+            setSelectedFloor(
+              selectedFloor === "1st Floor, CSM" ? null : "1st Floor, CSM",
+            )
+          }
+          className={`${selectedFloor === "1st Floor, CSM" ? "bg-[#274c77] hover:bg-[#274c77] text-white" : "bg-white text-color-primary primary-border"}`}
+        >
+          Floor 1 - CSM Lobby
+        </Button>
 
-        {/* Floor filter buttons */}
-        <div className="flex gap-5 mb-6">
+        <Button
+          variant={selectedFloor === "2nd Floor, CSM" ? "default" : "outline"}
+          onClick={() =>
+            setSelectedFloor(
+              selectedFloor === "2nd Floor, CSM" ? null : "2nd Floor, CSM",
+            )
+          }
+          className={`${selectedFloor === "2nd Floor, CSM" ? "bg-[#274c77] hover:bg-[#274c77] text-white" : "bg-white text-color-primary primary-border"}`}
+        >
+          Floor 2 - Rooms
+        </Button>
+
+        <div className="ml-auto">
           <Button
-            variant={selectedFloor === "1st Floor, CSM" ? "default" : "outline"}
-            onClick={() =>
-              setSelectedFloor(
-                selectedFloor === "1st Floor, CSM" ? null : "1st Floor, CSM",
-              )
-            }
-            className={`${selectedFloor === "1st Floor, CSM" ? "bg-blue-800 hover:bg-blue-700" : "bg-white"}`}
+            className="bg-[#034078] hover:bg-[#182657] text-white font-semibold"
+            onClick={handleCreateRoom}
           >
-            Floor 1 - CSM Lobby
+            Create Room
           </Button>
-
-          <Button
-            variant={selectedFloor === "2nd Floor, CSM" ? "default" : "outline"}
-            onClick={() =>
-              setSelectedFloor(
-                selectedFloor === "2nd Floor, CSM" ? null : "2nd Floor, CSM",
-              )
-            }
-            className={`${selectedFloor === "2nd Floor, CSM" ? "bg-blue-800 hover:bg-blue-700" : "bg-white"}`}
-          >
-            Floor 2 - Rooms
-          </Button>
-
-          <div className="ml-auto">
-            <Button
-              className="bg-blue-400 hover:bg-blue-500 text-white"
-              onClick={handleCreateRoom}
-            >
-              Create Room
-            </Button>
-          </div>
         </div>
+      </div>
 
-        {/* White container with custom scrollbar */}
-        <div className="bg-white rounded-lg shadow-md p-6 h-[calc(100vh-220px)] overflow-hidden">
-          {/* Scrollable content area with custom scrollbar */}
-          <div className="h-full overflow-y-auto pr-2 custom-scrollbar">
-            {/* Room cards grid */}
-            {filteredRooms.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {filteredRooms.map((room) => (
-                  <RoomCard
-                    key={room.id}
-                    room={room}
-                    onViewDetails={() => setSelectedRoom(room)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="flex justify-center items-center h-full">
-                <p className="text-gray-500 text-lg">No room exists</p>
-              </div>
-            )}
-          </div>
+      {/* White container with custom scrollbar */}
+      <div className="bg-white rounded-lg shadow-md p-6 h-[calc(100vh-220px)] overflow-hidden">
+        {/* Scrollable content area with custom scrollbar */}
+        <div className="h-full overflow-y-auto pr-2 custom-scrollbar">
+          {/* Room cards grid */}
+          {filteredRooms.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {filteredRooms.map((room) => (
+                <RoomCard
+                  key={room.id}
+                  room={room}
+                  onViewDetails={() => setSelectedRoom(room)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex justify-center items-center h-full">
+              <p className="text-gray-500 text-lg">No room exists</p>
+            </div>
+          )}
         </div>
+      </div>
 
-        {/* Resizable Room Details Sidebar */}
-        {selectedRoom && (
+      {/* Resizable Room Details Sidebar */}
+      {selectedRoom && (
+        <div
+          ref={sidebarRef}
+          className="fixed inset-y-0 right-0 bg-white shadow-lg z-10 overflow-y-auto custom-scrollbar"
+          style={{ width: `${sidebarWidth}px` }}
+        >
+          {/* Resize handle */}
           <div
-            ref={sidebarRef}
-            className="fixed inset-y-0 right-0 bg-white shadow-lg z-10 overflow-y-auto custom-scrollbar"
-            style={{ width: `${sidebarWidth}px` }}
-          >
-            {/* Resize handle */}
-            <div
-              className="absolute inset-y-0 left-0 w-1 cursor-ew-resize hover:bg-blue-400 transition-colors"
-              onMouseDown={startResizing}
-            ></div>
+            className="absolute inset-y-0 left-0 w-1 cursor-ew-resize hover:bg-blue-400 transition-colors"
+            onMouseDown={startResizing}
+          ></div>
 
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-0.5">
-                <div className="border border-gray-300 rounded-lg px-8 py-2 mb-4 w-fit">
-                  <h2 className="text-xl font-bold text-color-primary">
-                    Room Details
-                  </h2>
-                </div>
-                <div className="flex items-center gap-2">
-                  {isEditing && (
-                    <span className="text-sm text-gray-500">Editing Mode</span>
-                  )}
-                  <button
-                    onClick={handleCloseDetails}
-                    className="p-1 rounded-full hover:bg-gray-100"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
+          <div className="p-6">
+            <div className="flex justify-between items-center mb-0.5">
+              <div className="border border-gray-300 rounded-lg px-8 py-2 mb-4 w-fit">
+                <h2 className="text-xl font-bold text-color-primary">
+                  Room Details
+                </h2>
               </div>
-
-              {/* Room Image */}
-              <div className="relative mb-6">
-                {roomImage ? (
-                  <img
-                    src={roomImage || "/placeholder.svg"}
-                    alt="Room"
-                    className="w-full h-[200px] object-cover rounded-lg"
-                  />
-                ) : (
-                  <div className="bg-gray-200 h-[200px] rounded-lg flex items-center justify-center text-gray-500">
-                    No Room Image
-                  </div>
-                )}
-
+              <div className="flex items-center gap-2">
                 {isEditing && (
-                  <div className="absolute bottom-2 right-2">
-                    <label htmlFor="roomImageUpload">
-                      <Button
-                        className="bg-blue-400 hover:bg-blue-500 text-white"
-                        size="sm"
-                        asChild
-                      >
-                        <span>
-                          <ImageIcon className="h-4 w-4 mr-1" />
-                          Edit Room Photo
-                        </span>
-                      </Button>
-                    </label>
-                    <input
-                      id="roomImageUpload"
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => {
-                            if (typeof reader.result === "string") {
-                              setRoomImage(reader.result);
-                              setHasUnsavedChanges(true);
-                            }
-                          };
-                          reader.readAsDataURL(file);
-                        }
-                      }}
-                    />
-                  </div>
+                  <span className="text-sm text-gray-500">Editing Mode</span>
                 )}
-              </div>
-
-              {/* Room Name */}
-              <div className="mb-6">
-                <h3 className="text-lg font-bold mb-2">{selectedRoom.id}</h3>
-                <div className="flex items-center">
-                  {getRoomTypeIcon(selectedRoom.type)}
-                  <span className="uppercase">{selectedRoom.type}</span>
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="mb-6">
-                <h3 className="text-lg font-bold mb-2">Description</h3>
-                {isEditing ? (
-                  <Textarea
-                    value={editedDescription}
-                    onChange={handleDescriptionChange}
-                    className="min-h-[100px] text-sm"
-                  />
-                ) : (
-                  <p className="text-sm text-gray-700">
-                    {selectedRoom.description}
-                  </p>
-                )}
-              </div>
-
-              {/* Available Time */}
-              <div className="mb-6">
-                <h3 className="text-lg font-bold mb-2">Available Time</h3>
-                <div className="grid grid-cols-3 gap-2">
-                  {selectedRoom.times.map((time, index) => (
-                    <div key={index} className="mb-2">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Clock className="h-4 w-4 text-gray-700" />
-                        <span className="text-xs">{time}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex justify-end gap-4 mt-8">
-                {isEditing ? (
-                  <>
-                    <Button
-                      variant="outline"
-                      className="bg-gray-400 hover:bg-gray-500 text-white border-none"
-                      onClick={handleDiscardChanges}
-                    >
-                      Discard Changes
-                    </Button>
-                    <Button
-                      className="bg-blue-400 hover:bg-blue-500 text-white"
-                      onClick={handleSaveChanges}
-                    >
-                      Save Changes
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button
-                      variant="outline"
-                      className="bg-gray-400 hover:bg-gray-500 text-white border-none"
-                    >
-                      Delete Room
-                    </Button>
-                    <Button
-                      className="bg-blue-400 hover:bg-blue-500 text-white"
-                      onClick={handleEditRoom}
-                    >
-                      Edit Room
-                    </Button>
-                  </>
-                )}
+                <button
+                  onClick={handleCloseDetails}
+                  className="p-1 rounded-full hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* Unsaved Changes Alert */}
-        <AlertDialog
-          open={showUnsavedChangesAlert}
-          onOpenChange={setShowUnsavedChangesAlert}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                Unsaved Changes
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                You have unsaved changes. Would you like to save your changes
-                before exiting?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel
-                onClick={() => {
-                  setSelectedRoom(null);
-                  setIsEditing(false);
-                  setHasUnsavedChanges(false);
-                  setShowUnsavedChangesAlert(false);
-                }}
-              >
-                Discard
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => {
-                  handleSaveChanges();
-                  setSelectedRoom(null);
-                  setShowUnsavedChangesAlert(false);
-                }}
-              >
-                Save
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+            {/* Room Image */}
+            <div className="relative mb-6">
+              {roomImage ? (
+                <img
+                  src={roomImage || "/placeholder.svg"}
+                  alt="Room"
+                  className="w-full h-[200px] object-cover rounded-lg"
+                />
+              ) : (
+                <div className="bg-gray-200 h-[200px] rounded-lg flex items-center justify-center text-gray-500">
+                  No Room Image
+                </div>
+              )}
 
-        {/* Delete Room Confirmation */}
-        <AlertDialog
-          open={showDeleteConfirmation}
-          onOpenChange={setShowDeleteConfirmation}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="flex items-center gap-2">
-                <Trash2 className="h-5 w-5 text-red-500" />
-                Delete Room
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                Do you really want to delete this room? This action cannot be
-                undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>No</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={confirmDeleteRoom}
-                className="bg-red-500 hover:bg-red-600"
-              >
-                Yes
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        {/* Create Room Dialog */}
-        <Dialog 
-          modal={false}
-          open={showCreateRoomDialog}
-          onOpenChange={setShowCreateRoomDialog}
-        >
-          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto shadow-lg rounded-lg">
-            <DialogHeader>
-              <DialogTitle>Create New Room</DialogTitle>
-              <DialogDescription>
-                Fill in the details to create a new room.
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="grid gap-4 py-4">
-              {/* Room Image */}
-              <div className="relative mb-4">
-                {newRoom.image ? (
-                  <img
-                    src={newRoom.image || "/placeholder.svg"}
-                    alt="Room"
-                    className="w-full h-[200px] object-cover rounded-lg"
-                  />
-                ) : (
-                  <div className="bg-gray-200 h-[200px] rounded-lg flex items-center justify-center text-gray-500">
-                    No Room Image
-                  </div>
-                )}
-
+              {isEditing && (
                 <div className="absolute bottom-2 right-2">
-                  <label htmlFor="newRoomImageUpload">
+                  <label htmlFor="roomImageUpload">
                     <Button
                       className="bg-blue-400 hover:bg-blue-500 text-white"
                       size="sm"
@@ -702,12 +483,12 @@ export default function RoomSchedulePage() {
                     >
                       <span>
                         <ImageIcon className="h-4 w-4 mr-1" />
-                        Add Room Photo
+                        Edit Room Photo
                       </span>
                     </Button>
                   </label>
                   <input
-                    id="newRoomImageUpload"
+                    id="roomImageUpload"
                     type="file"
                     accept="image/*"
                     className="hidden"
@@ -717,10 +498,8 @@ export default function RoomSchedulePage() {
                         const reader = new FileReader();
                         reader.onloadend = () => {
                           if (typeof reader.result === "string") {
-                            setNewRoom({
-                              ...newRoom,
-                              image: reader.result,
-                            });
+                            setRoomImage(reader.result);
+                            setHasUnsavedChanges(true);
                           }
                         };
                         reader.readAsDataURL(file);
@@ -728,244 +507,458 @@ export default function RoomSchedulePage() {
                     }}
                   />
                 </div>
-              </div>
+              )}
+            </div>
 
-              {/* Room ID */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="roomId" className="text-right">
-                  Room ID
-                </Label>
-                <Input
-                  id="roomId"
-                  placeholder="e.g., ROOM 101"
-                  className="col-span-3"
-                  value={newRoom.id}
-                  onChange={(e) =>
-                    setNewRoom({ ...newRoom, id: e.target.value })
-                  }
-                />
-              </div>
-
-              {/* Room Type */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="roomType" className="text-right">
-                  Room Type
-                </Label>
-                <Select
-                  value={newRoom.type}
-                  onValueChange={(value) =>
-                    setNewRoom({ ...newRoom, type: value })
-                  }
-                >
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select room type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {roomTypes.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Floor */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="floor" className="text-right">
-                  Floor
-                </Label>
-                <Select
-                  value={newRoom.floor}
-                  onValueChange={(value) =>
-                    setNewRoom({ ...newRoom, floor: value })
-                  }
-                >
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select floor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {floorOptions.map((floor) => (
-                      <SelectItem key={floor} value={floor}>
-                        {floor}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Capacity */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="capacity" className="text-right">
-                  Capacity
-                </Label>
-                <Input
-                  id="capacity"
-                  type="number"
-                  placeholder="e.g., 30"
-                  className="col-span-3"
-                  value={newRoom.capacity}
-                  onChange={(e) =>
-                    setNewRoom({
-                      ...newRoom,
-                      capacity: Number.parseInt(e.target.value) || 0,
-                    })
-                  }
-                />
-              </div>
-
-              {/* Description */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="description" className="text-right">
-                  Description
-                </Label>
-                <Textarea
-                  id="description"
-                  placeholder="Enter room description"
-                  className="col-span-3 min-h-[100px]"
-                  value={newRoom.description}
-                  onChange={(e) =>
-                    setNewRoom({ ...newRoom, description: e.target.value })
-                  }
-                />
-              </div>
-
-              {/* Date Picker */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">Date</Label>
-                <div className="col-span-3">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn("w-full justify-start text-left font-normal",
-                          !selectedDate && "text-muted-foreground",
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {selectedDate ? (format(selectedDate, "MM/dd/yyyy")) : (<span>Pick a date</span>)}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={setSelectedDate}
-                        initialFocus
-                        className="bg-white rounded-xl shadow-md"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </div>
-
-              {/* Available Time */}
-              <div className="grid grid-cols-4 items-start gap-4">
-                <Label className="text-right pt-2">Available Time</Label>
-                <div className="col-span-3 space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="space-y-2 flex-1">
-                      <Label>Start Time</Label>
-                      <Select
-                        value={currentStartTime}
-                        onValueChange={setCurrentStartTime}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select start time" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {timeOptions.map((time) => (
-                            <SelectItem key={time} value={time}>
-                              {time}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2 flex-1">
-                      <Label>End Time</Label>
-                      <Select
-                        value={currentEndTime}
-                        onValueChange={setCurrentEndTime}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select end time" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {timeOptions.map((time) => (
-                            <SelectItem key={time} value={time}>
-                              {time}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Button
-                      type="button"
-                      size="default"
-                      className="mt-8 hover:color-primary hover:text-white rounded-lg"
-                      onClick={handleAddTimeSlot}
-                      disabled={!currentStartTime || !currentEndTime}
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Add Time Slot
-                    </Button>
-                  </div>
-
-                  {/* Display added time slots */}
-                  {timeSlots.length > 0 && (
-                    <div className="border rounded-md p-3 bg-gray-50">
-                      <h4 className="font-medium mb-2">Added Time Slots:</h4>
-                      <ul className="space-y-1">
-                        {timeSlots.map((slot, index) => (
-                          <li key={index} className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-gray-700" />
-                            <span>{`${slot.startTime} - ${slot.endTime}`}</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 p-0 ml-auto"
-                              onClick={() => {
-                                const newSlots = [...timeSlots];
-                                newSlots.splice(index, 1);
-                                setTimeSlots(newSlots);
-                              }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
+            {/* Room Name */}
+            <div className="mb-6">
+              <h3 className="text-lg font-bold mb-2">{selectedRoom.id}</h3>
+              <div className="flex items-center">
+                {getRoomTypeIcon(selectedRoom.type)}
+                <span className="uppercase">{selectedRoom.type}</span>
               </div>
             </div>
 
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setShowCreateRoomDialog(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSaveNewRoom}
-                disabled={
-                  !newRoom.id ||
-                  !newRoom.type ||
-                  !newRoom.floor ||
-                  !newRoom.description ||
-                  timeSlots.length === 0
+            {/* Description */}
+            <div className="mb-6">
+              <h3 className="text-lg font-bold mb-2">Description</h3>
+              {isEditing ? (
+                <Textarea
+                  value={editedDescription}
+                  onChange={handleDescriptionChange}
+                  className="min-h-[100px] text-sm"
+                />
+              ) : (
+                <p className="text-sm text-gray-700">
+                  {selectedRoom.description}
+                </p>
+              )}
+            </div>
+
+            {/* Available Time */}
+            <div className="mb-6">
+              <h3 className="text-lg font-bold mb-2">Available Time</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {selectedRoom.times.map((time, index) => (
+                  <div key={index} className="mb-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Clock className="h-4 w-4 text-gray-700" />
+                      <span className="text-xs">{time}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-4 mt-8">
+              {isEditing ? (
+                <>
+                  <Button
+                    variant="outline"
+                    className="bg-gray-400 hover:bg-gray-500 text-white border-none"
+                    onClick={handleDiscardChanges}
+                  >
+                    Discard Changes
+                  </Button>
+                  <Button
+                    className="bg-blue-400 hover:bg-blue-500 text-white"
+                    onClick={handleSaveChanges}
+                  >
+                    Save Changes
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    className="bg-gray-400 hover:bg-gray-500 text-white border-none"
+                    onClick={handleDeleteRoom}
+                  >
+                    Delete Room
+                  </Button>
+                  <Button
+                    className="bg-blue-400 hover:bg-blue-500 text-white"
+                    onClick={handleEditRoom}
+                  >
+                    Edit Room
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Unsaved Changes Alert */}
+      <AlertDialog
+        open={showUnsavedChangesAlert}
+        onOpenChange={setShowUnsavedChangesAlert}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-yellow-500" />
+              Unsaved Changes
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes. Would you like to save your changes
+              before exiting?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                setSelectedRoom(null);
+                setIsEditing(false);
+                setHasUnsavedChanges(false);
+                setShowUnsavedChangesAlert(false);
+              }}
+            >
+              Discard
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                handleSaveChanges();
+                setSelectedRoom(null);
+                setShowUnsavedChangesAlert(false);
+              }}
+            >
+              Save
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Room Confirmation */}
+      <AlertDialog
+        open={showDeleteConfirmation}
+        onOpenChange={setShowDeleteConfirmation}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Trash2 className="h-5 w-5 text-red-500" />
+              Delete Room
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Do you really want to delete this room? This action cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>No</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteRoom}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Yes
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Create Room Dialog */}
+      <Dialog 
+        modal={false}
+        open={showCreateRoomDialog}
+        onOpenChange={setShowCreateRoomDialog}
+      >
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto shadow-lg rounded-lg">
+          <DialogHeader>
+            <DialogTitle>Create New Room</DialogTitle>
+            <DialogDescription>
+              Fill in the details to create a new room.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            {/* Room Image */}
+            <div className="relative mb-4">
+              {newRoom.image ? (
+                <img
+                  src={newRoom.image || "/placeholder.svg"}
+                  alt="Room"
+                  className="w-full h-[200px] object-cover rounded-lg"
+                />
+              ) : (
+                <div className="bg-gray-200 h-[200px] rounded-lg flex items-center justify-center text-gray-500">
+                  No Room Image
+                </div>
+              )}
+
+              <div className="absolute bottom-2 right-2">
+                <label htmlFor="newRoomImageUpload">
+                  <Button
+                    className="bg-blue-400 hover:bg-blue-500 text-white"
+                    size="sm"
+                    asChild
+                  >
+                    <span>
+                      <ImageIcon className="h-4 w-4 mr-1" />
+                      Add Room Photo
+                    </span>
+                  </Button>
+                </label>
+                <input
+                  id="newRoomImageUpload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        if (typeof reader.result === "string") {
+                          setNewRoom({
+                            ...newRoom,
+                            image: reader.result,
+                          });
+                        }
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Room ID */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="roomId" className="text-right">
+                Room ID
+              </Label>
+              <Input
+                id="roomId"
+                placeholder="e.g., ROOM 101"
+                className="col-span-3"
+                value={newRoom.id}
+                onChange={(e) =>
+                  setNewRoom({ ...newRoom, id: e.target.value })
+                }
+              />
+            </div>
+
+            {/* Room Type */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="roomType" className="text-right">
+                Room Type
+              </Label>
+              <Select
+                value={newRoom.type}
+                onValueChange={(value) =>
+                  setNewRoom({ ...newRoom, type: value })
                 }
               >
-                Create Room
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </main>
-    </div>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select room type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {roomTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Floor */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="floor" className="text-right">
+                Floor
+              </Label>
+              <Select
+                value={newRoom.floor}
+                onValueChange={(value) =>
+                  setNewRoom({ ...newRoom, floor: value })
+                }
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select floor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {floorOptions.map((floor) => (
+                    <SelectItem key={floor} value={floor}>
+                      {floor}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Capacity */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="capacity" className="text-right">
+                Capacity
+              </Label>
+              <Input
+                id="capacity"
+                type="number"
+                placeholder="e.g., 30"
+                className="col-span-3"
+                value={newRoom.capacity}
+                onChange={(e) =>
+                  setNewRoom({
+                    ...newRoom,
+                    capacity: Number.parseInt(e.target.value) || 0,
+                  })
+                }
+              />
+            </div>
+
+            {/* Description */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="description" className="text-right">
+                Description
+              </Label>
+              <Textarea
+                id="description"
+                placeholder="Enter room description"
+                className="col-span-3 min-h-[100px]"
+                value={newRoom.description}
+                onChange={(e) =>
+                  setNewRoom({ ...newRoom, description: e.target.value })
+                }
+              />
+            </div>
+
+            {/* Date Picker */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Date</Label>
+              <div className="col-span-3">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn("w-full justify-start text-left font-normal",
+                        !selectedDate && "text-muted-foreground",
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {selectedDate ? (format(selectedDate, "MM/dd/yyyy")) : (<span>Pick a date</span>)}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={setSelectedDate}
+                      initialFocus
+                      className="bg-white rounded-xl shadow-md"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            {/* Available Time */}
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label className="text-right pt-2">Available Time</Label>
+              <div className="col-span-3 space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="space-y-2 flex-1">
+                    <Label>Start Time</Label>
+                    <Select
+                      value={currentStartTime}
+                      onValueChange={setCurrentStartTime}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select start time" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {timeOptions.map((time) => (
+                          <SelectItem key={time} value={time}>
+                            {time}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 flex-1">
+                    <Label>End Time</Label>
+                    <Select
+                      value={currentEndTime}
+                      onValueChange={setCurrentEndTime}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select end time" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {timeOptions.map((time) => (
+                          <SelectItem key={time} value={time}>
+                            {time}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    type="button"
+                    size="default"
+                    className="mt-8 hover:color-primary hover:text-white rounded-lg"
+                    onClick={handleAddTimeSlot}
+                    disabled={!currentStartTime || !currentEndTime}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Time Slot
+                  </Button>
+                </div>
+
+                {/* Display added time slots */}
+                {timeSlots.length > 0 && (
+                  <div className="border rounded-md p-3 bg-gray-50">
+                    <h4 className="font-medium mb-2">Added Time Slots:</h4>
+                    <ul className="space-y-1">
+                      {timeSlots.map((slot, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-gray-700" />
+                          <span>{`${slot.startTime} - ${slot.endTime}`}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 ml-auto"
+                            onClick={() => {
+                              const newSlots = [...timeSlots];
+                              newSlots.splice(index, 1);
+                              setTimeSlots(newSlots);
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowCreateRoomDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveNewRoom}
+              disabled={
+                !newRoom.id ||
+                !newRoom.type ||
+                !newRoom.floor ||
+                !newRoom.description ||
+                timeSlots.length === 0
+              }
+            >
+              Create Room
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -1006,7 +999,7 @@ function RoomCard({
             {!showAllTimes ? (
               <button
                 onClick={() => setShowAllTimes(true)}
-                className="bg-white text-black rounded-full p-1 w-6 h-4 flex items-center justify-center"
+                className="bg-white text-black rounded-full p-1 w-6 h-6 flex items-center justify-center"
               >
                 <MoreHorizontal className="w-4 h-4" />
               </button>
