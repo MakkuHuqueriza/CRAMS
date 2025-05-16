@@ -665,7 +665,8 @@ export default function RoomSchedulePage() {
         </AlertDialog>
 
         {/* Create Room Dialog */}
-        <Dialog
+        <Dialog 
+          modal={false}
           open={showCreateRoomDialog}
           onOpenChange={setShowCreateRoomDialog}
         >
@@ -837,20 +838,15 @@ export default function RoomSchedulePage() {
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
+                        className={cn("w-full justify-start text-left font-normal",
                           !selectedDate && "text-muted-foreground",
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {selectedDate ? (
-                          format(selectedDate, "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
+                        {selectedDate ? (format(selectedDate, "MM/dd/yyyy")) : (<span>Pick a date</span>)}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 shadow-none border-none bg-transparent outline-none">
+                    <PopoverContent className="w-auto p-0">
                       <Calendar
                         mode="single"
                         selected={selectedDate}
