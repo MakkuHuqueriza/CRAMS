@@ -669,7 +669,7 @@ export default function RoomSchedulePage() {
           open={showCreateRoomDialog}
           onOpenChange={setShowCreateRoomDialog}
         >
-          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto shadow-sm rounded-lg">
+          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto shadow-lg rounded-lg">
             <DialogHeader>
               <DialogTitle>Create New Room</DialogTitle>
               <DialogDescription>
@@ -801,7 +801,7 @@ export default function RoomSchedulePage() {
                 <Input
                   id="capacity"
                   type="number"
-                  placeholder="e.g., 50"
+                  placeholder="e.g., 30"
                   className="col-span-3"
                   value={newRoom.capacity}
                   onChange={(e) =>
@@ -831,33 +831,37 @@ export default function RoomSchedulePage() {
 
               {/* Date Picker */}
               <div className="grid grid-cols-4 items-center gap-4">
-      <Label className="text-right">Date</Label>
-      <div className="col-span-3">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "w-full justify-start text-left font-normal",
-                !selectedDate && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              initialFocus
-              className="bg-white rounded-xl shadow-md"
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-    </div>
+                <Label className="text-right">Date</Label>
+                <div className="col-span-3">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !selectedDate && "text-muted-foreground",
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {selectedDate ? (
+                          format(selectedDate, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 shadow-none border-none bg-transparent outline-none">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={setSelectedDate}
+                        initialFocus
+                        className="bg-white rounded-xl shadow-md"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
 
               {/* Available Time */}
               <div className="grid grid-cols-4 items-start gap-4">
@@ -902,8 +906,8 @@ export default function RoomSchedulePage() {
                     </div>
                     <Button
                       type="button"
-                      size="sm"
-                      className="mt-8"
+                      size="default"
+                      className="mt-8 hover:color-primary hover:text-white rounded-lg"
                       onClick={handleAddTimeSlot}
                       disabled={!currentStartTime || !currentEndTime}
                     >
