@@ -1,6 +1,5 @@
 "use client";
 
-import Navbar from "@/app/components/Navbar";
 import { useParams } from "next/navigation";
 import { roomData } from "@/app/roomData";
 import Link from "next/link";
@@ -22,8 +21,6 @@ export default function ReservationSummary() {
 
   return (
     <>
-      <Navbar />
-
       <section className="flex justify-center py-12 lg:px-4 md:px-[58px] px-8">
         <div className="w-full max-w-5xl space-y-1">
           {/* Breadcrumb */}
