@@ -166,7 +166,9 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
               md:text-[12px] md:px-3 md:py-2 
               text-[11px] px-3 py-2"
             >
-              Reserve Now
+              <Link href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1`}>
+                Reserve Now
+              </Link>
             </Button>
           </div>
         </div>
