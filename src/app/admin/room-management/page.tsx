@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import type React from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Search,
   Clock,
@@ -14,8 +15,6 @@ import {
   ChefHat,
   MoreHorizontal,
   Trash2,
-  Plus,
-  CalendarIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,14 +44,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// import { Calendar } from "@/components/ui/calendar";
-// import {
-//   Popover,
-//   PopoverContent,
-//   PopoverTrigger,
-// } from "@/components/ui/popover";
-// import { format } from "date-fns";
-// import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { roomData, type Room } from "@/app/roomData";
 import "@/styles/globals.css";
@@ -89,39 +80,6 @@ const roomTypes = [
 // Available floors for selection
 const floorOptions = ["1st Floor, CSM", "2nd Floor, CSM"];
 
-// Time options for dropdowns
-// const timeOptions = [
-//   "7:00 AM",
-//   "7:30 AM",
-//   "8:00 AM",
-//   "8:30 AM",
-//   "9:00 AM",
-//   "9:30 AM",
-//   "10:00 AM",
-//   "10:30 AM",
-//   "11:00 AM",
-//   "11:30 AM",
-//   "12:00 PM",
-//   "12:30 PM",
-//   "1:00 PM",
-//   "1:30 PM",
-//   "2:00 PM",
-//   "2:30 PM",
-//   "3:00 PM",
-//   "3:30 PM",
-//   "4:00 PM",
-//   "4:30 PM",
-//   "5:00 PM",
-//   "5:30 PM",
-//   "6:00 PM",
-//   "6:30 PM",
-//   "7:00 PM",
-//   "7:30 PM",
-//   "8:00 PM",
-//   "8:30 PM",
-//   "9:00 PM",
-// ];
-
 export default function RoomSchedulePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
@@ -144,15 +102,8 @@ export default function RoomSchedulePage() {
     floor: "",
     capacity: 50,
     image: "/classroom.jpg",
-    times: [],
     description: "",
   });
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
-  const [timeSlots, setTimeSlots] = useState<
-    { startTime: string; endTime: string }[]
-  >([]);
-  const [currentStartTime, setCurrentStartTime] = useState<string>("");
-  const [currentEndTime, setCurrentEndTime] = useState<string>("");
 
   const minWidth = 700;
   const maxWidth = 1150;
@@ -294,33 +245,15 @@ export default function RoomSchedulePage() {
     setShowCreateRoomDialog(true);
   };
 
-  const handleAddTimeSlot = () => {
-    if (currentStartTime && currentEndTime) {
-      const timeSlot = `${currentStartTime} - ${currentEndTime}`;
-      setTimeSlots([
-        ...timeSlots,
-        { startTime: currentStartTime, endTime: currentEndTime },
-      ]);
-      setCurrentStartTime("");
-      setCurrentEndTime("");
-    }
-  };
-
   const handleSaveNewRoom = () => {
     if (newRoom.id && newRoom.type && newRoom.floor && newRoom.description) {
-      // Format time slots
-      const formattedTimes = timeSlots.map(
-        (slot) => `${slot.startTime} - ${slot.endTime}`,
-      );
-
-      // Create new room object
       const roomToAdd: Room = {
         id: newRoom.id,
         type: newRoom.type,
         floor: newRoom.floor,
         capacity: newRoom.capacity || 50,
         image: newRoom.image || "/classroom.jpg",
-        times: formattedTimes,
+        times: [],
         description: newRoom.description,
       };
 
@@ -334,13 +267,8 @@ export default function RoomSchedulePage() {
         floor: "",
         capacity: 50,
         image: "/classroom.jpg",
-        times: [],
         description: "",
       });
-      setTimeSlots([]);
-      setCurrentStartTime("");
-      setCurrentEndTime("");
-      setSelectedDate(new Date());
 
       // Close dialog
       setShowCreateRoomDialog(false);
@@ -838,122 +766,6 @@ export default function RoomSchedulePage() {
                 }
               />
             </div>
-
-            {/* Date Picker
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Date</Label>
-              <div className="col-span-3">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !selectedDate && "text-muted-foreground",
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {selectedDate ? (
-                        format(selectedDate, "MM/dd/yyyy")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={setSelectedDate}
-                      initialFocus
-                      className="bg-white rounded-xl shadow-md"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div> */}
-
-            {/* Available Time */}
-            {/* <div className="grid grid-cols-4 items-start gap-4">
-              <Label className="text-right pt-2">Available Time</Label>
-              <div className="col-span-3 space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="space-y-2 flex-1">
-                    <Label>Start Time</Label>
-                    <Select
-                      value={currentStartTime}
-                      onValueChange={setCurrentStartTime}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select start time" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {timeOptions.map((time) => (
-                          <SelectItem key={time} value={time}>
-                            {time}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2 flex-1">
-                    <Label>End Time</Label>
-                    <Select
-                      value={currentEndTime}
-                      onValueChange={setCurrentEndTime}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select end time" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {timeOptions.map((time) => (
-                          <SelectItem key={time} value={time}>
-                            {time}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button
-                    type="button"
-                    size="default"
-                    className="mt-8 hover:color-primary hover:text-white rounded-lg"
-                    onClick={handleAddTimeSlot}
-                    disabled={!currentStartTime || !currentEndTime}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Add Time Slot
-                  </Button>
-                </div>
-
-                Display added time slots
-                {timeSlots.length > 0 && (
-                  <div className="border rounded-md p-3 bg-gray-50">
-                    <h4 className="font-medium mb-2">Added Time Slots:</h4>
-                    <ul className="space-y-1">
-                      {timeSlots.map((slot, index) => (
-                        <li key={index} className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-gray-700" />
-                          <span>{`${slot.startTime} - ${slot.endTime}`}</span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 ml-auto"
-                            onClick={() => {
-                              const newSlots = [...timeSlots];
-                              newSlots.splice(index, 1);
-                              setTimeSlots(newSlots);
-                            }}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div> */}
           </div>
 
           <DialogFooter>
@@ -971,8 +783,7 @@ export default function RoomSchedulePage() {
                 !newRoom.id ||
                 !newRoom.type ||
                 !newRoom.floor ||
-                !newRoom.description ||
-                timeSlots.length === 0
+                !newRoom.description
               }
             >
               Create Room
