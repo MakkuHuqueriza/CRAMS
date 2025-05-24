@@ -11,14 +11,10 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@radix-ui/react-alert-dialog": "^1.1.13",
+    "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-avatar": "^1.1.7",
     "@radix-ui/react-dialog": "^1.1.13",
-<<<<<<< HEAD
     "@radix-ui/react-label": "^2.1.6",
-=======
-    "@radix-ui/react-label": "^2.1.7",
->>>>>>> f21c42d46beac396661a409ece4a4aaa565aa1e8
     "@radix-ui/react-popover": "^1.1.10",
     "@radix-ui/react-scroll-area": "^1.2.8",
     "@radix-ui/react-select": "^2.1.6",
