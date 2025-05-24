@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import type React from "react";
-import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+import type React from "react"
+import { useState, useRef, useEffect } from "react"
+import Image from "next/image"
 import {
   Search,
   Clock,
@@ -16,10 +16,10 @@ import {
   ChefHat,
   MoreHorizontal,
   Trash2,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +29,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/components/ui/alert-dialog"
 import {
   Dialog,
   DialogContent,
@@ -37,37 +37,28 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { roomData, type Room } from "@/app/roomData";
-import "@/styles/globals.css";
+} from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Label } from "@/components/ui/label"
+import { roomData, type Room } from "@/app/roomData"
+import "@/styles/globals.css"
 
 // Function to get the appropriate icon based on room type
 const getRoomTypeIcon = (type: string) => {
-  const typeUpperCase = type.toUpperCase();
+  const typeUpperCase = type.toUpperCase()
 
-  if (
-    typeUpperCase.includes("LECTURE") ||
-    typeUpperCase.includes("AUDITORIUM")
-  ) {
-    return <Presentation className="h-4 w-4 mr-2" />;
+  if (typeUpperCase.includes("LECTURE") || typeUpperCase.includes("AUDITORIUM")) {
+    return <Presentation className="h-4 w-4 mr-2" />
   } else if (typeUpperCase.includes("DMPCS")) {
-    return <Laptop className="h-4 w-4 mr-2" />;
+    return <Laptop className="h-4 w-4 mr-2" />
   } else if (typeUpperCase.includes("DBSES")) {
-    return <Microscope className="h-4 w-4 mr-2" />;
+    return <Microscope className="h-4 w-4 mr-2" />
   } else if (typeUpperCase.includes("DFSC")) {
-    return <ChefHat className="h-4 w-4 mr-2" />;
+    return <ChefHat className="h-4 w-4 mr-2" />
   } else {
-    return <School className="h-4 w-4 mr-2" />;
+    return <School className="h-4 w-4 mr-2" />
   }
-};
+}
 
 // Available room types for selection
 const roomTypes = [
@@ -76,27 +67,27 @@ const roomTypes = [
   "DBSES LABORATORY ROOM",
   "DMPCS LABORATORY ROOM",
   "DFSC LABORATORY ROOM",
-];
+]
 
 // Available floors for selection
-const floorOptions = ["1st Floor, CSM", "2nd Floor, CSM"];
+const floorOptions = ["1st Floor, CSM", "2nd Floor, CSM"]
 
 export default function RoomSchedulePage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-  const [sidebarWidth, setSidebarWidth] = useState(700);
-  const [isResizing, setIsResizing] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [showUnsavedChangesAlert, setShowUnsavedChangesAlert] = useState(false);
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [editedDescription, setEditedDescription] = useState("");
-  const [roomImage, setRoomImage] = useState<string | null>("/classroom.jpg");
-  const [localRoomData, setLocalRoomData] = useState<Room[]>(roomData);
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedFloor, setSelectedFloor] = useState<string | null>(null)
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
+  const [sidebarWidth, setSidebarWidth] = useState(700)
+  const [isResizing, setIsResizing] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [showUnsavedChangesAlert, setShowUnsavedChangesAlert] = useState(false)
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+  const [editedDescription, setEditedDescription] = useState("")
+  const [roomImage, setRoomImage] = useState<string | null>("/classroom.jpg")
+  const [localRoomData, setLocalRoomData] = useState<Room[]>(roomData)
 
   // Create room state
-  const [showCreateRoomDialog, setShowCreateRoomDialog] = useState(false);
+  const [showCreateRoomDialog, setShowCreateRoomDialog] = useState(false)
   const [newRoom, setNewRoom] = useState<Partial<Room>>({
     id: "",
     type: "",
@@ -104,79 +95,77 @@ export default function RoomSchedulePage() {
     capacity: 50,
     image: "/classroom.jpg",
     description: "",
-  });
+  })
 
-  const minWidth = 700;
-  const maxWidth = 1150;
-  const sidebarRef = useRef<HTMLDivElement>(null);
+  const minWidth = 700
+  const maxWidth = 1150
+  const sidebarRef = useRef<HTMLDivElement>(null)
 
   // Filter rooms based on search query and selected floor
   const filteredRooms = localRoomData.filter((room) => {
-    const matchesSearch = room.id
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchesFloor = selectedFloor === null || room.floor === selectedFloor;
-    return matchesSearch && matchesFloor;
-  });
+    const matchesSearch = room.id.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesFloor = selectedFloor === null || room.floor === selectedFloor
+    return matchesSearch && matchesFloor
+  })
 
   // Handle mouse events for resizing
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing) return;
+      if (!isResizing) return
 
       // Calculate new width based on mouse position
-      const newWidth = window.innerWidth - e.clientX;
+      const newWidth = window.innerWidth - e.clientX
 
       // Apply constraints
       if (newWidth >= minWidth && newWidth <= maxWidth) {
-        setSidebarWidth(newWidth);
+        setSidebarWidth(newWidth)
       }
-    };
+    }
 
     const handleMouseUp = () => {
-      setIsResizing(false);
-      document.body.style.cursor = "default";
-      document.body.style.userSelect = "auto";
-    };
+      setIsResizing(false)
+      document.body.style.cursor = "default"
+      document.body.style.userSelect = "auto"
+    }
 
     if (isResizing) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "ew-resize";
-      document.body.style.userSelect = "none";
+      document.addEventListener("mousemove", handleMouseMove)
+      document.addEventListener("mouseup", handleMouseUp)
+      document.body.style.cursor = "ew-resize"
+      document.body.style.userSelect = "none"
     }
 
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [isResizing]);
+      document.removeEventListener("mousemove", handleMouseMove)
+      document.removeEventListener("mouseup", handleMouseUp)
+    }
+  }, [isResizing])
 
   // Initialize edit form when a room is selected or editing mode changes
   useEffect(() => {
     if (selectedRoom && isEditing) {
-      setEditedDescription(selectedRoom.description);
+      setEditedDescription(selectedRoom.description)
     }
-  }, [selectedRoom, isEditing]);
+  }, [selectedRoom, isEditing])
 
   const startResizing = () => {
-    setIsResizing(true);
-  };
+    setIsResizing(true)
+  }
 
   const handleEditRoom = () => {
-    setIsEditing(true);
-    setHasUnsavedChanges(false);
-  };
+    setIsEditing(true)
+    setHasUnsavedChanges(false)
+  }
 
   const handleCloseDetails = () => {
     if (isEditing && hasUnsavedChanges) {
-      setShowUnsavedChangesAlert(true);
+      setShowUnsavedChangesAlert(true)
     } else {
-      setSelectedRoom(null);
-      setIsEditing(false);
-      setHasUnsavedChanges(false);
+      setSelectedRoom(null)
+      setIsEditing(false)
+      setHasUnsavedChanges(false)
     }
-  };
+  }
 
   const handleSaveChanges = () => {
     // saving room changes @ local :)
@@ -186,62 +175,58 @@ export default function RoomSchedulePage() {
           return {
             ...room,
             description: editedDescription,
-          };
+          }
         }
-        return room;
-      });
+        return room
+      })
 
       // Update local room data
-      setLocalRoomData(updatedRooms);
+      setLocalRoomData(updatedRooms)
 
       // Update the selected room with the new description
       setSelectedRoom({
         ...selectedRoom,
         description: editedDescription,
-      });
+      })
     }
 
-    setIsEditing(false);
-    setHasUnsavedChanges(false);
-  };
+    setIsEditing(false)
+    setHasUnsavedChanges(false)
+  }
 
   const handleDiscardChanges = () => {
-    setIsEditing(false);
-    setHasUnsavedChanges(false);
-  };
+    setIsEditing(false)
+    setHasUnsavedChanges(false)
+  }
 
-  const handleDescriptionChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>,
-  ) => {
-    setEditedDescription(e.target.value);
-    setHasUnsavedChanges(true);
-  };
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setEditedDescription(e.target.value)
+    setHasUnsavedChanges(true)
+  }
 
   const handleDeleteRoom = () => {
-    setShowDeleteConfirmation(true);
-  };
+    setShowDeleteConfirmation(true)
+  }
 
   const confirmDeleteRoom = () => {
     if (selectedRoom) {
       // Filter out the selected room
-      const updatedRooms = localRoomData.filter(
-        (room) => room.id !== selectedRoom.id,
-      );
+      const updatedRooms = localRoomData.filter((room) => room.id !== selectedRoom.id)
 
       // Update local room data
-      setLocalRoomData(updatedRooms);
+      setLocalRoomData(updatedRooms)
 
       // Close the delete confirmation dialog
-      setShowDeleteConfirmation(false);
+      setShowDeleteConfirmation(false)
 
       // Close the room details sidebar
-      setSelectedRoom(null);
+      setSelectedRoom(null)
     }
-  };
+  }
 
   const handleCreateRoom = () => {
-    setShowCreateRoomDialog(true);
-  };
+    setShowCreateRoomDialog(true)
+  }
 
   const handleSaveNewRoom = () => {
     if (newRoom.id && newRoom.type && newRoom.floor && newRoom.description) {
@@ -253,10 +238,10 @@ export default function RoomSchedulePage() {
         image: newRoom.image || "/classroom.jpg",
         times: [],
         description: newRoom.description,
-      };
+      }
 
       // Add to local room data
-      setLocalRoomData([...localRoomData, roomToAdd]);
+      setLocalRoomData([...localRoomData, roomToAdd])
 
       // Reset form
       setNewRoom({
@@ -266,17 +251,17 @@ export default function RoomSchedulePage() {
         capacity: 50,
         image: "/classroom.jpg",
         description: "",
-      });
+      })
 
       // Close dialog
-      setShowCreateRoomDialog(false);
+      setShowCreateRoomDialog(false)
     }
-  };
+  }
 
   // Function to clear search
   const clearSearch = () => {
-    setSearchQuery("");
-  };
+    setSearchQuery("")
+  }
 
   return (
     <>
@@ -310,11 +295,7 @@ export default function RoomSchedulePage() {
       <div className="flex gap-5 mb-6">
         <Button
           variant={selectedFloor === "1st Floor, CSM" ? "default" : "outline"}
-          onClick={() =>
-            setSelectedFloor(
-              selectedFloor === "1st Floor, CSM" ? null : "1st Floor, CSM",
-            )
-          }
+          onClick={() => setSelectedFloor(selectedFloor === "1st Floor, CSM" ? null : "1st Floor, CSM")}
           className={`${selectedFloor === "1st Floor, CSM" ? "bg-[#274c77] hover:bg-[#274c77] text-white" : "bg-white text-color-primary primary-border"}`}
         >
           Floor 1 - CSM Lobby
@@ -322,11 +303,7 @@ export default function RoomSchedulePage() {
 
         <Button
           variant={selectedFloor === "2nd Floor, CSM" ? "default" : "outline"}
-          onClick={() =>
-            setSelectedFloor(
-              selectedFloor === "2nd Floor, CSM" ? null : "2nd Floor, CSM",
-            )
-          }
+          onClick={() => setSelectedFloor(selectedFloor === "2nd Floor, CSM" ? null : "2nd Floor, CSM")}
           className={`${selectedFloor === "2nd Floor, CSM" ? "bg-[#274c77] hover:bg-[#274c77] text-white" : "bg-white text-color-primary primary-border"}`}
         >
           Floor 2 - Rooms
@@ -350,11 +327,7 @@ export default function RoomSchedulePage() {
           {filteredRooms.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {filteredRooms.map((room) => (
-                <RoomCard
-                  key={room.id}
-                  room={room}
-                  onViewDetails={() => setSelectedRoom(room)}
-                />
+                <RoomCard key={room.id} room={room} onViewDetails={() => setSelectedRoom(room)} />
               ))}
             </div>
           ) : (
@@ -381,18 +354,11 @@ export default function RoomSchedulePage() {
           <div className="p-6">
             <div className="flex justify-between items-center mb-0.5">
               <div className="border border-gray-300 rounded-lg px-8 py-2 mb-4 w-fit">
-                <h2 className="text-xl font-bold text-color-primary">
-                  Room Details
-                </h2>
+                <h2 className="text-xl font-bold text-color-primary">Room Details</h2>
               </div>
               <div className="flex items-center gap-2">
-                {isEditing && (
-                  <span className="text-sm text-gray-500">Editing Mode</span>
-                )}
-                <button
-                  onClick={handleCloseDetails}
-                  className="p-1 rounded-full hover:bg-gray-100"
-                >
+                {isEditing && <span className="text-sm text-gray-500">Editing Mode</span>}
+                <button onClick={handleCloseDetails} className="p-1 rounded-full hover:bg-gray-100">
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -417,11 +383,7 @@ export default function RoomSchedulePage() {
               {isEditing && (
                 <div className="absolute bottom-2 right-2">
                   <label htmlFor="roomImageUpload">
-                    <Button
-                      className="bg-blue-400 hover:bg-blue-500 text-white"
-                      size="sm"
-                      asChild
-                    >
+                    <Button className="bg-blue-400 hover:bg-blue-500 text-white" size="sm" asChild>
                       <span>
                         <ImageIcon className="h-4 w-4 mr-1" />
                         Edit Room Photo
@@ -434,16 +396,16 @@ export default function RoomSchedulePage() {
                     accept="image/*"
                     className="hidden"
                     onChange={(e) => {
-                      const file = e.target.files?.[0];
+                      const file = e.target.files?.[0]
                       if (file) {
-                        const reader = new FileReader();
+                        const reader = new FileReader()
                         reader.onloadend = () => {
                           if (typeof reader.result === "string") {
-                            setRoomImage(reader.result);
-                            setHasUnsavedChanges(true);
+                            setRoomImage(reader.result)
+                            setHasUnsavedChanges(true)
                           }
-                        };
-                        reader.readAsDataURL(file);
+                        }
+                        reader.readAsDataURL(file)
                       }
                     }}
                   />
@@ -470,9 +432,7 @@ export default function RoomSchedulePage() {
                   className="min-h-[100px] text-sm"
                 />
               ) : (
-                <p className="text-sm text-gray-700">
-                  {selectedRoom.description}
-                </p>
+                <p className="text-sm text-gray-700">{selectedRoom.description}</p>
               )}
             </div>
 
@@ -518,10 +478,7 @@ export default function RoomSchedulePage() {
                   >
                     Delete Room
                   </Button>
-                  <Button
-                    className="bg-blue-400 hover:bg-blue-500 text-white"
-                    onClick={handleEditRoom}
-                  >
+                  <Button className="bg-blue-400 hover:bg-blue-500 text-white" onClick={handleEditRoom}>
                     Edit Room
                   </Button>
                 </>
@@ -532,10 +489,7 @@ export default function RoomSchedulePage() {
       )}
 
       {/* Unsaved Changes Alert */}
-      <AlertDialog
-        open={showUnsavedChangesAlert}
-        onOpenChange={setShowUnsavedChangesAlert}
-      >
+      <AlertDialog open={showUnsavedChangesAlert} onOpenChange={setShowUnsavedChangesAlert}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
@@ -543,18 +497,17 @@ export default function RoomSchedulePage() {
               Unsaved Changes
             </AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved changes. Would you like to save your changes
-              before exiting?
+              You have unsaved changes. Would you like to save your changes before exiting?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel
               className="hover:bg-slate-100 hover:text-gray-700"
               onClick={() => {
-                setSelectedRoom(null);
-                setIsEditing(false);
-                setHasUnsavedChanges(false);
-                setShowUnsavedChangesAlert(false);
+                setSelectedRoom(null)
+                setIsEditing(false)
+                setHasUnsavedChanges(false)
+                setShowUnsavedChangesAlert(false)
               }}
             >
               Discard
@@ -562,9 +515,9 @@ export default function RoomSchedulePage() {
             <AlertDialogAction
               className="hover:color-primary hover:text-white hover:font-semibold"
               onClick={() => {
-                handleSaveChanges();
-                setSelectedRoom(null);
-                setShowUnsavedChangesAlert(false);
+                handleSaveChanges()
+                setSelectedRoom(null)
+                setShowUnsavedChangesAlert(false)
               }}
             >
               Save
@@ -574,10 +527,7 @@ export default function RoomSchedulePage() {
       </AlertDialog>
 
       {/* Delete Room Confirmation */}
-      <AlertDialog
-        open={showDeleteConfirmation}
-        onOpenChange={setShowDeleteConfirmation}
-      >
+      <AlertDialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
@@ -585,18 +535,12 @@ export default function RoomSchedulePage() {
               Delete Room
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Do you really want to delete this room? This action cannot be
-              undone.
+              Do you really want to delete this room? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="hover:bg-slate-100 hover:text-gray-700">
-              No
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteRoom}
-              className="bg-red-500 hover:bg-red-700 hover:text-white"
-            >
+            <AlertDialogCancel className="hover:bg-slate-100 hover:text-gray-700">No</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteRoom} className="bg-red-500 hover:bg-red-700 hover:text-white">
               Yes
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -604,17 +548,11 @@ export default function RoomSchedulePage() {
       </AlertDialog>
 
       {/* Create Room Dialog */}
-      <Dialog
-        modal={false}
-        open={showCreateRoomDialog}
-        onOpenChange={setShowCreateRoomDialog}
-      >
+      <Dialog modal={false} open={showCreateRoomDialog} onOpenChange={setShowCreateRoomDialog}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto shadow-lg rounded-lg">
           <DialogHeader>
             <DialogTitle>Create New Room</DialogTitle>
-            <DialogDescription>
-              Fill in the details to create a new room.
-            </DialogDescription>
+            <DialogDescription>Fill in the details to create a new room.</DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
@@ -636,11 +574,7 @@ export default function RoomSchedulePage() {
 
               <div className="absolute bottom-2 right-2">
                 <label htmlFor="newRoomImageUpload">
-                  <Button
-                    className="bg-blue-400 hover:bg-blue-500 text-white"
-                    size="sm"
-                    asChild
-                  >
+                  <Button className="bg-blue-400 hover:bg-blue-500 text-white" size="sm" asChild>
                     <span>
                       <ImageIcon className="h-4 w-4 mr-1" />
                       Add Room Photo
@@ -653,18 +587,18 @@ export default function RoomSchedulePage() {
                   accept="image/*"
                   className="hidden"
                   onChange={(e) => {
-                    const file = e.target.files?.[0];
+                    const file = e.target.files?.[0]
                     if (file) {
-                      const reader = new FileReader();
+                      const reader = new FileReader()
                       reader.onloadend = () => {
                         if (typeof reader.result === "string") {
                           setNewRoom({
                             ...newRoom,
                             image: reader.result,
-                          });
+                          })
                         }
-                      };
-                      reader.readAsDataURL(file);
+                      }
+                      reader.readAsDataURL(file)
                     }
                   }}
                 />
@@ -690,12 +624,7 @@ export default function RoomSchedulePage() {
               <Label htmlFor="roomType" className="text-right">
                 Room Type
               </Label>
-              <Select
-                value={newRoom.type}
-                onValueChange={(value) =>
-                  setNewRoom({ ...newRoom, type: value })
-                }
-              >
+              <Select value={newRoom.type} onValueChange={(value) => setNewRoom({ ...newRoom, type: value })}>
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select room type" />
                 </SelectTrigger>
@@ -714,12 +643,7 @@ export default function RoomSchedulePage() {
               <Label htmlFor="floor" className="text-right">
                 Floor
               </Label>
-              <Select
-                value={newRoom.floor}
-                onValueChange={(value) =>
-                  setNewRoom({ ...newRoom, floor: value })
-                }
-              >
+              <Select value={newRoom.floor} onValueChange={(value) => setNewRoom({ ...newRoom, floor: value })}>
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select floor" />
                 </SelectTrigger>
@@ -763,9 +687,7 @@ export default function RoomSchedulePage() {
                 placeholder="Enter room description"
                 className="col-span-3 min-h-[100px]"
                 value={newRoom.description}
-                onChange={(e) =>
-                  setNewRoom({ ...newRoom, description: e.target.value })
-                }
+                onChange={(e) => setNewRoom({ ...newRoom, description: e.target.value })}
               />
             </div>
           </div>
@@ -781,12 +703,7 @@ export default function RoomSchedulePage() {
             <Button
               onClick={handleSaveNewRoom}
               className="bg-blue-400 hover:bg-[#274c77] text-white transition-colors duration-200"
-              disabled={
-                !newRoom.id ||
-                !newRoom.type ||
-                !newRoom.floor ||
-                !newRoom.description
-              }
+              disabled={!newRoom.id || !newRoom.type || !newRoom.floor || !newRoom.description}
             >
               Create Room
             </Button>
@@ -794,7 +711,7 @@ export default function RoomSchedulePage() {
         </DialogContent>
       </Dialog>
     </>
-  );
+  )
 }
 
 // Room card component
@@ -802,13 +719,13 @@ function RoomCard({
   room,
   onViewDetails,
 }: {
-  room: Room;
-  onViewDetails: () => void;
+  room: Room
+  onViewDetails: () => void
 }) {
-  const [showAllTimes, setShowAllTimes] = useState(false);
+  const [showAllTimes, setShowAllTimes] = useState(false)
 
   // Show only 2 times initially, or all times if showAllTimes is true
-  const displayTimes = showAllTimes ? room.times : room.times.slice(0, 2);
+  const displayTimes = showAllTimes ? room.times : room.times.slice(0, 2)
 
   return (
     <div className="bg-[#e9f0f5] rounded-lg p-5 pb-3 relative">
@@ -870,5 +787,5 @@ function RoomCard({
         )}
       </div>
     </div>
-  );
+  )
 }

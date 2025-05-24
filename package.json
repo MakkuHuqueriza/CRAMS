@@ -13,8 +13,13 @@
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.13",
     "@radix-ui/react-avatar": "^1.1.7",
+<<<<<<< HEAD
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-label": "^2.1.6",
+=======
+    "@radix-ui/react-label": "^2.1.6",
+    "@radix-ui/react-dialog": "^1.1.13",
+>>>>>>> 315eb5fe5457b75f529307e792fd94685e3f3298
     "@radix-ui/react-popover": "^1.1.10",
     "@radix-ui/react-scroll-area": "^1.2.8",
     "@radix-ui/react-select": "^2.1.6",
