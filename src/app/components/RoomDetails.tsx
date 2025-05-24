@@ -100,13 +100,14 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
           </p>
 
           {/* Room Image */}
-          <Image
-            src="/room_sample.png"
-            alt={room.name}
-            width={900}
-            height={500}
-            className="rounded-xl object-cover w-full h-[300px] md:h-[400px]"
-          />
+          <div className="relative w-full aspect-video">
+            <Image
+              src="/wide_room_sample.png"
+              alt={room.name}
+              fill
+              className="rounded-xl object-cover"
+            />
+          </div>
 
           {/* Room Info Card */}
           <div className="bg-white rounded-xl border-[1px] border-[#B9B9B9] p-6">
@@ -181,9 +182,7 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
                   className="flex items-center text-sm text-muted-foreground"
                 >
                   <Clock className="w-4 h-4 mr-2 text-[#274c77]" />
-                  {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(
-                    time.end_time,
-                  )}`}
+                  {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(time.end_time)}`}
                 </div>
               ))}
             </div>
@@ -192,7 +191,9 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
           {/* Reserve Button */}
           <div className="flex justify-start">
             <Button className="bg-[#274c77] text-white text-[14px] hover:bg-[#182657] px-5 py-6 rounded-[30px]">
-              <Link href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1`}>
+              <Link
+                href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1`}
+              >
                 Reserve Now
               </Link>
             </Button>
