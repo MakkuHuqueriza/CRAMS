@@ -3,7 +3,6 @@
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
 import { ArrowDownWideNarrow, Search, X } from "lucide-react";
-import Sidebar from "../Sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -286,21 +285,13 @@ export default function BookingManagementPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <main className="flex-1 bg-[#f2ede4] py-6 px-10 overflow-y-auto">
-        <h1 className="text-3xl font-bold mb-6">Booking Management</h1>
-      </main>
-
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <Sidebar />
-
       {/* Main Content */}
       <div className="flex-1 bg-[#f2ede4] overflow-y-auto">
         <div className="container mx-auto px-8 py-6">
           <h1 className="text-3xl font-bold mb-6">Booking Management</h1>
 
-          {/* Search and filter controls - moved outside the white container */}
+          {/* Search and filter controls */}
           <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
             <div className="relative w-full md:w-64">
               <div className="bg-white rounded-md shadow-sm">
