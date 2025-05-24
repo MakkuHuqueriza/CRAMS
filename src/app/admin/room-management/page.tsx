@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import {
   Search,
   Clock,
@@ -108,9 +109,6 @@ export default function RoomSchedulePage() {
   const minWidth = 700;
   const maxWidth = 1150;
   const sidebarRef = useRef<HTMLDivElement>(null);
-
-  // Extract unique floor values for filtering
-  const floors = Array.from(new Set(localRoomData.map((room) => room.floor)));
 
   // Filter rooms based on search query and selected floor
   const filteredRooms = localRoomData.filter((room) => {
@@ -403,9 +401,11 @@ export default function RoomSchedulePage() {
             {/* Room Image */}
             <div className="relative mb-6">
               {roomImage ? (
-                <img
-                  src={roomImage || "/placeholder.svg"}
+                <Image
+                  src={roomImage || "/classroom.jpg"}
                   alt="Room"
+                  width={600}
+                  height={200}
                   className="w-full h-[200px] object-cover rounded-lg"
                 />
               ) : (
@@ -621,9 +621,11 @@ export default function RoomSchedulePage() {
             {/* Room Image */}
             <div className="relative mb-4">
               {newRoom.image ? (
-                <img
-                  src={newRoom.image || "/placeholder.svg"}
+                <Image
+                  src={newRoom.image || "/classroom.jpg"}
                   alt="Room"
+                  width={600}
+                  height={200}
                   className="w-full h-[200px] object-cover rounded-lg"
                 />
               ) : (
