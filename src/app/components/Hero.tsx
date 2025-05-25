@@ -1,55 +1,70 @@
-"use client"
-import { useState } from "react"
-import Image from "next/image"
-import { MapPin, LogIn, LogOut, Users, Search, CalendarIcon, X } from "lucide-react"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { format } from "date-fns"
-import { availableTime, roomCapacity, roomFloors } from "@/app/searchElements"
-import { SearchLoadingState } from "@/components/ui/search-loading"
-import "@/styles/globals.css"
-import "react-day-picker/dist/style.css"
+"use client";
+import { useState } from "react";
+import Image from "next/image";
+import {
+  MapPin,
+  LogIn,
+  LogOut,
+  Users,
+  Search,
+  CalendarIcon,
+  X,
+} from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { availableTime, roomCapacity, roomFloors } from "@/app/searchElements";
+import { SearchLoadingState } from "@/components/ui/search-loading";
+import "@/styles/globals.css";
+import "react-day-picker/dist/style.css";
 
 const Hero = () => {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>()
-  const [startTime, setStartTime] = useState<string>("")
-  const [endTime, setEndTime] = useState<string>("")
-  const [roomCap, setRoomCap] = useState<string>("")
-  const [selectedRoom, setSelectedRoom] = useState<string | null>(null)
-  const [isSearching, setIsSearching] = useState(false)
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [startTime, setStartTime] = useState<string>("");
+  const [endTime, setEndTime] = useState<string>("");
+  const [roomCap, setRoomCap] = useState<string>("");
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Function to filter end times based on the selected start time
   const getFilteredEndTimes = () => {
-    const startIndex = availableTime.findIndex((time) => time.availableTime === startTime)
-    if (startIndex === -1) return []
-    return availableTime.slice(startIndex + 1)
-  }
+    const startIndex = availableTime.findIndex(
+      (time) => time.availableTime === startTime,
+    );
+    if (startIndex === -1) return [];
+    return availableTime.slice(startIndex + 1);
+  };
 
   // Clear functions for each input
-  const clearDate = () => setSelectedDate(undefined)
-  const clearRoom = () => setSelectedRoom(null)
+  const clearDate = () => setSelectedDate(undefined);
+  const clearRoom = () => setSelectedRoom(null);
   const clearStartTime = () => {
-    setStartTime("")
-    setEndTime("") // Clear end time when start time is cleared
-  }
-  const clearEndTime = () => setEndTime("")
-  const clearCapacity = () => setRoomCap("")
+    setStartTime("");
+    setEndTime(""); // Clear end time when start time is cleared
+  };
+  const clearEndTime = () => setEndTime("");
+  const clearCapacity = () => setRoomCap("");
 
   // Handle search submission
   const handleSearch = async () => {
-    setIsSearching(true)
+    setIsSearching(true);
 
     // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // Here you would typically filter the rooms based on search criteria
     // and update the AvailableRooms component
 
-    setIsSearching(false)
-  }
+    setIsSearching(false);
+  };
 
   // Check if search button should be enabled
-  const isSearchEnabled = selectedDate && selectedRoom && startTime && endTime && roomCap
+  const isSearchEnabled =
+    selectedDate && selectedRoom && startTime && endTime && roomCap;
 
   return (
     <>
@@ -64,13 +79,20 @@ const Hero = () => {
                 <h1 className="text-4xl md:text-5xl font-bold dark-blue-text mb-2">
                   don&apos;t stress, <br /> just CRAMS.
                 </h1>
-                <p className="text-primary-foreground text-lg">Classroom reservations made simple!</p>
+                <p className="text-primary-foreground text-lg">
+                  Classroom reservations made simple!
+                </p>
               </div>
             </div>
 
             {/* Right Section */}
             <div className="relative w-full h-full">
-              <Image src="/hero-classroom.jpg" alt="Classroom Image" fill className="object-cover" />
+              <Image
+                src="/hero-classroom.jpg"
+                alt="Classroom Image"
+                fill
+                className="object-cover"
+              />
             </div>
 
             {/* Search Bar */}
@@ -85,16 +107,22 @@ const Hero = () => {
                           <CalendarIcon className="text-color-primary w-6 h-6" />
                         </div>
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-medium text-black mb-1">DATE</label>
-                          <div className={`text-md ${selectedDate ? "text-black" : "text-gray-400"}`}>
-                            {selectedDate ? format(selectedDate, "MM/dd/yyyy") : "Select Date"}
+                          <label className="text-sm font-medium text-black mb-1">
+                            DATE
+                          </label>
+                          <div
+                            className={`text-md ${selectedDate ? "text-black" : "text-gray-400"}`}
+                          >
+                            {selectedDate
+                              ? format(selectedDate, "MM/dd/yyyy")
+                              : "Select Date"}
                           </div>
                         </div>
                         {selectedDate && (
                           <button
                             onClick={(e) => {
-                              e.stopPropagation()
-                              clearDate()
+                              e.stopPropagation();
+                              clearDate();
                             }}
                             className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
                           >
@@ -127,16 +155,20 @@ const Hero = () => {
                           <MapPin className="text-color-primary w-6 h-6" />
                         </div>
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-medium text-black mb-1">LOCATION</label>
-                          <div className={`text-md ${selectedRoom ? "text-black" : "text-gray-400"}`}>
+                          <label className="text-sm font-medium text-black mb-1">
+                            LOCATION
+                          </label>
+                          <div
+                            className={`text-md ${selectedRoom ? "text-black" : "text-gray-400"}`}
+                          >
                             {selectedRoom || "Select Room"}
                           </div>
                         </div>
                         {selectedRoom && (
                           <button
                             onClick={(e) => {
-                              e.stopPropagation()
-                              clearRoom()
+                              e.stopPropagation();
+                              clearRoom();
                             }}
                             className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
                           >
@@ -145,14 +177,19 @@ const Hero = () => {
                         )}
                       </div>
                     </PopoverTrigger>
-                    <PopoverContent align="start" className="w-auto p-0 bg-white rounded-lg shadow-lg outline-none">
+                    <PopoverContent
+                      align="start"
+                      className="w-auto p-0 bg-white rounded-lg shadow-lg outline-none"
+                    >
                       <div className="w-48 max-h-60 overflow-y-auto rounded-lg">
                         {roomFloors.map((room) => (
                           <div
                             key={room.roomFloors}
                             onClick={() => setSelectedRoom(room.roomFloors)}
                             className={`px-4 py-2 cursor-pointer hover:hover-color ${
-                              selectedRoom === room.roomFloors ? "color-primary text-white font-semibold" : ""
+                              selectedRoom === room.roomFloors
+                                ? "color-primary text-white font-semibold"
+                                : ""
                             }`}
                           >
                             {room.roomFloors}
@@ -172,16 +209,20 @@ const Hero = () => {
                           <LogIn className="text-color-primary w-6 h-6" />
                         </div>
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-medium text-black mb-1">START TIME</label>
-                          <div className={`text-md ${startTime ? "text-black" : "text-gray-400"}`}>
+                          <label className="text-sm font-medium text-black mb-1">
+                            START TIME
+                          </label>
+                          <div
+                            className={`text-md ${startTime ? "text-black" : "text-gray-400"}`}
+                          >
                             {startTime || "Select Time"}
                           </div>
                         </div>
                         {startTime && (
                           <button
                             onClick={(e) => {
-                              e.stopPropagation()
-                              clearStartTime()
+                              e.stopPropagation();
+                              clearStartTime();
                             }}
                             className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
                           >
@@ -190,7 +231,10 @@ const Hero = () => {
                         )}
                       </div>
                     </PopoverTrigger>
-                    <PopoverContent align="start" className="w-auto p-0 bg-white rounded-lg shadow-lg outline-none">
+                    <PopoverContent
+                      align="start"
+                      className="w-auto p-0 bg-white rounded-lg shadow-lg outline-none"
+                    >
                       <div className="w-48 max-h-60 overflow-y-auto rounded-lg">
                         {availableTime
                           .filter((time) => time.availableTime !== "7:00 PM")
@@ -199,7 +243,9 @@ const Hero = () => {
                               key={time.availableTime}
                               onClick={() => setStartTime(time.availableTime)}
                               className={`px-4 py-2 cursor-pointer hover:hover-color ${
-                                startTime === time.availableTime ? "color-primary text-white font-semibold" : ""
+                                startTime === time.availableTime
+                                  ? "color-primary text-white font-semibold"
+                                  : ""
                               }`}
                             >
                               {time.availableTime}
@@ -219,16 +265,20 @@ const Hero = () => {
                           <LogOut className="text-color-primary w-6 h-6" />
                         </div>
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-medium text-black mb-1">END TIME</label>
-                          <div className={`text-md ${endTime ? "text-black" : "text-gray-400"}`}>
+                          <label className="text-sm font-medium text-black mb-1">
+                            END TIME
+                          </label>
+                          <div
+                            className={`text-md ${endTime ? "text-black" : "text-gray-400"}`}
+                          >
                             {endTime || "Select Time"}
                           </div>
                         </div>
                         {endTime && (
                           <button
                             onClick={(e) => {
-                              e.stopPropagation()
-                              clearEndTime()
+                              e.stopPropagation();
+                              clearEndTime();
                             }}
                             className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
                           >
@@ -237,14 +287,19 @@ const Hero = () => {
                         )}
                       </div>
                     </PopoverTrigger>
-                    <PopoverContent align="start" className="w-auto p-0 bg-white rounded-lg shadow-lg outline-none">
+                    <PopoverContent
+                      align="start"
+                      className="w-auto p-0 bg-white rounded-lg shadow-lg outline-none"
+                    >
                       <div className="w-48 max-h-60 overflow-y-auto rounded-lg">
                         {getFilteredEndTimes().map((time) => (
                           <div
                             key={time.availableTime}
                             onClick={() => setEndTime(time.availableTime)}
                             className={`px-4 py-2 cursor-pointer hover:hover-color ${
-                              endTime === time.availableTime ? "color-primary text-white font-semibold" : ""
+                              endTime === time.availableTime
+                                ? "color-primary text-white font-semibold"
+                                : ""
                             }`}
                           >
                             {time.availableTime}
@@ -264,16 +319,20 @@ const Hero = () => {
                           <Users className="text-color-primary w-6 h-6" />
                         </div>
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-medium text-black mb-1">CAPACITY</label>
-                          <div className={`text-md ${roomCap ? "text-black" : "text-gray-400"}`}>
+                          <label className="text-sm font-medium text-black mb-1">
+                            CAPACITY
+                          </label>
+                          <div
+                            className={`text-md ${roomCap ? "text-black" : "text-gray-400"}`}
+                          >
                             {roomCap || "Select Capacity"}
                           </div>
                         </div>
                         {roomCap && (
                           <button
                             onClick={(e) => {
-                              e.stopPropagation()
-                              clearCapacity()
+                              e.stopPropagation();
+                              clearCapacity();
                             }}
                             className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
                           >
@@ -282,14 +341,19 @@ const Hero = () => {
                         )}
                       </div>
                     </PopoverTrigger>
-                    <PopoverContent align="start" className="w-auto p-0 bg-white rounded-lg shadow-lg outline-none">
+                    <PopoverContent
+                      align="start"
+                      className="w-auto p-0 bg-white rounded-lg shadow-lg outline-none"
+                    >
                       <div className="w-48 max-h-60 overflow-y-auto rounded-lg">
                         {roomCapacity.map((cap) => (
                           <div
                             key={cap.roomCapacity}
                             onClick={() => setRoomCap(cap.roomCapacity)}
                             className={`px-4 py-2 cursor-pointer hover:hover-color ${
-                              roomCap === cap.roomCapacity ? "color-primary text-white font-semibold" : ""
+                              roomCap === cap.roomCapacity
+                                ? "color-primary text-white font-semibold"
+                                : ""
                             }`}
                           >
                             {cap.roomCapacity}
@@ -321,7 +385,7 @@ const Hero = () => {
         </div>
       </section>
     </>
-  )
-}
+  );
+};
 
-export default Hero
+export default Hero;

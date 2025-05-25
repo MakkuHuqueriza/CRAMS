@@ -27,19 +27,27 @@ export const LoadingSpinner = ({
       case "sm":
         return type === "fade"
           ? { height: 8, width: 2, radius: 1 }
-          : { size: 20 };
+          : type === "pulse"
+            ? { size: 6 }
+            : { size: 20 };
       case "md":
         return type === "fade"
           ? { height: 12, width: 3, radius: 2 }
-          : { size: 30 };
+          : type === "pulse"
+            ? { size: 8 }
+            : { size: 30 };
       case "lg":
         return type === "fade"
           ? { height: 16, width: 4, radius: 2 }
-          : { size: 40 };
+          : type === "pulse"
+            ? { size: 10 }
+            : { size: 40 };
       default:
         return type === "fade"
           ? { height: 12, width: 3, radius: 2 }
-          : { size: 30 };
+          : type === "pulse"
+            ? { size: 8 }
+            : { size: 30 };
     }
   };
 
@@ -95,6 +103,37 @@ export const LoadingOverlay = ({
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+// Full Page Loading Component
+interface FullPageLoadingProps {
+  isLoading: boolean;
+  message?: string;
+  spinnerType?: "fade" | "clip" | "pulse" | "beat";
+}
+
+export const FullPageLoading = ({
+  isLoading,
+  message = "Loading...",
+  spinnerType = "clip",
+}: FullPageLoadingProps) => {
+  if (!isLoading) return null;
+
+  return (
+    <div className="fixed inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="flex flex-col items-center gap-6">
+        <div className="relative">
+          <LoadingSpinner type={spinnerType} size="lg" />
+          <div className="absolute -inset-6 border-2 border-[#274c77]/10 rounded-full animate-ping"></div>
+        </div>
+        <div className="text-center">
+          <p className="text-lg font-medium text-[#274c77] animate-pulse">
+            {message}
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

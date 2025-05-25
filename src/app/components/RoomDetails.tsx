@@ -1,92 +1,114 @@
-"use client"
+"use client";
 
-import { useParams } from "next/navigation"
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Clock, Building, Users, BookOpen, Laptop, Beaker, ChefHat, CalendarIcon } from "lucide-react"
-import { useState } from "react"
-import { format } from "date-fns"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { formatTimeTo12Hour } from "@/lib/utils"
-import { LoadingOverlay } from "@/components/ui/loading-spinner"
+import { useParams } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Clock,
+  Building,
+  Users,
+  BookOpen,
+  Laptop,
+  Beaker,
+  ChefHat,
+  CalendarIcon,
+} from "lucide-react";
+import { useState } from "react";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { formatTimeTo12Hour } from "@/lib/utils";
+import { LoadingOverlay } from "@/components/ui/loading-spinner";
 
 interface Room {
-  id: string
-  name: string
-  room_type: string
-  room_location: string
-  capacity: number
-  room_description: string
+  id: string;
+  name: string;
+  room_type: string;
+  room_location: string;
+  capacity: number;
+  room_description: string;
 }
 
 interface Timeslot {
-  id: string
-  start_time: string
-  end_time: string
+  id: string;
+  start_time: string;
+  end_time: string;
 }
 
 interface RoomsProps {
-  roomDetails: Room[]
-  roomTimes: Timeslot[]
+  roomDetails: Room[];
+  roomTimes: Timeslot[];
 }
 
 const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
-  const params = useParams()
-  const roomId = params.roomId
-  const decodedRoomId = typeof roomId === "string" ? decodeURIComponent(roomId) : ""
-  const room = roomDetails.find((room: Room) => room.name === decodedRoomId)
-  const [date, setDate] = useState<Date | undefined>(new Date())
-  const [isLoadingTimeSlots, setIsLoadingTimeSlots] = useState(false)
-  const [availableTimeSlots, setAvailableTimeSlots] = useState(roomTimes)
+  const params = useParams();
+  const roomId = params.roomId;
+  const decodedRoomId =
+    typeof roomId === "string" ? decodeURIComponent(roomId) : "";
+  const room = roomDetails.find((room: Room) => room.name === decodedRoomId);
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [isLoadingTimeSlots, setIsLoadingTimeSlots] = useState(false);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState(roomTimes);
 
   const getRoomIcon = (type: string) => {
     switch (type) {
       case "LECTURE ROOM/AUDITORIUM":
       case "LECTURE ROOM":
-        return <BookOpen className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
+        return (
+          <BookOpen className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
+        );
       case "DMPCS LABORATORY ROOM":
-        return <Laptop className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
+        return (
+          <Laptop className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
+        );
       case "DBSES LABORATORY ROOM":
-        return <Beaker className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
+        return (
+          <Beaker className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
+        );
       case "DFSC LABORATORY ROOM":
-        return <ChefHat className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
+        return (
+          <ChefHat className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-3 h-3 text-[#274c77]" />
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   // Handle date selection with loading state
   const handleDateSelect = async (selectedDate: Date | undefined) => {
-    if (!selectedDate) return
+    if (!selectedDate) return;
 
-    setDate(selectedDate)
-    setIsLoadingTimeSlots(true)
+    setDate(selectedDate);
+    setIsLoadingTimeSlots(true);
 
     try {
       // Simulate API call to fetch available time slots for the selected date
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Here you would typically make an API call to fetch time slots for the specific date
       // For now, we'll just use the existing roomTimes
       // const response = await fetch(`/api/timeslots?date=${selectedDate.toISOString()}&roomId=${room?.id}`);
       // const timeSlots = await response.json();
 
-      setAvailableTimeSlots(roomTimes) // Replace with actual API response
+      setAvailableTimeSlots(roomTimes); // Replace with actual API response
     } catch (error) {
-      console.error("Error fetching time slots:", error)
+      console.error("Error fetching time slots:", error);
     } finally {
-      setIsLoadingTimeSlots(false)
+      setIsLoadingTimeSlots(false);
     }
-  }
+  };
 
   if (!room) {
     return (
       <div className="flex justify-center items-center h-screen">
         <h1 className="text-2xl font-bold text-red-500">Room not found</h1>
       </div>
-    )
+    );
   }
 
   return (
@@ -95,7 +117,10 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
         <div className="w-full max-w-4xl space-y-6">
           {/* Breadcrumb */}
           <p className="text-sm text-muted-foreground">
-            <span className="text-[#274c77] hover:underline cursor-pointer" onClick={() => history.back()}>
+            <span
+              className="text-[#274c77] hover:underline cursor-pointer"
+              onClick={() => history.back()}
+            >
               Available Rooms
             </span>{" "}
             &gt; {room.name}
@@ -103,13 +128,20 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
 
           {/* Room Image */}
           <div className="relative w-full aspect-video">
-            <Image src="/wide_room_sample.png" alt={room.name} fill className="rounded-xl object-cover" />
+            <Image
+              src="/wide_room_sample.png"
+              alt={room.name}
+              fill
+              className="rounded-xl object-cover"
+            />
           </div>
 
           {/* Room Info Card */}
           <div className="bg-white rounded-xl border-[1px] border-[#B9B9B9] p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <h1 className="text-2xl sm:text-3xl font-bold text-[#1b1b1b]">{room.name}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#1b1b1b]">
+                {room.name}
+              </h1>
             </div>
 
             <div className="flex items-center gap-4 text-muted-foreground text-[12px] md:text-sm">
@@ -132,7 +164,9 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
             </div>
 
             <hr className="border-[1px] border-[#B9B9B9] rounded-md"></hr>
-            <p className="text-sm text-gray-700 leading-relaxed mt-4 font-medium">{room.room_description}</p>
+            <p className="text-sm text-gray-700 leading-relaxed mt-4 font-medium">
+              {room.room_description}
+            </p>
           </div>
 
           {/* Available Times Card */}
@@ -148,7 +182,10 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
                     <CalendarIcon className="ml-2 h-5 w-5 text-[#274c77]" />
                   </div>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 shadow-none border-none bg-transparent rounded-lg" align="start">
+                <PopoverContent
+                  className="w-auto p-0 shadow-none border-none bg-transparent rounded-lg"
+                  align="start"
+                >
                   <Calendar
                     mode="single"
                     selected={date}
@@ -158,7 +195,9 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
                   />
                 </PopoverContent>
               </Popover>
-              <p className="text-xs text-gray-500 italic mt-1">(Click calendar to see more dates)</p>
+              <p className="text-xs text-gray-500 italic mt-1">
+                (Click calendar to see more dates)
+              </p>
             </div>
 
             {/* Available Time Slots with Loading Overlay */}
@@ -168,10 +207,15 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
               spinnerType="pulse"
             >
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-[#274c77]">Available Time</h2>
+                <h2 className="text-lg font-semibold text-[#274c77]">
+                  Available Time
+                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   {availableTimeSlots.map((time, index) => (
-                    <div key={index} className="flex items-center text-sm text-muted-foreground">
+                    <div
+                      key={index}
+                      className="flex items-center text-sm text-muted-foreground"
+                    >
                       <Clock className="w-4 h-4 mr-2 text-[#274c77]" />
                       {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(time.end_time)}`}
                     </div>
@@ -184,13 +228,17 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
           {/* Reserve Button */}
           <div className="flex justify-start">
             <Button className="bg-[#274c77] text-white text-[14px] hover:bg-[#182657] px-5 py-6 rounded-[30px]">
-              <Link href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1`}>Reserve Now</Link>
+              <Link
+                href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1`}
+              >
+                Reserve Now
+              </Link>
             </Button>
           </div>
         </div>
       </section>
     </>
-  )
-}
+  );
+};
 
-export default RoomDetails
+export default RoomDetails;
