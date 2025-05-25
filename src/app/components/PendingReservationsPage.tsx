@@ -56,7 +56,7 @@ const mockReservations = [
   // Add more reservations as needed
 ];
 
-export default function PendingReservationsPage() {
+export default function PendingReservations() {
   const [reservations, setReservations] = useState(mockReservations);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [selectedReservationId, setSelectedReservationId] = useState<
