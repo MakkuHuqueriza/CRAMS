@@ -14,7 +14,6 @@ import {
   ChefHat,
   CalendarIcon,
 } from "lucide-react";
-import { useState } from "react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -23,37 +22,20 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { formatTimeTo12Hour } from "@/lib/utils";
-import { LoadingOverlay } from "@/components/ui/loading-spinner";
+import { Room } from "@/lib/types";
 
-interface Room {
-  id: string;
-  name: string;
-  room_type: string;
-  room_location: string;
-  capacity: number;
-  room_description: string;
-}
-
-interface Timeslot {
-  id: string;
-  start_time: string;
-  end_time: string;
-}
-
-interface RoomsProps {
+type RoomDetailsProps = {
   roomDetails: Room[];
-  roomTimes: Timeslot[];
-}
+  date: Date | undefined;
+  setDate: (date: Date | undefined) => void;
+};
 
-const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
+const RoomDetails = ({ roomDetails, date, setDate }: RoomDetailsProps) => {
   const params = useParams();
   const roomId = params.roomId;
   const decodedRoomId =
     typeof roomId === "string" ? decodeURIComponent(roomId) : "";
   const room = roomDetails.find((room: Room) => room.name === decodedRoomId);
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const [isLoadingTimeSlots, setIsLoadingTimeSlots] = useState(false);
-  const [availableTimeSlots, setAvailableTimeSlots] = useState(roomTimes);
 
   const getRoomIcon = (type: string) => {
     switch (type) {
@@ -76,30 +58,6 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
         );
       default:
         return null;
-    }
-  };
-
-  // Handle date selection with loading state
-  const handleDateSelect = async (selectedDate: Date | undefined) => {
-    if (!selectedDate) return;
-
-    setDate(selectedDate);
-    setIsLoadingTimeSlots(true);
-
-    try {
-      // Simulate API call to fetch available time slots for the selected date
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Here you would typically make an API call to fetch time slots for the specific date
-      // For now, we'll just use the existing roomTimes
-      // const response = await fetch(`/api/timeslots?date=${selectedDate.toISOString()}&roomId=${room?.id}`);
-      // const timeSlots = await response.json();
-
-      setAvailableTimeSlots(roomTimes); // Replace with actual API response
-    } catch (error) {
-      console.error("Error fetching time slots:", error);
-    } finally {
-      setIsLoadingTimeSlots(false);
     }
   };
 
@@ -189,7 +147,7 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
                   <Calendar
                     mode="single"
                     selected={date}
-                    onSelect={handleDateSelect}
+                    onSelect={setDate}
                     initialFocus
                     className="border-none"
                   />
@@ -200,40 +158,33 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
               </p>
             </div>
 
-            {/* Available Time Slots with Loading Overlay */}
-            <LoadingOverlay
-              isLoading={isLoadingTimeSlots}
-              message="Loading available time slots for selected date..."
-              spinnerType="pulse"
-            >
-              <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-[#274c77]">
-                  Available Time
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                  {availableTimeSlots.map((time, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center text-sm text-muted-foreground"
-                    >
-                      <Clock className="w-4 h-4 mr-2 text-[#274c77]" />
-                      {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(time.end_time)}`}
-                    </div>
-                  ))}
-                </div>
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold text-[#274c77]">
+                Available Time
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                {room.availableTimeslots.map((time, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center text-sm text-muted-foreground"
+                  >
+                    <Clock className="w-4 h-4 mr-2 text-[#274c77]" />
+                    {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(time.end_time)}`}
+                  </div>
+                ))}
               </div>
-            </LoadingOverlay>
-          </div>
+            </div>
 
-          {/* Reserve Button */}
-          <div className="flex justify-start">
-            <Button className="bg-[#274c77] text-white text-[14px] hover:bg-[#182657] px-5 py-6 rounded-[30px]">
-              <Link
-                href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1`}
-              >
-                Reserve Now
-              </Link>
-            </Button>
+            {/* Reserve Button */}
+            <div className="flex justify-start">
+              <Button className="bg-[#274c77] text-white text-[14px] hover:bg-[#182657] px-5 py-6 rounded-[30px]">
+                <Link
+                  href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1`}
+                >
+                  Reserve Now
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>

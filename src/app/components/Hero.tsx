@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   MapPin,
@@ -21,14 +21,25 @@ import { availableTime, roomCapacity, roomFloors } from "@/app/searchElements";
 import { SearchLoadingState } from "@/components/ui/search-loading";
 import "@/styles/globals.css";
 import "react-day-picker/dist/style.css";
+import { HeroProps } from "@/lib/types";
 
-const Hero = () => {
+const Hero = ({ onSearch }: HeroProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");
   const [roomCap, setRoomCap] = useState<string>("");
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    setIsSearching(true);
+    // Simulate a delay for the search loading state
+    const timer = setTimeout(() => {
+      setIsSearching(false);
+    }, 3000); // Adjust the delay as needed
+    return () => clearTimeout(timer);
+  }
+  , []);
 
   // Function to filter end times based on the selected start time
   const getFilteredEndTimes = () => {
@@ -38,7 +49,6 @@ const Hero = () => {
     if (startIndex === -1) return [];
     return availableTime.slice(startIndex + 1);
   };
-
   // Clear functions for each input
   const clearDate = () => setSelectedDate(undefined);
   const clearRoom = () => setSelectedRoom(null);
@@ -49,22 +59,32 @@ const Hero = () => {
   const clearEndTime = () => setEndTime("");
   const clearCapacity = () => setRoomCap("");
 
-  // Handle search submission
-  const handleSearch = async () => {
-    setIsSearching(true);
-
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // Here you would typically filter the rooms based on search criteria
-    // and update the AvailableRooms component
-
-    setIsSearching(false);
-  };
-
   // Check if search button should be enabled
   const isSearchEnabled =
     selectedDate && selectedRoom && startTime && endTime && roomCap;
+
+  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSearching(true);
+    const formData = new FormData(e.currentTarget);
+    // add error handling for empty fields
+    if (!selectedDate || !selectedRoom || !startTime || !endTime || !roomCap) {
+      alert("Please fill in all fields before searching.");
+      return;
+    }
+    if (onSearch) {
+      await onSearch(formData);
+    } 
+    // Simulate a search delay
+    // This is where you would typically call your search function
+    // For demonstration, we can simulate a delay
+    // Uncomment the line below to simulate a delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+
+    // await new Promise((resolve) => setTimeout(resolve, 3000));
+    setIsSearching(false);
+  };
 
   return (
     <>
@@ -94,11 +114,32 @@ const Hero = () => {
                 className="object-cover"
               />
             </div>
-
             {/* Search Bar */}
             <div className="absolute bottom-10 left-0 right-0 px-8">
               <div className="bg-white shadow-lg rounded-lg p-4 mx-auto max-w-[1450px]">
-                <div className="flex flex-wrap items-center justify-between gap-2">
+                <form
+                  className="flex flex-wrap items-center justify-between gap-2"
+                  onSubmit={handleSearch}
+                >
+                  <input
+                    type="hidden"
+                    name="date"
+                    value={
+                      selectedDate ? format(selectedDate, "yyyy-MM-dd") : ""
+                    }
+                  />
+                  <input
+                    type="hidden"
+                    name="location"
+                    value={selectedRoom || ""}
+                  />
+                  <input
+                    type="hidden"
+                    name="startTime"
+                    value={startTime || ""}
+                  />
+                  <input type="hidden" name="endTime" value={endTime || ""} />
+                  <input type="hidden" name="capacity" value={roomCap || ""} />
                   {/* DATE PICKER */}
                   <Popover>
                     <PopoverTrigger asChild>
@@ -110,25 +151,27 @@ const Hero = () => {
                           <label className="text-sm font-medium text-black mb-1">
                             DATE
                           </label>
-                          <div
-                            className={`text-md ${selectedDate ? "text-black" : "text-gray-400"}`}
-                          >
-                            {selectedDate
-                              ? format(selectedDate, "MM/dd/yyyy")
-                              : "Select Date"}
+                          <div className="flex flex-col">
+                            <div
+                              className={`text-md ${selectedDate ? "text-black" : "text-gray-400"}`}
+                            >
+                              {selectedDate
+                                ? format(selectedDate, "MM/dd/yyyy")
+                                : "Select Date"}
+                            </div>
                           </div>
+                          {selectedDate && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                clearDate();
+                              }}
+                              className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
+                            >
+                              <X className="w-4 h-4 text-gray-500" />
+                            </button>
+                          )}
                         </div>
-                        {selectedDate && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              clearDate();
-                            }}
-                            className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
-                          >
-                            <X className="w-4 h-4 text-gray-500" />
-                          </button>
-                        )}
                       </div>
                     </PopoverTrigger>
                     <PopoverContent
@@ -146,7 +189,6 @@ const Hero = () => {
                   </Popover>
 
                   <div className="h-12 w-px bg-secondary" />
-
                   {/* LOCATION PICKER */}
                   <Popover>
                     <PopoverTrigger asChild>
@@ -154,28 +196,29 @@ const Hero = () => {
                         <div className="flex items-center justify-center w-10 h-10">
                           <MapPin className="text-color-primary w-6 h-6" />
                         </div>
-                        <div className="flex flex-col flex-1">
-                          <label className="text-sm font-medium text-black mb-1">
-                            LOCATION
-                          </label>
-                          <div
-                            className={`text-md ${selectedRoom ? "text-black" : "text-gray-400"}`}
-                          >
-                            {selectedRoom || "Select Room"}
+                          <div className="flex flex-col flex-1">
+                            <label className="text-sm font-medium text-black mb-1">
+                              LOCATION
+                            </label>
+                            <div
+                              className={`text-md ${selectedRoom ? "text-black" : "text-gray-400"}`}
+                            >
+                              {selectedRoom || "Select Room"}
+                            </div>
                           </div>
+                          {selectedRoom && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                clearRoom();
+                              }}
+                              className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
+                            >
+                              <X className="w-4 h-4 text-gray-500" />
+                            </button>
+                          )}
                         </div>
-                        {selectedRoom && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              clearRoom();
-                            }}
-                            className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
-                          >
-                            <X className="w-4 h-4 text-gray-500" />
-                          </button>
-                        )}
-                      </div>
+                      
                     </PopoverTrigger>
                     <PopoverContent
                       align="start"
@@ -362,11 +405,10 @@ const Hero = () => {
                       </div>
                     </PopoverContent>
                   </Popover>
-
                   {/* Search Button */}
                   <div className="flex items-end">
                     <button
-                      onClick={handleSearch}
+                      type="submit"
                       disabled={!isSearchEnabled || isSearching}
                       className={`font-semibold px-6 py-2 rounded-lg h-[55px] flex items-center gap-2 transition-all duration-200 ${
                         isSearchEnabled && !isSearching
@@ -378,7 +420,7 @@ const Hero = () => {
                       {isSearching ? "Searching..." : "Search"}
                     </button>
                   </div>
-                </div>
+                </form>
               </div>
             </div>
           </div>
