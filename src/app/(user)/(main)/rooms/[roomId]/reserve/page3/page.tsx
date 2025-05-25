@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import Navbar from "@/app/components/Navbar";
 import { CircleCheckBig, ClipboardCopy } from "lucide-react";
+import { useParams } from "next/navigation";
 
 export default function Confirmation() {
+  const params = useParams();
+  const roomId = params.roomId;
   const reservationId = "#111-69"; // Replace with dynamic ID if needed
 
   const handleCopyToClipboard = () => {
@@ -14,39 +16,70 @@ export default function Confirmation() {
   };
 
   return (
-    <>
-      <Navbar />
-      <div className="flex flex-col items-center border-[#B9B9B9] border-[1px] rounded-lg p-2 my-10 pl-6 w-full max-w-5xl mx-auto mt-10">
-        <div className="text-[#274c77] mb-[60px] mt-[70px]">
-          <CircleCheckBig className="w-32 h-32 scale-[2]" />
+    <div className="container mx-auto px-4 py-8 max-w-5xl">
+      {/* Breadcrumb */}
+      <p className="text-sm text-muted-foreground mb-6">
+        <Link
+          href="/"
+          className="text-[#274c77] hover:underline cursor-pointer"
+        >
+          Available Rooms
+        </Link>{" "}
+        &gt;{" "}
+        <Link
+          href={`/rooms/${encodeURIComponent(roomId as string)}`}
+          className="text-[#274c77] hover:underline cursor-pointer"
+        >
+          {decodeURIComponent(roomId as string)}
+        </Link>{" "}
+        &gt;{" "}
+        <Link
+          href={`/rooms/${encodeURIComponent(roomId as string)}/reserve/page1`}
+          className="text-[#274c77] hover:underline cursor-pointer"
+        >
+          Reservation Form
+        </Link>{" "}
+        &gt;{" "}
+        <Link
+          href={`/rooms/${encodeURIComponent(roomId as string)}/reserve/page2`}
+          className="text-[#274c77] hover:underline cursor-pointer"
+        >
+          Reservation Summary
+        </Link>{" "}
+        &gt; Confirmation
+      </p>
+
+      <div className="flex flex-col items-center border-[#B9B9B9] border-[1px] rounded-lg p-4 md:p-6 w-full mx-auto mb-20">
+        <div className="text-[#274c77] my-8 md:my-10">
+          <CircleCheckBig className="w-20 h-20 md:w-28 md:h-28 lg:w-32 lg:h-32" />
         </div>
-        <h1 className="text-[36px] font-bold text-[#274c77] w-full max-w-lg text-center leading-tight py-4">
+        <h1 className="text-[22px] sm:text-[26px] md:text-[32px] font-bold text-[#274c77] w-full max-w-lg text-center leading-tight py-4 px-4">
           Your reservation request has been submitted!
         </h1>
-        <div className="flex items-center gap-2 text-[10px] lg:text-[16px] md:text-[12px]">
+        <div className="flex items-center gap-2 text-[12px] md:text-[16px] mb-4">
           <p>Reservation ID: {reservationId}</p>
           <ClipboardCopy
             className="w-4 h-4 cursor-pointer hover:text-[#274c77]"
             onClick={handleCopyToClipboard}
           />
         </div>
-        <p className="text-[36px] font-medium text-center px-10 leading-tight py-4">
+        <p className="text-[18px] sm:text-[22px] md:text-[28px] lg:text-[32px] font-medium text-center px-4 md:px-10 leading-tight py-4">
           You will be notified{" "}
           <span className="text-[#780D29] font-semibold">through email</span>{" "}
           when an admin reviews your request.
         </p>
 
         <Link href="/">
-          <div className="py-4 pb-6">
+          <div className="py-4 pb-6 mt-4">
             <button
               type="button"
-              className="border-2 border-[#274c77] text-[#274c77] font-semibold px-4 py-2 rounded-[50px] transition-transform transform hover:scale-[1.03]"
+              className="border-2 border-[#274c77] text-[#274c77] font-semibold px-6 py-3 rounded-[50px] transition-transform transform hover:scale-[1.03]"
             >
               Reserve Another Room
             </button>
           </div>
         </Link>
       </div>
-    </>
+    </div>
   );
 }

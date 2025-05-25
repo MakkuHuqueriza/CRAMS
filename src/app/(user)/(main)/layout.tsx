@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat, Manrope } from "next/font/google";
 import "@/styles/globals.css";
 import Navbar from "@/app/components/Navbar";
+import Footer from "@/app/components/Footer";
 import { getUser } from "@/utils/supabase/server";
 
 const montserrat = Montserrat({
@@ -32,9 +33,17 @@ export default async function UserLayout({
   const email = user?.user_metadata.email;
 
   return (
-    <main className={`${montserrat.variable} ${manrope.variable} antialiased`}>
+    <div
+      className={`${montserrat.variable} ${manrope.variable} antialiased flex flex-col min-h-screen`}
+    >
+      {/* Navbar */}
       <Navbar name={name} avatar_url={avatar_url} email={email} />
-      {children}
-    </main>
+
+      {/* Main content */}
+      <main className="flex-1">{children}</main>
+
+      {/* Footer */}
+      <Footer />
+    </div>
   );
 }

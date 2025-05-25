@@ -49,11 +49,31 @@ interface AvailableRoomsProps {
 const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
   const [selectedFloor, setSelectedFloor] = useState("1st Floor, CSM");
   const [showAllRooms, setShowAllRooms] = useState(false);
+  const [showMoreRooms, setShowMoreRooms] = useState(false);
+  const [sortFilter, setSortFilter] = useState("");
 
-  // Filter rooms based on the selected floor
-  const filteredRooms = showAllRooms
-    ? roomDetails
-    : roomDetails.filter((room) => room.room_location === selectedFloor);
+  // Filter rooms based on the selected floor and sort filter
+  const getFilteredRooms = () => {
+    let filtered = showAllRooms
+      ? roomDetails
+      : roomDetails.filter((room) => room.room_location === selectedFloor);
+
+    if (sortFilter === "lecture") {
+      filtered = filtered.filter((room) => room.room_type.includes("LECTURE"));
+    } else if (sortFilter === "lab") {
+      filtered = filtered.filter((room) =>
+        room.room_type.includes("LABORATORY"),
+      );
+    }
+
+    if (!showAllRooms && !showMoreRooms) {
+      return filtered.slice(0, 5);
+    }
+
+    return filtered;
+  };
+
+  const filteredRooms = getFilteredRooms();
 
   const RoomCard = ({ room }: { room: Room }) => {
     const [showAllTimes, setShowAllTimes] = useState(false);
@@ -86,7 +106,7 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
       <Card className="w-[98%] flex md:flex-row bg-[#e7edf1] border-none p-4 md:p-4 scale-[0.90] md:scale-[0.97] gap-6 md:gap-5">
         <div className="flex-shrink-0 flex items-stretch">
           <Image
-            src="/room_sample.png"
+            src="/room_sample.jpg"
             alt={room.name}
             width={315}
             height={315}
@@ -117,19 +137,23 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
               <p className="text-[15px] lg:text-[16px] md:text-[12px] text-primary-foreground font-semibold">
                 Available Time
               </p>
-              {(showAllTimes ? roomTimes : roomTimes.slice(0, 2)).map(
-                (time, i) => (
-                  <p
-                    key={i}
-                    className="text-primary-foreground text-[13px] lg:text-sm md:text-[11px] tracking-wider flex items-center gap-2"
-                  >
-                    <Clock className="w-4 h-4 text-[#274c77]" />
-                    {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(
-                      time.end_time,
-                    )}`}
-                  </p>
-                ),
-              )}
+              <div
+                className={
+                  showAllTimes ? "grid grid-cols-3 gap-1" : "space-y-1"
+                }
+              >
+                {(showAllTimes ? roomTimes : roomTimes.slice(0, 2)).map(
+                  (time, i) => (
+                    <p
+                      key={i}
+                      className="text-primary-foreground text-[13px] lg:text-sm md:text-[11px] tracking-wider flex items-center gap-2"
+                    >
+                      <Clock className="w-4 h-4 text-[#274c77]" />
+                      {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(time.end_time)}`}
+                    </p>
+                  ),
+                )}
+              </div>
             </div>
           </div>
 
@@ -137,7 +161,7 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
           {roomTimes.length > 2 && (
             <button
               onClick={() => setShowAllTimes(!showAllTimes)}
-              className="bg-primary text-black rounded-full p-1 w-6 h-3 flex items-center justify-center"
+              className="bg-primary text-black rounded-full p-1 w-6 h-3 mt-[2px] flex items-center justify-center"
             >
               {showAllTimes ? "" : ""}
               <MoreHorizontal className="w-4 h-4" />
@@ -166,7 +190,11 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
               md:text-[12px] md:px-3 md:py-2 
               text-[11px] px-3 py-2"
             >
-              Reserve Now
+              <Link
+                href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1`}
+              >
+                Reserve Now
+              </Link>
             </Button>
           </div>
         </div>
@@ -193,11 +221,14 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
                 onClick={() => {
                   setSelectedFloor("1st Floor, CSM");
                   setShowAllRooms(false);
+                  setShowMoreRooms(false);
                 }}
                 className={`rounded-md font-semibold border-2 ${
-                  selectedFloor === "1st Floor, CSM"
+                  selectedFloor === "1st Floor, CSM" && !showAllRooms
                     ? "text-[#274c77] border-[#274c77] hover:shadow-lg"
-                    : "bg-[#274c77] text-white border-[#274c77] hover:bg-[#182657]"
+                    : showAllRooms
+                      ? "bg-[#274c77] text-white border-[#274c77] hover:bg-[#182657] opacity-70"
+                      : "bg-[#274c77] text-white border-[#274c77] hover:bg-[#182657]"
                 } xl:text-[16px] xl:px-4 xl:py-4 lg:text-[14px] lg:px-3 lg:py-3 md:text-[12px] md:px-2 md:py-1 text-[11px] px-2 py-1`}
               >
                 Floor 1 - CSM Lobby
@@ -207,11 +238,14 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
                 onClick={() => {
                   setSelectedFloor("2nd Floor, CSM");
                   setShowAllRooms(false);
+                  setShowMoreRooms(false);
                 }}
                 className={`rounded-md font-semibold border-2 ${
-                  selectedFloor === "2nd Floor, CSM"
+                  selectedFloor === "2nd Floor, CSM" && !showAllRooms
                     ? "text-[#274c77] border-[#274c77] hover:shadow-lg"
-                    : "bg-[#274c77] text-white border-[#274c77] hover:bg-[#182657]"
+                    : showAllRooms
+                      ? "bg-[#274c77] text-white border-[#274c77] hover:bg-[#182657] opacity-70"
+                      : "bg-[#274c77] text-white border-[#274c77] hover:bg-[#182657]"
                 } xl:text-[16px] xl:px-4 xl:py-4 lg:text-[14px] lg:px-3 lg:py-3 md:text-[12px] md:px-2 md:py-1 text-[11px] px-2 py-1`}
               >
                 Floor 2 - Rooms
@@ -223,7 +257,16 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
         <div className="rooms-secondary h-full px-4 md:px-8 pt-10 rounded-t-[30px]">
           <div className="bg-primary xl:w-[75%] lg:w-[90%] md:w-[89%] w-[85%] max-w-6xl mx-auto p-6 px-2 md:space-y-5 rounded-3xl shadow-xl text-[24px]">
             <div className="flex justify-center md:justify-end lg:mr-2">
-              <Select>
+              <Select
+                onValueChange={(value) => {
+                  setSortFilter(value);
+                  if (value === "all") {
+                    setShowAllRooms(true);
+                    setShowMoreRooms(false);
+                  }
+                }}
+                value={sortFilter}
+              >
                 <SelectTrigger className="w-[190px] text-[#8a8a8a] py-2 mr-4 border border-gray-300 rounded-lg shadow-sm bg-white hover:bg-gray-100 mb-0 md:mb-0">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
@@ -247,7 +290,14 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
                     All Rooms
                   </SelectItem>
                   <div>
-                    <button className="text-[#274c77] border border-[#274c77] text-sm font-medium rounded-md w-full px-4 py-[2px] active:bg-[#274c77] active:text-white transition">
+                    <button
+                      onClick={() => {
+                        setSortFilter("");
+                        setShowAllRooms(false);
+                        setShowMoreRooms(false);
+                      }}
+                      className="text-[#274c77] border border-[#274c77] text-sm font-medium rounded-md w-full px-4 py-[2px] active:bg-[#274c77] active:text-white transition"
+                    >
                       Reset Filter
                     </button>
                   </div>
@@ -274,13 +324,14 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
             <div className="flex justify-center pt-12">
               <Button
                 onClick={() => {
-                  setSelectedFloor("");
-                  setShowAllRooms(true);
+                  setShowMoreRooms(!showMoreRooms);
                 }}
-                className="rounded-full bg-primary px-5 py-[18px] font-semibold text-[#274c77] border-[#274c77] border-2 transition-transform transform hover:scale-105"
+                className="rounded-full bg-primary px-5 py-[18px] font-semibold text-[#274c77] border-[#274c77] border-2 transition-all duration-300 transform hover:scale-105"
               >
-                Load More
-                <ArrowDown className="w-4 h-4" />
+                {showMoreRooms ? "Show Less" : "Show More"}
+                <ArrowDown
+                  className={`w-4 h-4 ml-2 transition-transform duration-300 ${showMoreRooms ? "rotate-180" : ""}`}
+                />
               </Button>
             </div>
           )}

@@ -1,35 +1,166 @@
 "use client";
 
-import { useState } from "react";
-import Navbar from "@/app/components/Navbar";
-import { useParams } from "next/navigation";
+import { useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { roomData } from "@/app/roomData";
+import { Field, Form, Formik, useFormikContext } from "formik";
+import * as Yup from "yup";
+import Link from "next/link";
 
-const ReservationDetails = () => {
-  // const [reservationInputEnabled, setReservationInputEnabled] = useState(false);
-  // const [othersInputEnabled, setOthersInputEnabled] = useState(false);
-  const [selectedOption, setSelectedOption] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [startPeriod, setStartPeriod] = useState("AM");
-  const [endTime, setEndTime] = useState("");
-  const [endPeriod, setEndPeriod] = useState("AM");
-  const [selectedCheckbox, setSelectedCheckbox] = useState<string | null>(null);
-  const [errorMessages, setErrorMessages] = useState<string[]>([]);
-  interface FormErrors {
-    contactName?: boolean;
-    email?: boolean;
-    contactNumber?: boolean;
-    role?: boolean;
-    course?: boolean;
-    time?: boolean;
-    type?: boolean;
-    dateOfReservation?: boolean;
-    natureOfWork?: boolean;
+type TimePeriodSelectorProps = {
+  timeFieldName: string;
+  periodFieldName: string;
+};
+
+type ReservationFormValues = {
+  contactName: string;
+  email: string;
+  contactNumber: string;
+  role: string;
+  course: string;
+  type: string;
+  dateOfReservation: string;
+  startTime: string;
+  startPeriod: string;
+  endTime: string;
+  endPeriod: string;
+  natureOfWork: string;
+  reservationOptions?: string[];
+  otherPurpose?: string;
+};
+
+// Helper function to convert time to minutes for comparison
+const timeToMinutes = (time: string, period: string): number => {
+  const [hours, minutes] = time.split(":").map(Number);
+  let totalHours = hours;
+
+  if (period === "PM" && hours !== 12) {
+    totalHours += 12;
+  } else if (period === "AM" && hours === 12) {
+    totalHours = 0;
   }
 
-  const [formErrors, setFormErrors] = useState<FormErrors>({});
+  return totalHours * 60 + minutes;
+};
 
+// Time Period Component to handle the AM/PM logic
+const TimePeriodSelector = ({
+  timeFieldName,
+  periodFieldName,
+}: TimePeriodSelectorProps) => {
+  const { values, setFieldValue } = useFormikContext<ReservationFormValues>();
+  const selectedTime = values[
+    timeFieldName as keyof ReservationFormValues
+  ] as string;
+
+  useEffect(() => {
+    if (selectedTime) {
+      // For times 1,2,3,4,5,6,12 - only PM allowed
+      if (
+        [
+          "01:00",
+          "01:30",
+          "02:00",
+          "02:30",
+          "03:00",
+          "03:30",
+          "04:00",
+          "04:30",
+          "05:00",
+          "05:30",
+          "06:00",
+          "06:30",
+          "12:00",
+          "12:30",
+        ].includes(selectedTime)
+      ) {
+        setFieldValue(periodFieldName, "PM");
+      }
+      // For times 8,9,10,11 - only AM allowed
+      else if (
+        [
+          "08:00",
+          "08:30",
+          "09:00",
+          "09:30",
+          "10:00",
+          "10:30",
+          "11:00",
+          "11:30",
+        ].includes(selectedTime)
+      ) {
+        setFieldValue(periodFieldName, "AM");
+      }
+      // For 7:00 and 7:30 - user can choose AM or PM (don't force)
+    }
+  }, [selectedTime, setFieldValue, periodFieldName]);
+
+  // Determine available options based on selected time
+  const getAvailableOptions = () => {
+    if (!selectedTime) return ["AM", "PM"];
+
+    // Times that can only be PM
+    if (
+      [
+        "01:00",
+        "01:30",
+        "02:00",
+        "02:30",
+        "03:00",
+        "03:30",
+        "04:00",
+        "04:30",
+        "05:00",
+        "05:30",
+        "06:00",
+        "06:30",
+        "12:00",
+        "12:30",
+      ].includes(selectedTime)
+    ) {
+      return ["PM"];
+    }
+    // Times that can only be AM
+    else if (
+      [
+        "08:00",
+        "08:30",
+        "09:00",
+        "09:30",
+        "10:00",
+        "10:30",
+        "11:00",
+        "11:30",
+      ].includes(selectedTime)
+    ) {
+      return ["AM"];
+    }
+    // Times that can be either (7:00, 7:30)
+    else {
+      return ["AM", "PM"];
+    }
+  };
+
+  const availableOptions = getAvailableOptions();
+
+  return (
+    <Field
+      name={periodFieldName}
+      as="select"
+      className="border rounded p-1 text-sm w-[60px]"
+    >
+      {availableOptions.map((period) => (
+        <option key={period} value={period}>
+          {period}
+        </option>
+      ))}
+    </Field>
+  );
+};
+
+const ReservationDetails = () => {
   const params = useParams();
+  const router = useRouter();
   const roomId = params.roomId;
   const decodedRoomId =
     typeof roomId === "string" ? decodeURIComponent(roomId) : "";
@@ -43,106 +174,90 @@ const ReservationDetails = () => {
     );
   }
 
-  const validateForm = () => {
-    const errors: FormErrors = {};
-    let hasErrors = false;
+  const validationSchema = Yup.object({
+    contactName: Yup.string().required("Contact Name is required"),
+    email: Yup.string()
+      .email("Invalid email address")
+      .required("Email is required"),
+    contactNumber: Yup.string()
+      .matches(/^9\d{9}$/, "Contact Number must start with 9")
+      .required("Contact Number is required"),
+    role: Yup.string().required("Role is required"),
+    course: Yup.string().required("Course/Department/Organization is required"),
+    type: Yup.string().required("Type is required"),
+    dateOfReservation: Yup.string()
+      .required("Date of Reservation is required")
+      .test("valid-date", "Select a valid date", (value) => {
+        if (!value) return false;
+        const date = new Date(value);
+        if (isNaN(date.getTime())) return false;
+        const year = date.getFullYear();
+        // Only allow years between 2024 and 2100
+        return year >= 2024 && year <= 2100;
+      })
+      .test(
+        "not-in-past",
+        "Date of Reservation cannot be in the past",
+        (value) => {
+          if (!value) return false;
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const date = new Date(value);
+          return date >= today;
+        },
+      ),
+    startTime: Yup.string().required("Start Time is required"),
+    startPeriod: Yup.string().required("Start Period is required"),
+    endTime: Yup.string().required("End Time is required"),
+    endPeriod: Yup.string().required("End Period is required"),
+    natureOfWork: Yup.string().required("Nature of Work is required"),
+    otherPurpose: Yup.string().when("natureOfWork", {
+      is: "Others",
+      then: (schema) => schema.required("Please describe your purpose"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+  }).test("time-interval", "Invalid time interval", function (values) {
+    const { startTime, startPeriod, endTime, endPeriod } = values;
 
-    // Reset errors
-    setFormErrors({});
-    setErrorMessages([]);
-
-    // Validate Contact Name
-    const contactName = document.querySelector(
-      'input[type="text"][placeholder="Enter your name"]',
-    ) as HTMLInputElement;
-    if (!contactName?.value.trim()) {
-      errors.contactName = true;
-      hasErrors = true;
+    if (!startTime || !startPeriod || !endTime || !endPeriod) {
+      return true; // Let individual field validation handle missing values
     }
 
-    // Validate Email Address
-    const email = document.querySelector(
-      'input[type="email"]',
-    ) as HTMLInputElement;
-    if (!email?.value.trim()) {
-      errors.email = true;
-      hasErrors = true;
-    } else if (!/\S+@\S+\.\S+/.test(email.value)) {
-      errors.email = true;
-      hasErrors = true;
+    const startMinutes = timeToMinutes(startTime, startPeriod);
+    const endMinutes = timeToMinutes(endTime, endPeriod);
+
+    // Check if start time is before end time
+    if (startMinutes >= endMinutes) {
+      return this.createError({
+        path: "endTime",
+        message: "End time must be after start time",
+      });
     }
 
-    // Validate Contact Number
-    const contactNumber = document.querySelector(
-      'input[type="text"][placeholder="Enter your number"]',
-    ) as HTMLInputElement;
-    if (!contactNumber?.value.trim()) {
-      errors.contactNumber = true;
-      hasErrors = true;
+    // Check if times are within allowed range (7 AM to 7 PM)
+    const earliestTime = timeToMinutes("07:00", "AM"); // 7 AM
+    const latestTime = timeToMinutes("07:00", "PM"); // 7 PM
+
+    if (startMinutes < earliestTime || startMinutes > latestTime) {
+      return this.createError({
+        path: "startTime",
+        message: "Start time must be between 7:00 AM and 7:00 PM",
+      });
     }
 
-    // Validate Role
-    if (!selectedOption) {
-      errors.role = true;
-      hasErrors = true;
+    if (endMinutes < earliestTime || endMinutes > latestTime) {
+      return this.createError({
+        path: "endTime",
+        message: "End time must be between 7:00 AM and 7:00 PM",
+      });
     }
 
-    // Validate Course/Department/Organization
-    const course = document.querySelector(
-      'input[type="text"][placeholder="Enter your current affiliation"]',
-    ) as HTMLInputElement;
-    if (!course?.value.trim()) {
-      errors.course = true;
-      hasErrors = true;
-    }
+    return true;
+  });
 
-    // Validate Start and End Times
-    if (!startTime || !endTime) {
-      errors.time = true;
-      hasErrors = true;
-    }
-
-    // Validate Job Order Section
-    const type = document.querySelector(
-      'input[type="text"][placeholder="Type of Reservation – Event, Seminar, etc"]',
-    ) as HTMLInputElement;
-    if (!type?.value.trim()) {
-      errors.type = true;
-      hasErrors = true;
-    }
-
-    const dateOfReservation = document.querySelector(
-      'input[type="date"]',
-    ) as HTMLInputElement;
-    if (!dateOfReservation?.value.trim()) {
-      errors.dateOfReservation = true;
-      hasErrors = true;
-    }
-
-    // Validate Nature of Work Checkboxes
-    if (!selectedCheckbox) {
-      errors.natureOfWork = true;
-      hasErrors = true;
-    }
-
-    // Set errors and error messages
-    setFormErrors(errors);
-    setErrorMessages(
-      hasErrors
-        ? ["Insufficient information, please fill up the form properly."]
-        : [],
-    );
-
-    return !hasErrors;
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent the default form submission behavior
-
-    if (validateForm()) {
-      // If the form is valid, navigate to the next page
-      window.location.href = `/rooms/${encodeURIComponent(room?.id)}/reserve/page2`;
-    }
+  const handleSubmit = () => {
+    // If the form is valid, navigate to the next page
+    router.push(`/rooms/${encodeURIComponent(room?.id)}/reserve/page2`);
   };
 
   const timeOptions = [
@@ -171,182 +286,322 @@ const ReservationDetails = () => {
     "06:00",
     "06:30",
   ];
-  const periodOptions = ["AM", "PM"];
+
+  const initialValues = {
+    contactName: "",
+    email: "",
+    contactNumber: "",
+    role: "",
+    course: "",
+    type: "",
+    dateOfReservation: "",
+    startTime: "",
+    startPeriod: "AM",
+    endTime: "",
+    endPeriod: "AM",
+    natureOfWork: "",
+    reservationOptions: [],
+    otherPurpose: "",
+  };
 
   return (
-    <>
-      <Navbar />
+    <div className="container mx-auto px-4 py-8 max-w-5xl">
+      {/* Breadcrumb */}
+      <p className="text-sm text-muted-foreground mb-6">
+        <Link
+          href="/"
+          className="text-[#274c77] hover:underline cursor-pointer"
+        >
+          Available Rooms
+        </Link>{" "}
+        &gt;{" "}
+        <Link
+          href={`/rooms/${encodeURIComponent(room.id)}`}
+          className="text-[#274c77] hover:underline cursor-pointer"
+        >
+          {room.id}
+        </Link>{" "}
+        &gt; Reservation Form
+      </p>
 
-      <section className="flex justify-center py-12 lg:px-4 md:px-[58px] px-8">
-        <div className="w-full max-w-5xl space-y-6">
-          {/* Breadcrumb */}
-          <p className="text-sm text-muted-foreground w-full px-6 max-w-5xl">
-            <span
-              className="text-[#274c77] hover:underline cursor-pointer"
-              onClick={() => history.back()}
-            >
-              Available Rooms
-            </span>{" "}
-            &gt;{" "}
-            <span
-              className="text-[#274c77] hover:underline cursor-pointer"
-              onClick={() => history.back()}
-            >
-              {room.id}
-            </span>{" "}
-            &gt; Reservation Form
-          </p>
-          <form
-            className="flex flex-col items-center gap-6 px-5"
-            onSubmit={handleSubmit}
-          >
+      <Formik
+        enableReinitialize
+        initialValues={initialValues}
+        onSubmit={handleSubmit}
+        validationSchema={validationSchema}
+        validateOnChange={true}
+        validateOnBlur={true}
+      >
+        {({ values, errors, touched }) => (
+          <Form className="flex flex-col items-center gap-6 pb-10">
             {/* Error Messages Box */}
-            {errorMessages.length > 0 && (
-              <div className="bg-red-100 border border-red-500 text-red-700 text-sm w-full px-4 py-2 rounded mb-2">
-                <p>{errorMessages[0]}</p>
+            {Object.keys(errors).length > 0 && (
+              <div className="bg-red-100 border border-red-500 text-red-700 text-sm w-full px-4 py-3 rounded mb-2">
+                <p>
+                  Complete the missing information indicated by the asterisk (*)
+                </p>
+                {errors.endTime &&
+                  typeof errors.endTime === "string" &&
+                  errors.endTime.includes(
+                    "End time must be after start time",
+                  ) && <p className="mt-1">• {errors.endTime}</p>}
+                {errors.startTime &&
+                  typeof errors.startTime === "string" &&
+                  errors.startTime.includes("between 7:00 AM and 7:00 PM") && (
+                    <p className="mt-1">• {errors.startTime}</p>
+                  )}
+                {errors.endTime &&
+                  typeof errors.endTime === "string" &&
+                  errors.endTime.includes("between 7:00 AM and 7:00 PM") && (
+                    <p className="mt-1">• {errors.endTime}</p>
+                  )}
               </div>
             )}
 
-            <div className="border-[#B9B9B9] border-[1px] my-[-10px] rounded-lg p-2 pl-6 w-full max-w-5xl">
-              <h1 className="text-[32px] font-bold text-[#274c77]">
+            <div className="border-[#B9B9B9] border-[1px] rounded-lg py-2 px-6 w-full">
+              <h1 className="text-[23px] md:text-[32px] font-bold text-[#274c77]">
                 Reservation Details
               </h1>
             </div>
 
             {/* Contact Details */}
-            <div className="w-full max-w-5xl space-y-4 border-[#B9B9B9] border-[1px] rounded-lg pb-8 shadow-md">
-              <div className="bg-secondary rounded-t-lg py-5 px-10">
-                <h2 className="text-[25px] font-semibold">Contact Details</h2>
+            <div className="w-full space-y-4 border-[#B9B9B9] border-[1px] rounded-lg pb-8 shadow-md">
+              <div className="bg-[#e7edf1] rounded-t-lg py-4 px-6">
+                <h2 className="text-[20px] md:text-[24px] font-semibold">
+                  Contact Details
+                </h2>
               </div>
-              <p className="text-sm px-10 py-2">
+              <p className="text-sm px-6 py-2">
                 We will use these details for your reservation information.
               </p>
-              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 px-10">
+
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 px-6">
                 {/* Contact Name */}
                 <div>
-                  <label className="text-[16px] font-medium">
+                  <label className="text-[14px] md:text-[16px] font-medium">
                     Contact Name
-                    {formErrors.contactName && (
+                    {errors.contactName && touched.contactName && (
                       <span className="text-red-500 ml-1">*</span>
                     )}
                   </label>
-                  <input
+                  <Field
+                    name="contactName"
                     type="text"
-                    className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-full"
+                    className="border-[1px] border-[#B9B9B9] rounded-md px-3 py-2 w-full mt-1 focus:ring-2 focus:ring-[#274c77]/20 focus:outline-none transition-shadow h-9"
                   />
-                  <p className="text-[13px] text-gray-500 pt-[2px]">
+                  <p className="text-[11px] md:text-[13px] text-gray-500 mt-1">
                     Enter your name (First Name, Last Name)
                   </p>
                 </div>
 
                 {/* Email Address */}
                 <div>
-                  <label className="text-[16px] font-medium">
+                  <label className="text-[14px] md:text-[16px] font-medium">
                     Email Address
-                    {formErrors.email && (
+                    {errors.email && touched.email && (
                       <span className="text-red-500 ml-1">*</span>
                     )}
                   </label>
-                  <input
+                  <Field
+                    name="email"
                     type="email"
-                    className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-full"
+                    className="border-[1px] border-[#B9B9B9] rounded-md px-3 py-2 w-full mt-1 focus:ring-2 focus:ring-[#274c77]/20 focus:outline-none transition-shadow h-9"
                   />
-                  <p className="text-[13px] text-gray-500 pt-[2px]">
+                  <p className="text-[11px] md:text-[13px] text-gray-500 mt-1">
                     Enter your email address
                   </p>
                 </div>
               </div>
 
-              {/* Contact Number, Role, and Course/Department/Organization */}
-              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 px-10">
-                {/* Left Column: Contact Number and Role */}
-                <div className="grid grid-cols-2 gap-x-[140px]">
-                  {/* Contact Number */}
-                  <div>
-                    <label className="text-[16px] font-medium">
-                      Contact Number
-                      {formErrors.contactNumber && (
-                        <span className="text-red-500 ml-1">*</span>
+              {/* Contact Number and Role */}
+              <div className="w-full px-6">
+                {/* Desktop Layout */}
+                <div className="hidden lg:flex gap-6">
+                  {/* Left Column */}
+                  <div className="flex gap-4 flex-1">
+                    {/* Contact Number */}
+                    <div className="flex-[0.6]">
+                      <label className="text-[14px] md:text-[16px] font-medium">
+                        Contact Number
+                        {errors.contactNumber && touched.contactNumber && (
+                          <span className="text-red-500 ml-1">*</span>
+                        )}
+                      </label>
+                      <div className="flex items-center gap-1 mt-1">
+                        <div className="border-[1px] border-[#B9B9B9] rounded-md py-[7px] w-[65px] bg-gray-100 text-center text-sm h-9">
+                          <p className="text-[15px] text-gray-800">+63</p>
+                        </div>
+                        <Field
+                          name="contactNumber"
+                          type="text"
+                          className="border-[1px] border-[#B9B9B9] rounded-md py-2 px-3 flex-1 focus:ring-2 focus:ring-[#274c77]/20 focus:outline-none transition-shadow h-9"
+                          maxLength={10}
+                          onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            e.target.value = e.target.value
+                              .replace(/\D/g, "")
+                              .slice(0, 10);
+                          }}
+                        />
+                      </div>
+                      {touched.contactNumber && errors.contactNumber && (
+                        <div className="text-red-500 text-xs mt-1">
+                          {errors.contactNumber}
+                        </div>
                       )}
-                    </label>
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="text"
-                        value="+63"
-                        readOnly
-                        className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] w-[65px] bg-gray-100 text-center"
-                      />
-                      <input
-                        type="text"
-                        className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] px-2 w-[200px]"
-                      />
+                      <p className="text-[11px] md:text-[13px] text-gray-500 mt-1">
+                        Enter your contact number
+                      </p>
                     </div>
-                    <p className="text-[13px] text-gray-500 pt-[2px] w-[200px]">
-                      Enter your contact number
-                    </p>
+
+                    {/* Role */}
+                    <div className="flex-[0.4]">
+                      <label className="text-[14px] md:text-[16px] font-medium">
+                        Role
+                        {errors.role && touched.role && (
+                          <span className="text-red-500 ml-1">*</span>
+                        )}
+                      </label>
+                      <Field
+                        name="role"
+                        className="border-[1px] border-[#B9B9B9] rounded-md py-2 px-3 w-full mt-1 focus:ring-2 focus:ring-[#274c77]/20 focus:outline-none transition-shadow h-9"
+                        as="select"
+                      >
+                        <option value="" disabled hidden>
+                          Select
+                        </option>
+                        <option value="Student">Student</option>
+                        <option value="Faculty">Faculty</option>
+                        <option value="Outsider">Outsider</option>
+                      </Field>
+                      <p className="text-[11px] md:text-[13px] text-gray-500 mt-1">
+                        Select a role
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Role */}
-                  <div>
-                    <label className="text-[16px] font-medium">
-                      Role
-                      {formErrors.role && (
+                  {/* Course/Department/Organization */}
+                  <div className="flex-1">
+                    <label className="text-[14px] md:text-[16px] font-medium">
+                      Course/Department/Organization
+                      {errors.course && touched.course && (
                         <span className="text-red-500 ml-1">*</span>
                       )}
                     </label>
-                    <select
-                      className="border-[1px] border-[#B9B9B9] rounded-md p-[2px] px-2 w-full"
-                      value={selectedOption}
-                      onChange={(e) => setSelectedOption(e.target.value)}
-                    >
-                      <option value="" disabled hidden></option>{" "}
-                      {/* Empty default option */}
-                      <option value="Student">Student</option>
-                      <option value="Faculty">Professor</option>
-                      <option value="Faculty">Outsider</option>
-                    </select>
-                    <p className="text-[13px] text-gray-500 pt-[2px]">
-                      Select a role
+                    <Field
+                      name="course"
+                      type="text"
+                      className="border-[1px] border-[#B9B9B9] rounded-md py-2 px-3 w-full mt-1 focus:ring-2 focus:ring-[#274c77]/20 focus:outline-none transition-shadow h-9"
+                    />
+                    <p className="text-[11px] md:text-[13px] text-gray-500 mt-1">
+                      Enter your affiliation
                     </p>
                   </div>
                 </div>
 
-                {/* Right Column: Course/Department/Organization */}
-                <div>
-                  <label className="text-[16px] font-medium">
-                    Course/Department/Organization
-                    {formErrors.course && (
-                      <span className="text-red-500 ml-1">*</span>
+                {/* Mobile/Tablet Layout */}
+                <div className="lg:hidden space-y-4">
+                  {/* Contact Number */}
+                  <div>
+                    <label className="text-[14px] md:text-[16px] font-medium">
+                      Contact Number
+                      {errors.contactNumber && touched.contactNumber && (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
+                    </label>
+                    <div className="flex items-center gap-1 mt-1">
+                      <div className="border-[1px] border-[#B9B9B9] rounded-md py-[7px] w-[50px] md:w-[65px] bg-gray-100 text-center text-sm h-9">
+                        <p className="text-[13px] md:text-[15px] text-gray-800">
+                          +63
+                        </p>
+                      </div>
+                      <Field
+                        name="contactNumber"
+                        type="text"
+                        className="border-[1px] border-[#B9B9B9] rounded-md py-2 px-3 flex-1 focus:ring-2 focus:ring-[#274c77]/20 focus:outline-none transition-shadow h-9"
+                        maxLength={10}
+                        onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          e.target.value = e.target.value
+                            .replace(/\D/g, "")
+                            .slice(0, 10);
+                        }}
+                      />
+                    </div>
+                    {touched.contactNumber && errors.contactNumber && (
+                      <div className="text-red-500 text-xs mt-1">
+                        {errors.contactNumber}
+                      </div>
                     )}
-                  </label>
-                  <input
-                    type="text"
-                    className="border-[1px] border-[#B9B9B9] rounded-md p-[1px] px-2 w-full"
-                  />
-                  <p className="text-[13px] text-gray-500 pt-[2px]">
-                    Enter your affiliation
-                  </p>
+                    <p className="text-[11px] md:text-[13px] text-gray-500 mt-1">
+                      Enter your contact number
+                    </p>
+                  </div>
+
+                  {/* Role and Course in same row for tablet, separate for mobile */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Role */}
+                    <div>
+                      <label className="text-[14px] md:text-[16px] font-medium">
+                        Role
+                        {errors.role && touched.role && (
+                          <span className="text-red-500 ml-1">*</span>
+                        )}
+                      </label>
+                      <Field
+                        name="role"
+                        className="border-[1px] border-[#B9B9B9] rounded-md py-2 px-3 w-full mt-1 focus:ring-2 focus:ring-[#274c77]/20 focus:outline-none transition-shadow h-9"
+                        as="select"
+                      >
+                        <option value="" disabled hidden>
+                          Select
+                        </option>
+                        <option value="Student">Student</option>
+                        <option value="Faculty">Faculty</option>
+                        <option value="Outsider">Outsider</option>
+                      </Field>
+                      <p className="text-[11px] md:text-[13px] text-gray-500 mt-1">
+                        Select a role
+                      </p>
+                    </div>
+
+                    {/* Course/Department/Organization */}
+                    <div>
+                      <label className="text-[14px] md:text-[16px] font-medium">
+                        Course/Department/Organization
+                        {errors.course && touched.course && (
+                          <span className="text-red-500 ml-1">*</span>
+                        )}
+                      </label>
+                      <Field
+                        name="course"
+                        type="text"
+                        className="border-[1px] border-[#B9B9B9] rounded-md py-2 px-3 w-full mt-1 focus:ring-2 focus:ring-[#274c77]/20 focus:outline-none transition-shadow h-9"
+                      />
+                      <p className="text-[11px] md:text-[13px] text-gray-500 mt-1">
+                        Enter your affiliation
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Request for Job Order */}
-            <div className="w-full max-w-5xl border border-[#B9B9B9] rounded-lg shadow-md">
-              <div className="bg-secondary rounded-t-lg py-5 px-10">
-                <h2 className="text-[25px] font-semibold">
+            <div className="w-full border border-[#B9B9B9] rounded-lg shadow-md">
+              <div className="bg-[#e7edf1] rounded-t-lg py-4 px-6">
+                <h2 className="text-[20px] md:text-[24px] font-semibold">
                   Request for Job Order
                 </h2>
               </div>
-              <p className="text-sm px-10 py-4">
+              <p className="text-sm px-6 py-4">
                 Ensure the information displayed is correct.
               </p>
 
               {/* PARTICULARS */}
-              <fieldset className="border border-[#B9B9B9] rounded-lg px-6 py-4 pb-6 mx-10 mb-8 relative">
-                <legend className="text-[18px] font-bold px-2 text-[#274C77]">
+              <fieldset className="border border-[#B9B9B9] rounded-lg px-4 md:px-6 py-4 pb-6 mx-6 mb-8 relative">
+                <legend className="text-[16px] md:text-[18px] font-bold px-2 text-[#274C77]">
                   PARTICULARS
                 </legend>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 md:gap-x-6 gap-y-4">
                   <div>
                     <label className="text-sm font-medium block mb-1">
                       Room to Reserve
@@ -355,7 +610,7 @@ const ReservationDetails = () => {
                       type="text"
                       value={room?.id || ""}
                       readOnly
-                      className="border-[1px] border-[#B9B9B9] text-gray-500 rounded-md p-[1px] w-full px-2 bg-gray-100"
+                      className="border-[1px] border-[#B9B9B9] text-gray-500 rounded-md px-3 w-full bg-gray-100 h-9"
                     />
                   </div>
                   <div>
@@ -366,52 +621,61 @@ const ReservationDetails = () => {
                       type="text"
                       value={room?.floor || ""}
                       readOnly
-                      className="border-[1px] border-[#B9B9B9] text-gray-500 rounded-md p-[1px] px-2 w-full bg-gray-100"
+                      className="border-[1px] border-[#B9B9B9] text-gray-500 rounded-md px-3 w-full bg-gray-100 h-9"
                     />
                   </div>
-                  <div>
+                  <div className="md:col-span-2 lg:col-span-1">
                     <label className="text-sm font-medium block mb-1">
                       Type
-                      {formErrors.type && (
+                      {errors.type && touched.type && (
                         <span className="text-red-500 ml-1">*</span>
                       )}
                     </label>
-                    <input
+                    <Field
+                      name="type"
                       type="text"
-                      className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-full"
+                      className="border-[1px] border-[#B9B9B9] rounded-md px-3 w-full focus:ring-2 focus:ring-[#274c77]/20 focus:outline-none transition-shadow h-9"
                     />
-                    <p className="text-[13px] text-gray-500 pt-[2px]">
-                      Type of reservation
+                    <p className="text-[11px] md:text-[13px] text-gray-500 mt-1">
+                      Type of reservation - Event, Seminar, etc.
                     </p>
                   </div>
-                  <div>
+                  <div className="md:col-span-2 lg:col-span-1">
                     <label className="text-sm font-medium block mb-1">
                       Date of Reservation
-                      {formErrors.dateOfReservation && (
-                        <span className="text-red-500 ml-1">*</span>
-                      )}
+                      {errors.dateOfReservation &&
+                        touched.dateOfReservation && (
+                          <span className="text-red-500 ml-1">*</span>
+                        )}
                     </label>
-                    <input
+                    <Field
+                      name="dateOfReservation"
                       type="date"
-                      className="border-[1px] border-[#B9B9B9] rounded-md px-2 p-[1px] w-[180px]"
+                      max="2100-12-31"
+                      className="border-[1px] border-[#B9B9B9] rounded-md px-3 w-full focus:ring-2 focus:ring-[#274c77]/20 focus:outline-none transition-shadow h-9"
                     />
+                    {touched.dateOfReservation && errors.dateOfReservation && (
+                      <div className="text-red-500 text-xs mt-1">
+                        {errors.dateOfReservation}
+                      </div>
+                    )}
                   </div>
                   {/* Time Section in a Box */}
                   <div className="md:col-span-2">
-                    <div className="border border-gray-300 rounded p-2 px-3 justify-center flex flex-col md:flex-row gap-x-4">
+                    <div className="border border-gray-300 rounded p-3 px-4 flex flex-col md:flex-row gap-4">
                       {/* Start Time */}
                       <div className="flex flex-col w-full md:w-1/2">
                         <label className="text-sm font-medium block mb-1">
                           Start Time
-                          {formErrors.time && (
+                          {errors.startTime && touched.startTime && (
                             <span className="text-red-500 ml-1">*</span>
                           )}
                         </label>
-                        <div className="flex gap-1">
-                          <select
-                            className="w-[70px] border rounded px-1 py-[2px] text-sm"
-                            value={startTime}
-                            onChange={(e) => setStartTime(e.target.value)}
+                        <div className="flex gap-2">
+                          <Field
+                            name="startTime"
+                            as="select"
+                            className="w-[80px] border rounded px-2 text-sm focus:ring-2 focus:ring-[#274c77]/20 focus:outline-none transition-shadow h-9"
                           >
                             <option value="" disabled>
                               00:00
@@ -421,18 +685,11 @@ const ReservationDetails = () => {
                                 {time}
                               </option>
                             ))}
-                          </select>
-                          <select
-                            className="border rounded p-1 text-sm w-[60px]"
-                            value={startPeriod}
-                            onChange={(e) => setStartPeriod(e.target.value)}
-                          >
-                            {periodOptions.map((period) => (
-                              <option key={`start-${period}`} value={period}>
-                                {period}
-                              </option>
-                            ))}
-                          </select>
+                          </Field>
+                          <TimePeriodSelector
+                            timeFieldName="startTime"
+                            periodFieldName="startPeriod"
+                          />
                         </div>
                       </div>
 
@@ -440,15 +697,15 @@ const ReservationDetails = () => {
                       <div className="flex flex-col w-full md:w-1/2">
                         <label className="text-sm font-medium block mb-1">
                           End Time
-                          {formErrors.time && (
+                          {errors.endTime && touched.endTime && (
                             <span className="text-red-500 ml-1">*</span>
                           )}
                         </label>
-                        <div className="flex gap-1">
-                          <select
-                            className="w-[70px] border rounded px-1 py-[2px] text-sm"
-                            value={endTime}
-                            onChange={(e) => setEndTime(e.target.value)}
+                        <div className="flex gap-2">
+                          <Field
+                            name="endTime"
+                            as="select"
+                            className="w-[80px] border rounded px-2 text-sm focus:ring-2 focus:ring-[#274c77]/20 focus:outline-none transition-shadow h-9"
                           >
                             <option value="" disabled>
                               00:00
@@ -458,18 +715,11 @@ const ReservationDetails = () => {
                                 {time}
                               </option>
                             ))}
-                          </select>
-                          <select
-                            className="border rounded p-1 text-sm w-[60px]"
-                            value={endPeriod}
-                            onChange={(e) => setEndPeriod(e.target.value)}
-                          >
-                            {periodOptions.map((period) => (
-                              <option key={`end-${period}`} value={period}>
-                                {period}
-                              </option>
-                            ))}
-                          </select>
+                          </Field>
+                          <TimePeriodSelector
+                            timeFieldName="endTime"
+                            periodFieldName="endPeriod"
+                          />
                         </div>
                       </div>
                     </div>
@@ -478,119 +728,116 @@ const ReservationDetails = () => {
               </fieldset>
 
               {/* NATURE OF WORK */}
-              <fieldset className="border border-[#B9B9B9] rounded-lg px-6 py-4 pb-6 mx-10 mb-10 relative">
-                <legend className="text-[18px] font-bold px-2 text-[#274C77]">
+              <fieldset className="border border-[#B9B9B9] rounded-lg px-4 md:px-6 py-4 pb-6 mx-6 mb-10 relative">
+                <legend className="text-[16px] md:text-[18px] font-bold px-2 text-[#274C77]">
                   NATURE OF WORK
-                  {formErrors.natureOfWork && (
+                  {errors.natureOfWork && touched.natureOfWork && (
                     <span className="text-red-500 ml-1">*</span>
                   )}
                 </legend>
-                <div className="flex flex-col gap-1">
-                  {/* Reservation/Set-up */}
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      value="Reservation/Set-up"
-                      checked={selectedCheckbox === "Reservation/Set-up"}
-                      onChange={(e) =>
-                        setSelectedCheckbox(
-                          e.target.checked ? "Reservation/Set-up" : null,
-                        )
-                      }
-                      className="h-4 w-4"
-                    />
-                    <span>Reservation/Set-up of:</span>
-                    <select
-                      className="border border-[#B9B9B9] rounded p-[1px] w-full max-w-[250px] text-sm"
-                      disabled={selectedCheckbox !== "Reservation/Set-up"}
-                      value={selectedOption}
-                      onChange={(e) => setSelectedOption(e.target.value)}
-                    >
-                      <option value="" disabled>
-                        Select an option
-                      </option>
-                      <option value="Room/Space">A. Room/Space</option>
-                      <option value="Equipment">
-                        B. Equipment (LCD, Sound System, etc.)
-                      </option>
-                      <option value="Transportation">
-                        C. Vehicle Rental/Means of Transportation
-                      </option>
-                    </select>
-                  </label>
+                <div className="flex flex-col gap-3">
+                  {/* Reservation/Set-up options as radio buttons */}
+                  <div>
+                    <span className="font-medium mb-2 block">
+                      Reservation/Set-up of:
+                    </span>
+                    <div className="ml-6 flex flex-col gap-2">
+                      <label className="flex items-center gap-2">
+                        <Field
+                          type="radio"
+                          name="natureOfWork"
+                          value="Room/Space"
+                          className="h-4 w-4"
+                        />
+                        <span>Room/Space</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <Field
+                          type="radio"
+                          name="natureOfWork"
+                          value="Equipment"
+                          className="h-4 w-4"
+                        />
+                        <span>Equipment (LCD, Sound System, etc.)</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <Field
+                          type="radio"
+                          name="natureOfWork"
+                          value="Transportation"
+                          className="h-4 w-4"
+                        />
+                        <span>Vehicle Rental/Means of Transportation</span>
+                      </label>
+                    </div>
+                  </div>
 
                   {/* Repairs */}
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                  <div className="flex items-center gap-2">
+                    <Field
+                      type="radio"
                       value="Repairs"
-                      checked={selectedCheckbox === "Repairs"}
-                      onChange={(e) =>
-                        setSelectedCheckbox(e.target.checked ? "Repairs" : null)
-                      }
+                      name="natureOfWork"
                       className="h-4 w-4"
                     />
                     <span>Repairs</span>
-                  </label>
+                  </div>
 
                   {/* Activity/Program */}
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                  <div className="flex items-center gap-2">
+                    <Field
+                      type="radio"
                       value="Activity/Program"
-                      checked={selectedCheckbox === "Activity/Program"}
-                      onChange={(e) =>
-                        setSelectedCheckbox(
-                          e.target.checked ? "Activity/Program" : null,
-                        )
-                      }
+                      name="natureOfWork"
                       className="h-4 w-4"
                     />
                     <span>Activity/Program</span>
-                  </label>
+                  </div>
 
                   {/* Others */}
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                  <div className="flex items-start gap-2">
+                    <Field
+                      type="radio"
                       value="Others"
-                      checked={selectedCheckbox === "Others"}
-                      onChange={(e) =>
-                        setSelectedCheckbox(e.target.checked ? "Others" : null)
-                      }
-                      className="h-4 w-4"
+                      name="natureOfWork"
+                      className="h-4 w-4 mt-1"
                     />
-                    <span>Others/Purpose:</span>
-                    <input
-                      type="text"
-                      className="border border-[#B9B9B9] rounded p-[1px] w-full max-w-[300px] text-sm"
-                      disabled={selectedCheckbox !== "Others"}
-                    />
-                  </label>
+                    <div className="flex flex-col gap-2">
+                      <span>Others/Purpose:</span>
+                      {values.natureOfWork === "Others" && (
+                        <Field
+                          type="text"
+                          name="otherPurpose"
+                          className="border border-[#B9B9B9] rounded px-2 py-1 w-[300px] text-sm focus:ring-2 focus:ring-[#274c77]/20 focus:outline-none transition-shadow h-9"
+                          placeholder="Please specify"
+                        />
+                      )}
+                    </div>
+                  </div>
                 </div>
               </fieldset>
             </div>
 
             {/* Buttons */}
-            <div className="flex justify-between w-full max-w-5xl">
+            <div className="flex flex-col md:flex-row justify-between w-full gap-4 mt-1">
               <button
                 type="button"
-                className="bg-[#780D29] text-white font-medium px-4 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03]"
-                onClick={() => history.back()}
+                className="bg-[#780D29] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03] order-2 md:order-1"
+                onClick={() => router.back()}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-[#274C77] text-white font-medium px-4 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03]"
+                className="bg-[#274C77] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03] order-1 md:order-2"
               >
                 Submit for Approval
               </button>
             </div>
-          </form>
-        </div>
-      </section>
-    </>
+          </Form>
+        )}
+      </Formik>
+    </div>
   );
 };
 

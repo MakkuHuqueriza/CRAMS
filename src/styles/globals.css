@@ -187,3 +187,50 @@ h6 {
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom scrollbar styles */
+.scrollbar-custom::-webkit-scrollbar {
+  width: 16px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: #274c77;
+  border-radius: 4px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: #1d3a5f;
+}
+
+/* Sheet animation overrides */
+.sheet-overlay {
+  @apply transition-opacity duration-300 ease-in-out;
+}
+
+.sheet-content-right {
+  @apply transition-transform duration-300 ease-in-out;
+  animation: sheet-in-right 0.3s ease-in-out;
+}
+
+@keyframes sheet-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes sheet-out-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
