@@ -138,8 +138,8 @@ export default function PendingReservationsPage() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <p className="text-sm text-blue-800">
-                      <strong>Note:</strong> When you can&apos;t find your recent
-                      reservation here, check your email for more status
+                      <strong>Note:</strong> When you can&apos;t find your
+                      recent reservation here, check your email for more status
                       updates.
                     </p>
                   </div>
