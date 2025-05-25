@@ -290,7 +290,7 @@ export default function BookingManagementPage() {
       <div className="flex-1 bg-[#f2ede4] overflow-y-auto">
         <div className="container mx-auto px-8 py-6">
           <h1 className="text-3xl font-bold mb-6">Booking Management</h1>
-          
+
           <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
             <div className="relative w-full md:w-64">
               <div className="bg-white rounded-md shadow-sm">
