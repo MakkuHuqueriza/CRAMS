@@ -1,109 +1,106 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import Link from "next/link";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Clock,
-  Building,
-  MoreHorizontal,
-  Users,
-  BookOpen,
-  Laptop,
-  Beaker,
-  ChefHat,
-  ArrowDown,
-} from "lucide-react";
-import { formatTimeTo12Hour } from "@/lib/utils";
+import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Clock, Building, MoreHorizontal, Users, BookOpen, Laptop, Beaker, ChefHat, ArrowDown } from "lucide-react"
+import { formatTimeTo12Hour } from "@/lib/utils"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 
 interface Room {
-  id: string;
-  name: string;
-  room_type: string;
-  room_location: string;
-  capacity: number;
-  room_description: string;
+  id: string
+  name: string
+  room_type: string
+  room_location: string
+  capacity: number
+  room_description: string
 }
 
 interface Timeslot {
-  id: string;
-  start_time: string;
-  end_time: string;
+  id: string
+  start_time: string
+  end_time: string
 }
 
 interface AvailableRoomsProps {
-  roomDetails: Room[];
-  roomTimes: Timeslot[];
+  roomDetails: Room[]
+  roomTimes: Timeslot[]
 }
 
 const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
-  const [selectedFloor, setSelectedFloor] = useState("1st Floor, CSM");
-  const [showAllRooms, setShowAllRooms] = useState(false);
-  const [showMoreRooms, setShowMoreRooms] = useState(false);
-  const [sortFilter, setSortFilter] = useState("");
+  const [selectedFloor, setSelectedFloor] = useState("1st Floor, CSM")
+  const [showAllRooms, setShowAllRooms] = useState(false)
+  const [showMoreRooms, setShowMoreRooms] = useState(false)
+  const [sortFilter, setSortFilter] = useState("")
+  const [loadingRoomId, setLoadingRoomId] = useState<string | null>(null)
+  const router = useRouter()
 
   // Filter rooms based on the selected floor and sort filter
   const getFilteredRooms = () => {
-    let filtered = showAllRooms
-      ? roomDetails
-      : roomDetails.filter((room) => room.room_location === selectedFloor);
+    let filtered = showAllRooms ? roomDetails : roomDetails.filter((room) => room.room_location === selectedFloor)
 
     if (sortFilter === "lecture") {
-      filtered = filtered.filter((room) => room.room_type.includes("LECTURE"));
+      filtered = filtered.filter((room) => room.room_type.includes("LECTURE"))
     } else if (sortFilter === "lab") {
-      filtered = filtered.filter((room) =>
-        room.room_type.includes("LABORATORY"),
-      );
+      filtered = filtered.filter((room) => room.room_type.includes("LABORATORY"))
     }
 
     if (!showAllRooms && !showMoreRooms) {
-      return filtered.slice(0, 5);
+      return filtered.slice(0, 5)
     }
 
-    return filtered;
-  };
+    return filtered
+  }
 
-  const filteredRooms = getFilteredRooms();
+  const filteredRooms = getFilteredRooms()
+
+  // Handle view details with loading state
+  const handleViewDetails = async (roomName: string) => {
+    setLoadingRoomId(roomName)
+
+    // Simulate loading delay
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    router.push(`/rooms/${encodeURIComponent(roomName)}`)
+  }
 
   const RoomCard = ({ room }: { room: Room }) => {
-    const [showAllTimes, setShowAllTimes] = useState(false);
+    const [showAllTimes, setShowAllTimes] = useState(false)
+    const isLoading = loadingRoomId === room.name
 
     const getRoomIcon = (type: string) => {
       switch (type) {
         case "LECTURE ROOM/AUDITORIUM":
         case "LECTURE ROOM":
-          return (
-            <BookOpen className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-4 h-4 text-primary-foreground" />
-          );
+          return <BookOpen className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-4 h-4 text-primary-foreground" />
         case "DMPCS LABORATORY ROOM":
-          return (
-            <Laptop className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-4 h-4 text-primary-foreground" />
-          );
+          return <Laptop className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-4 h-4 text-primary-foreground" />
         case "DBSES LABORATORY ROOM":
-          return (
-            <Beaker className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-4 h-4 text-primary-foreground" />
-          );
+          return <Beaker className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-4 h-4 text-primary-foreground" />
         case "DFSC LABORATORY ROOM":
-          return (
-            <ChefHat className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-4 h-4 text-primary-foreground" />
-          );
+          return <ChefHat className="lg:w-5 lg:h-5 md:w-4 md:h-4 w-4 h-4 text-primary-foreground" />
         default:
-          return null;
+          return null
       }
-    };
+    }
 
     return (
-      <Card className="w-[98%] flex md:flex-row bg-[#e7edf1] border-none p-4 md:p-4 scale-[0.90] md:scale-[0.97] gap-6 md:gap-5">
+      <Card className="w-[98%] flex md:flex-row bg-[#e7edf1] border-none p-4 md:p-4 scale-[0.90] md:scale-[0.97] gap-6 md:gap-5 relative">
+        {/* Loading overlay for this specific card */}
+        {isLoading && (
+          <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
+            <div className="flex flex-col items-center gap-4">
+              <LoadingSpinner type="clip" size="lg" />
+              <p className="text-sm font-medium text-[#274c77] animate-pulse">Fetching room details...</p>
+            </div>
+          </div>
+        )}
+
         <div className="flex-shrink-0 flex items-stretch">
           <Image
             src="/room_sample.jpg"
@@ -137,22 +134,16 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
               <p className="text-[15px] lg:text-[16px] md:text-[12px] text-primary-foreground font-semibold">
                 Available Time
               </p>
-              <div
-                className={
-                  showAllTimes ? "grid grid-cols-3 gap-1" : "space-y-1"
-                }
-              >
-                {(showAllTimes ? roomTimes : roomTimes.slice(0, 2)).map(
-                  (time, i) => (
-                    <p
-                      key={i}
-                      className="text-primary-foreground text-[13px] lg:text-sm md:text-[11px] tracking-wider flex items-center gap-2"
-                    >
-                      <Clock className="w-4 h-4 text-[#274c77]" />
-                      {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(time.end_time)}`}
-                    </p>
-                  ),
-                )}
+              <div className={showAllTimes ? "grid grid-cols-3 gap-1" : "space-y-1"}>
+                {(showAllTimes ? roomTimes : roomTimes.slice(0, 2)).map((time, i) => (
+                  <p
+                    key={i}
+                    className="text-primary-foreground text-[13px] lg:text-sm md:text-[11px] tracking-wider flex items-center gap-2"
+                  >
+                    <Clock className="w-4 h-4 text-[#274c77]" />
+                    {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(time.end_time)}`}
+                  </p>
+                ))}
               </div>
             </div>
           </div>
@@ -172,15 +163,22 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
           <div className="flex justify-center md:justify-end gap-2 mt-6 md:mt-4">
             <Button
               size="extraSmall"
+              onClick={() => handleViewDetails(room.name)}
+              disabled={isLoading}
               className="border-[#182657] text-[#182657] hover:shadow-lg border-2 
               xl:text-[15px] xl:px-4 xl:py-3 
               lg:text-[14px] lg:px-4 lg:py-2 
               md:text-[11px] md:px-2 md:py-1 
-              text-[11px] px-3 py-2"
+              text-[11px] px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Link href={`/rooms/${encodeURIComponent(room.name)}`}>
-                View Details
-              </Link>
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <LoadingSpinner type="beat" size="sm" />
+                  Loading...
+                </div>
+              ) : (
+                "View Details"
+              )}
             </Button>
             <Button
               size="extraSmall"
@@ -190,17 +188,13 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
               md:text-[12px] md:px-3 md:py-2 
               text-[11px] px-3 py-2"
             >
-              <Link
-                href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1`}
-              >
-                Reserve Now
-              </Link>
+              <Link href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1`}>Reserve Now</Link>
             </Button>
           </div>
         </div>
       </Card>
-    );
-  };
+    )
+  }
 
   return (
     <section className="flex justify-center py-12">
@@ -219,9 +213,9 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
               <Button
                 size="extraSmall"
                 onClick={() => {
-                  setSelectedFloor("1st Floor, CSM");
-                  setShowAllRooms(false);
-                  setShowMoreRooms(false);
+                  setSelectedFloor("1st Floor, CSM")
+                  setShowAllRooms(false)
+                  setShowMoreRooms(false)
                 }}
                 className={`rounded-md font-semibold border-2 ${
                   selectedFloor === "1st Floor, CSM" && !showAllRooms
@@ -236,9 +230,9 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
               <Button
                 size="extraSmall"
                 onClick={() => {
-                  setSelectedFloor("2nd Floor, CSM");
-                  setShowAllRooms(false);
-                  setShowMoreRooms(false);
+                  setSelectedFloor("2nd Floor, CSM")
+                  setShowAllRooms(false)
+                  setShowMoreRooms(false)
                 }}
                 className={`rounded-md font-semibold border-2 ${
                   selectedFloor === "2nd Floor, CSM" && !showAllRooms
@@ -259,10 +253,10 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
             <div className="flex justify-center md:justify-end lg:mr-2">
               <Select
                 onValueChange={(value) => {
-                  setSortFilter(value);
+                  setSortFilter(value)
                   if (value === "all") {
-                    setShowAllRooms(true);
-                    setShowMoreRooms(false);
+                    setShowAllRooms(true)
+                    setShowMoreRooms(false)
                   }
                 }}
                 value={sortFilter}
@@ -292,9 +286,9 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
                   <div>
                     <button
                       onClick={() => {
-                        setSortFilter("");
-                        setShowAllRooms(false);
-                        setShowMoreRooms(false);
+                        setSortFilter("")
+                        setShowAllRooms(false)
+                        setShowMoreRooms(false)
                       }}
                       className="text-[#274c77] border border-[#274c77] text-sm font-medium rounded-md w-full px-4 py-[2px] active:bg-[#274c77] active:text-white transition"
                     >
@@ -324,7 +318,7 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
             <div className="flex justify-center pt-12">
               <Button
                 onClick={() => {
-                  setShowMoreRooms(!showMoreRooms);
+                  setShowMoreRooms(!showMoreRooms)
                 }}
                 className="rounded-full bg-primary px-5 py-[18px] font-semibold text-[#274c77] border-[#274c77] border-2 transition-all duration-300 transform hover:scale-105"
               >
@@ -338,7 +332,7 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default AvailableRooms;
+export default AvailableRooms
