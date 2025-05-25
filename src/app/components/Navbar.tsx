@@ -84,7 +84,7 @@ const Navbar = (props: NavbarProps) => {
               <ul className="space-y-1 text-sm text-secondary-foreground">
                 <li>
                   <Link
-                    href="/pending"
+                    href="/pending-reservations"
                     className="flex items-center gap-2 px-4 py-2 text-[14px] hover:bg-gray-100 active:bg-[#274c77] active:text-white"
                   >
                     <List className="w-4 h-4" />
