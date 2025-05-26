@@ -352,25 +352,6 @@ const AvailableRooms = ({
               </div>
             )}
           </div>
-<<<<<<< HEAD
-=======
-          
-          {!showAllRooms && (
-            <div className="flex justify-center pt-12">
-              <Button
-                onClick={() => {
-                  setShowMoreRooms(!showMoreRooms);
-                }}
-                className="rounded-full bg-primary px-5 py-[18px] font-semibold text-[#274c77] border-[#274c77] border-2 transition-all duration-300 transform hover:scale-105"
-              >
-                {showMoreRooms ? "Show Less" : "Show More"}
-                <ArrowDown
-                  className={`w-4 h-4 transition-transform duration-300 ${showMoreRooms ? "rotate-180" : ""}`}
-                />
-              </Button>
-            </div>
-          )}
->>>>>>> 5c86222 (feat: frontend updates)
         </div>
       </section>
     </>
