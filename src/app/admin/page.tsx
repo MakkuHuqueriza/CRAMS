@@ -1,4 +1,3 @@
-import Sidebar from "@/app/admin/Sidebar";
 import { Card } from "@/components/ui/card";
 import { CalendarDays } from "lucide-react";
 import Link from "next/link";
@@ -35,7 +34,6 @@ const holidays2025 = [
 export default function DashboardPage() {
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar />
       <main className="flex-1 bg-[#f2ede4] p-6 overflow-y-auto">
         <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
 

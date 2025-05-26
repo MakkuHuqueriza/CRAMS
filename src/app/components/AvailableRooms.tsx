@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -27,34 +27,25 @@ import {
 } from "lucide-react";
 import { formatTimeTo12Hour } from "@/lib/utils";
 import { FullPageLoading } from "@/components/ui/loading-spinner";
+import { Room, AvailableRoomsProps } from "@/lib/types"; // Adjust the import path as necessary
 
-interface Room {
-  id: string;
-  name: string;
-  room_type: string;
-  room_location: string;
-  capacity: number;
-  room_description: string;
-}
-
-interface Timeslot {
-  id: string;
-  start_time: string;
-  end_time: string;
-}
-
-interface AvailableRoomsProps {
-  roomDetails: Room[];
-  roomTimes: Timeslot[];
-}
-
-const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
+const AvailableRooms = ({
+  roomDetails,
+  searchedFloor,
+}: AvailableRoomsProps & { searchedFloor?: string }) => {
   const [selectedFloor, setSelectedFloor] = useState("1st Floor, CSM");
   const [showAllRooms, setShowAllRooms] = useState(false);
   const [showMoreRooms, setShowMoreRooms] = useState(false);
   const [sortFilter, setSortFilter] = useState("");
   const [isLoadingRoomDetails, setIsLoadingRoomDetails] = useState(false);
   const router = useRouter();
+
+  // Update selectedFloor when searchedFloor changes
+  useEffect(() => {
+    if (searchedFloor) {
+      setSelectedFloor(searchedFloor);
+    }
+  }, [searchedFloor]);
 
   // Filter rooms based on the selected floor and sort filter
   const getFilteredRooms = () => {
@@ -156,23 +147,24 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
                   showAllTimes ? "grid grid-cols-3 gap-1" : "space-y-1"
                 }
               >
-                {(showAllTimes ? roomTimes : roomTimes.slice(0, 2)).map(
-                  (time, i) => (
-                    <p
-                      key={i}
-                      className="text-primary-foreground text-[13px] lg:text-sm md:text-[11px] tracking-wider flex items-center gap-2"
-                    >
-                      <Clock className="w-4 h-4 text-[#274c77]" />
-                      {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(time.end_time)}`}
-                    </p>
-                  ),
-                )}
+                {(showAllTimes
+                  ? room.availableTimeslots
+                  : room.availableTimeslots.slice(0, 2)
+                ).map((time, i) => (
+                  <p
+                    key={i}
+                    className="text-primary-foreground text-[13px] lg:text-sm md:text-[11px] tracking-wider flex items-center gap-2"
+                  >
+                    <Clock className="w-4 h-4 text-[#274c77]" />
+                    {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(time.end_time)}`}
+                  </p>
+                ))}
               </div>
             </div>
           </div>
 
           {/* Dots Button */}
-          {roomTimes.length > 2 && (
+          {room.availableTimeslots.length > 2 && (
             <button
               onClick={() => setShowAllTimes(!showAllTimes)}
               className="bg-primary text-black rounded-full p-1 w-6 h-3 mt-[2px] flex items-center justify-center"
