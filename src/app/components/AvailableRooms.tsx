@@ -27,12 +27,21 @@ import {
 } from "lucide-react";
 import { formatTimeTo12Hour } from "@/lib/utils";
 import { FullPageLoading } from "@/components/ui/loading-spinner";
-import { Room, AvailableRoomsProps } from "@/lib/types"; // Adjust the import path as necessary
+import { Room } from "@/lib/types"; // Adjust the import path as necessary
 
-const AvailableRooms = ({
-  roomDetails,
-  searchedFloor,
-}: AvailableRoomsProps & { searchedFloor?: string }) => {
+interface Timeslot {
+  id: string;
+  start_time: string;
+  end_time: string;
+}
+
+interface AvailableRoomsProps {
+  roomDetails: Room[];
+  roomTimes: Timeslot[];
+  searchedFloor?: string;
+}
+
+const AvailableRooms = ({ roomDetails, roomTimes, searchedFloor }: AvailableRoomsProps) => {
   const [selectedFloor, setSelectedFloor] = useState("1st Floor, CSM");
   const [showAllRooms, setShowAllRooms] = useState(false);
   const [showMoreRooms, setShowMoreRooms] = useState(false);
@@ -111,7 +120,7 @@ const AvailableRooms = ({
       <Card className="w-[98%] flex md:flex-row bg-[#e7edf1] border-none p-4 md:p-4 scale-[0.90] md:scale-[0.97] gap-6 md:gap-5">
         <div className="flex-shrink-0 flex items-stretch">
           <Image
-            src="/room_sample.jpg"
+            src="/classroom.jpg"
             alt={room.name}
             width={315}
             height={315}
@@ -186,22 +195,22 @@ const AvailableRooms = ({
               md:text-[11px] md:px-2 md:py-1 
               text-[11px] px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              View Details
+              <Link
+                href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1/`}
+              >
+                View Details
+              </Link>
             </Button>
-            <Button
-              size="extraSmall"
-              className="bg-[#274c77] text-white hover:bg-[#182657] active:bg-[#0A1128] active:text-[#9BB2FC]
+            <Link
+              className="bg-[#274c77] text-white hover:bg-[#182657] active:bg-[#0A1128] active:text-[#9BB2FC] rounded px-3 py-2 inline-flex items-center justify-center font-medium transition-colors
               xl:text-[15px] xl:px-5 xl:py-3 
               lg:text-[14px] lg:px-4 lg:py-2 
               md:text-[12px] md:px-3 md:py-2 
               text-[11px] px-3 py-2"
+              href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1/`}
             >
-              <Link
-                href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1`}
-              >
-                Reserve Now
-              </Link>
-            </Button>
+              Reserve Now
+            </Link>
           </div>
         </div>
       </Card>

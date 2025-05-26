@@ -29,113 +29,100 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  getAdminReservationsAction,
+  getReservationDetailAction,
+  updateReservationStatusAction,
+} from "@/actions/admin";
+import { Reservation, Room, ReservationStatus } from "@/utils/database/types";
 
-// Sample data for the bookings
-const bookingsData = [
-  {
-    id: "0001",
-    room: "227",
-    time: "4:15 PM",
-    date: "2023-05-12",
-    status: "Pending",
-  },
-  {
-    id: "0002",
-    room: "224",
-    time: "3:27 AM",
-    date: "2023-05-11",
-    status: "Accepted",
-  },
-  {
-    id: "0003",
-    room: "224",
-    time: "1:17 PM",
-    date: "2023-05-10",
-    status: "Completed",
-  },
-  {
-    id: "0004",
-    room: "226",
-    time: "8:04 AM",
-    date: "2023-05-09",
-    status: "Rejected",
-  },
-  {
-    id: "0005",
-    room: "201",
-    time: "5:49 PM",
-    date: "2023-05-09",
-    status: "Pending",
-  },
-  {
-    id: "0006",
-    room: "208",
-    time: "4:12 PM",
-    date: "2023-05-09",
-    status: "Accepted",
-  },
-  {
-    id: "0007",
-    room: "229",
-    time: "5:32 AM",
-    date: "2023-05-09",
-    status: "Pending",
-  },
-  {
-    id: "0008",
-    room: "206",
-    time: "3:01 PM",
-    date: "2023-05-09",
-    status: "Pending",
-  },
-  {
-    id: "0009",
-    room: "210",
-    time: "2:41 PM",
-    date: "2023-05-09",
-    status: "Rejected",
-  },
-  {
-    id: "0010",
-    room: "222",
-    time: "1:07 AM",
-    date: "2023-05-09",
-    status: "Rejected",
-  },
-];
+// Types for the booking data structure
+interface BookingData {
+  id: string;
+  room: string;
+  time: string;
+  date: string;
+  status: ReservationStatus;
+}
 
-// Sample data for the reservation details
-const reservationDetails = {
-  contact: {
-    name: "Makku Kuma",
-    email: "makkukuma@y8.com",
-    contactNumber: "+639462666969",
-    role: "Student",
-    department: "BS Computer Science",
-  },
-  jobOrder: {
-    room: "CSM 227",
-    location: "CSM, 2nd Floor",
-    type: "Event",
-    date: "04/13/2025",
-    time: "12:00 AM - 12:00 PM",
-    natureOfWork: "Reservation/Setup",
-    details: "Room/Space",
-  },
-};
+interface AdminReservation {
+  id: string;
+  admin_id: string;
+  reservation_id: string;
+  status: ReservationStatus;
+  reason_for_rejection: string | null;
+  reservation: Reservation & {
+    room: Room | null;
+  };
+}
 
 export default function BookingManagementPage() {
   const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("");
-  const [filteredBookings, setFilteredBookings] = useState(bookingsData);
+  const [bookingsData, setBookingsData] = useState<BookingData[]>([]);
+  const [filteredBookings, setFilteredBookings] = useState<BookingData[]>([]);
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [rejectError, setRejectError] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedReservationDetail, setSelectedReservationDetail] =
+    useState<AdminReservation | null>(null);
 
   const tableRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch reservations on component mount
+  useEffect(() => {
+    fetchReservations();
+  }, []);
+
+  const fetchReservations = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const result = await getAdminReservationsAction();
+
+      if (result.error) {
+        setError(result.error.message || "Failed to fetch reservations");
+        return;
+      }
+
+      if (result.reservations) {
+        // Transform the data to match the expected BookingData structure
+        const transformedBookings: BookingData[] = result.reservations.map(
+          (item: any) => {
+            const reservation = item.reservation;
+            const createdAt = new Date(reservation.created_at);
+
+            return {
+              id: reservation.id,
+              room:
+                reservation.room?.name || reservation.room_id || "Unknown Room",
+              time: createdAt.toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+              }),
+              date: createdAt.toLocaleDateString("en-CA"), // YYYY-MM-DD format
+              status: reservation.status,
+            };
+          },
+        );
+
+        setBookingsData(transformedBookings);
+        setFilteredBookings(transformedBookings);
+      }
+    } catch (err) {
+      setError("An unexpected error occurred while fetching reservations");
+      console.error("Error fetching reservations:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Handle click outside table to deselect row
   useEffect(() => {
@@ -191,15 +178,50 @@ export default function BookingManagementPage() {
         break;
     }
 
+    // Always move completed reservations to the bottom
+    result = result.sort((a, b) => {
+      if (a.status === "Completed" && b.status !== "Completed") {
+        return 1; // Move 'a' (Completed) to the bottom
+      }
+      if (b.status === "Completed" && a.status !== "Completed") {
+        return -1; // Move 'b' (Completed) to the bottom
+      }
+      return 0; // Keep original order for non-completed items
+    });
+
     setFilteredBookings(result);
-  }, [searchTerm, sortOption]);
+  }, [searchTerm, sortOption, bookingsData]);
 
   // Function to handle row click
-  const handleRowClick = (bookingId: string, status: string) => {
+  const handleRowClick = async (
+    bookingId: string,
+    status: ReservationStatus,
+  ) => {
     if (status === "Pending") {
-      setSelectedBooking(bookingId === selectedBooking ? null : bookingId);
-      setIsSheetOpen(true);
-      setShowRejectForm(false); // Reset reject form when opening sheet
+      try {
+        setSelectedBooking(bookingId === selectedBooking ? null : bookingId);
+
+        // Fetch detailed reservation information
+        const result = await getReservationDetailAction(bookingId);
+
+        if (result.error) {
+          setError(
+            result.error.message || "Failed to fetch reservation details",
+          );
+          return;
+        }
+
+        if (result.reservation) {
+          setSelectedReservationDetail(result.reservation as AdminReservation);
+          setIsSheetOpen(true);
+          setShowRejectForm(false); // Reset reject form when opening sheet
+        }
+      } catch (err) {
+        setError(
+          "An unexpected error occurred while fetching reservation details",
+        );
+        console.error("Error fetching reservation details:", err);
+      }
     } else {
       setSelectedBooking(bookingId === selectedBooking ? null : bookingId);
     }
@@ -236,24 +258,84 @@ export default function BookingManagementPage() {
   };
 
   // Function to handle reject submit
-  const handleRejectSubmit = () => {
+  const handleRejectSubmit = async () => {
     if (!rejectReason.trim()) {
       setRejectError(true);
       return;
     }
 
-    // Here you would typically send the rejection to your API
-    console.log("Reservation rejected with reason:", rejectReason);
+    if (!selectedReservationDetail) {
+      setError("No reservation selected");
+      return;
+    }
 
-    // Close the form and sheet
-    setShowRejectForm(false);
-    setIsSheetOpen(false);
-    setRejectReason("");
-    setRejectError(false);
+    try {
+      const formData = new FormData();
+      formData.append(
+        "reservationId",
+        selectedReservationDetail.reservation_id,
+      );
+      formData.append("status", "Rejected");
+      formData.append("reasonForRejection", rejectReason);
+
+      const result = await updateReservationStatusAction(formData);
+
+      if (result.error) {
+        setError(result.error.message || "Failed to reject reservation");
+        return;
+      }
+
+      // Refresh the reservations list
+      await fetchReservations();
+
+      // Close the form and sheet
+      setShowRejectForm(false);
+      setIsSheetOpen(false);
+      setRejectReason("");
+      setRejectError(false);
+      setSelectedReservationDetail(null);
+    } catch (err) {
+      setError("An unexpected error occurred while rejecting the reservation");
+      console.error("Error rejecting reservation:", err);
+    }
+  };
+
+  // Function to handle accept
+  const handleAccept = async () => {
+    if (!selectedReservationDetail) {
+      setError("No reservation selected");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append(
+        "reservationId",
+        selectedReservationDetail.reservation_id,
+      );
+      formData.append("status", "Accepted");
+
+      const result = await updateReservationStatusAction(formData);
+
+      if (result.error) {
+        setError(result.error.message || "Failed to accept reservation");
+        return;
+      }
+
+      // Refresh the reservations list
+      await fetchReservations();
+
+      // Close the sheet
+      setIsSheetOpen(false);
+      setSelectedReservationDetail(null);
+    } catch (err) {
+      setError("An unexpected error occurred while accepting the reservation");
+      console.error("Error accepting reservation:", err);
+    }
   };
 
   // Function to get badge color based on status
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: ReservationStatus) => {
     switch (status) {
       case "Pending":
         return (
@@ -284,12 +366,38 @@ export default function BookingManagementPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex h-screen bg-gray-50">
+        <div className="flex-1 bg-[#f2ede4] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading reservations...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Main Content */}
       <div className="flex-1 bg-[#f2ede4] overflow-y-auto">
         <div className="container mx-auto px-8 py-6">
           <h1 className="text-3xl font-bold mb-6">Booking Management</h1>
+
+          {/* Error display */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+              {error}
+              <button
+                onClick={() => setError(null)}
+                className="float-right font-bold text-red-700 hover:text-red-900"
+              >
+                ×
+              </button>
+            </div>
+          )}
 
           {/* Search and filter controls */}
           <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
@@ -341,16 +449,16 @@ export default function BookingManagementPage() {
               <Table>
                 <TableHeader className="rounded-t-lg overflow-hidden">
                   <TableRow className="hover:bg-white rounded-t-lg">
-                    <TableHead className="text-center text-[16px] py-5 w-1/4 bg-white rounded-tl-lg">
+                    <TableHead className="text-center text-[16px] py-5 w-[30%] bg-white rounded-tl-lg">
                       Booking ID
                     </TableHead>
-                    <TableHead className="text-center text-[16px] py-5 w-1/4 bg-white">
+                    <TableHead className="text-center text-[16px] py-5 w-[20%] bg-white">
                       Room Number
                     </TableHead>
                     <TableHead className="text-center text-[16px] py-5 w-1/4 bg-white">
                       Submitted On
                     </TableHead>
-                    <TableHead className="text-center text-[16px] py-5 pr-[25px] w-1/4 bg-white rounded-tr-lg">
+                    <TableHead className="text-center text-[16px] py-5 w-1/4 bg-white rounded-tr-lg">
                       Status
                     </TableHead>
                   </TableRow>
@@ -376,16 +484,16 @@ export default function BookingManagementPage() {
                             handleRowClick(booking.id, booking.status)
                           }
                         >
-                          <TableCell className="font-medium text-center py-4 w-1/4">
+                          <TableCell className="font-medium text-center py-4 w-[30%]">
                             {booking.id}
                           </TableCell>
-                          <TableCell className="text-center py-4 w-1/4">
+                          <TableCell className="text-center py-4 w-[20%]">
                             {booking.room}
                           </TableCell>
-                          <TableCell className="text-center py-4 w-1/4">
+                          <TableCell className="text-center py-4 w-[27%]">
                             {booking.time}
                           </TableCell>
-                          <TableCell className="text-center py-4 w-1/4">
+                          <TableCell className="text-center py-4 w-[23%]">
                             {getStatusBadge(booking.status)}
                           </TableCell>
                         </TableRow>
@@ -396,7 +504,9 @@ export default function BookingManagementPage() {
                           colSpan={4}
                           className="text-center py-8 text-gray-500"
                         >
-                          Room has no reservations.
+                          {searchTerm
+                            ? "No reservations found matching your search."
+                            : "No reservations found."}
                         </TableCell>
                       </TableRow>
                     )}
@@ -428,82 +538,120 @@ export default function BookingManagementPage() {
                 </SheetDescription>
               </SheetHeader>
 
-              {/* Contact Details Section */}
-              <div className="mt-6 p-4">
-                <h3 className="text-lg font-semibold mb-2">Contact Details</h3>
-                <div className="border-2 border-gray-300 p-4 rounded-lg space-y-2">
-                  <p>
-                    <span className="font-medium">Name:</span>{" "}
-                    {reservationDetails.contact.name}
-                  </p>
-                  <p>
-                    <span className="font-medium">Email:</span>{" "}
-                    {reservationDetails.contact.email}
-                  </p>
-                  <p>
-                    <span className="font-medium">Contact Number:</span>{" "}
-                    {reservationDetails.contact.contactNumber}
-                  </p>
-                  <p>
-                    <span className="font-medium">Role:</span>{" "}
-                    {reservationDetails.contact.role}
-                  </p>
-                  <p>
-                    <span className="font-medium">Course/Dept/Org:</span>{" "}
-                    {reservationDetails.contact.department}
-                  </p>
-                </div>
-              </div>
+              {selectedReservationDetail ? (
+                <>
+                  {/* Contact Details Section */}
+                  <div className="mt-6 p-4">
+                    <h3 className="text-lg font-semibold mb-2">
+                      Contact Details
+                    </h3>
+                    <div className="border-2 border-gray-300 p-4 rounded-lg space-y-2">
+                      <p>
+                        <span className="font-medium">Name:</span>{" "}
+                        {selectedReservationDetail.reservation.name || "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Email:</span>{" "}
+                        {selectedReservationDetail.reservation.email_address ||
+                          "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Contact Number:</span>{" "}
+                        {selectedReservationDetail.reservation.contact_number ||
+                          "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Role:</span>{" "}
+                        {selectedReservationDetail.reservation.role || "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Course/Dept/Org:</span>{" "}
+                        {selectedReservationDetail.reservation.course || "N/A"}
+                      </p>
+                    </div>
+                  </div>
 
-              {/* Request for Job Order Section */}
-              <div className="mt-6 p-4">
-                <h3 className="text-lg font-semibold mb-2">
-                  Request for Job Order
-                </h3>
-                <div className="border-2 border-gray-300 p-4 rounded-lg space-y-2">
-                  <p>
-                    <span className="font-medium">Room:</span>{" "}
-                    {reservationDetails.jobOrder.room}
-                  </p>
-                  <p>
-                    <span className="font-medium">Location/Building:</span>{" "}
-                    {reservationDetails.jobOrder.location}
-                  </p>
-                  <p>
-                    <span className="font-medium">Type:</span>{" "}
-                    {reservationDetails.jobOrder.type}
-                  </p>
-                  <p>
-                    <span className="font-medium">Date of Reservation:</span>{" "}
-                    {reservationDetails.jobOrder.date}
-                  </p>
-                  <p>
-                    <span className="font-medium">Time:</span>{" "}
-                    {reservationDetails.jobOrder.time}
-                  </p>
-                  <p>
-                    <span className="font-medium">Nature of Work:</span>{" "}
-                    {reservationDetails.jobOrder.natureOfWork}
-                  </p>
-                  <p className="pl-4">
-                    • {reservationDetails.jobOrder.details}
-                  </p>
+                  {/* Request for Job Order Section */}
+                  <div className="mt-6 p-4">
+                    <h3 className="text-lg font-semibold mb-2">
+                      Request for Job Order
+                    </h3>
+                    <div className="border-2 border-gray-300 p-4 rounded-lg space-y-2">
+                      <p>
+                        <span className="font-medium">Room:</span>{" "}
+                        {selectedReservationDetail.reservation.room?.name ||
+                          selectedReservationDetail.reservation.room_id ||
+                          "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Location/Building:</span>{" "}
+                        {selectedReservationDetail.reservation.room
+                          ?.room_location || "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Room Type:</span>{" "}
+                        {selectedReservationDetail.reservation.room
+                          ?.room_type || "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">
+                          Date of Reservation:
+                        </span>{" "}
+                        {selectedReservationDetail.reservation.date_requested ||
+                          "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Start Time:</span>{" "}
+                        {selectedReservationDetail.reservation.start_time ||
+                          "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">End Time:</span>{" "}
+                        {selectedReservationDetail.reservation.end_time ||
+                          "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Nature of Work:</span>{" "}
+                        {selectedReservationDetail.reservation.nature_of_work ||
+                          "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Status:</span>{" "}
+                        {selectedReservationDetail.reservation.status}
+                      </p>
+                      <p>
+                        <span className="font-medium">Submitted On:</span>{" "}
+                        {new Date(
+                          selectedReservationDetail.reservation.created_at,
+                        ).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="mt-6 p-4 text-center text-gray-500">
+                  <p>Loading reservation details...</p>
                 </div>
-              </div>
+              )}
 
               {/* Action Buttons */}
-              <div className="flex gap-4 mt-8 mb-4 justify-end">
-                <Button
-                  variant="destructive"
-                  className="bg-red-800 text-white hover:bg-red-900"
-                  onClick={handleReject}
-                >
-                  Reject
-                </Button>
-                <Button className="bg-blue-700 text-white hover:bg-blue-800">
-                  Accept
-                </Button>
-              </div>
+              {selectedReservationDetail && (
+                <div className="flex gap-4 mt-8 mb-4 justify-end">
+                  <Button
+                    variant="destructive"
+                    className="bg-red-800 text-white hover:bg-red-900"
+                    onClick={handleReject}
+                  >
+                    Reject
+                  </Button>
+                  <Button
+                    className="bg-blue-700 text-white hover:bg-blue-800"
+                    onClick={handleAccept}
+                  >
+                    Accept
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Reject Confirmation Popup */}

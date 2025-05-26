@@ -22,7 +22,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { formatTimeTo12Hour } from "@/lib/utils";
-import { Room } from "@/lib/types";
+import { Room, Timeslot } from "@/lib/types";
 
 type RoomDetailsProps = {
   roomDetails: Room[];

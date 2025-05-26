@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, AlertTriangle, Copy, Check } from "lucide-react";
 import {
   AlertDialog,
@@ -12,8 +12,34 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { getUserReservations, cancelReservation } from "@/actions/users";
 
-// Mock data - replace with actual data from your backend
+// Define types based on your database schema
+interface Room {
+  room_id: string;
+  name: string;
+  room_location: string;
+  room_type: string;
+}
+
+interface Reservation {
+  id: string;
+  name: string;
+  email_address: string;
+  contact_number: string;
+  role: string;
+  course: string;
+  date_requested: string;
+  start_time: string;
+  end_time: string;
+  status: "Pending" | "Accepted" | "Rejected";
+  nature_of_work: string;
+  type: string;
+  created_at: string;
+  rooms: Room;
+}
+
+/* Mock data - replace with actual data from your backend
 const mockReservations = [
   {
     id: "#111-69",
@@ -54,22 +80,46 @@ const mockReservations = [
     },
   },
   // Add more reservations as needed
-];
+]; */
 
-export default function PendingReservations() {
-  const [reservations, setReservations] = useState(mockReservations);
+export default function PendingReservationsPage() {
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
-  const [selectedReservationId, setSelectedReservationId] = useState<
-    string | null
-  >(null);
+  const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null);
   const [showDisclaimer, setShowDisclaimer] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const getStatusBadge = (status: "pending" | "accepted" | "rejected") => {
+  // Fetch reservations on component mount
+  useEffect(() => {
+    const fetchReservations = async () => {
+      try {
+        setLoading(true);
+        const result = await getUserReservations();
+        
+        // Check if result is an error
+        if (result && typeof result === 'object' && 'errorMessage' in result) {
+          setError(result.errorMessage);
+        } else {
+          setReservations(result || []);
+        }
+      } catch (err) {
+        setError('Failed to fetch reservations');
+        console.error('Error fetching reservations:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReservations();
+  }, []);
+
+  const getStatusBadge = (status: "Pending" | "Accepted" | "Rejected") => {
     const statusConfig = {
-      pending: "bg-[#FFA500] text-white",
-      accepted: "bg-[#006225] text-white",
-      rejected: "bg-[#780D29] text-white",
+      Pending: "bg-[#FFA500] text-white",
+      Accepted: "bg-[#006225] text-white",
+      Rejected: "bg-[#780D29] text-white",
     };
 
     return (
@@ -86,13 +136,26 @@ export default function PendingReservations() {
     setShowCancelDialog(true);
   };
 
-  const confirmCancelReservation = () => {
+  const confirmCancelReservation = async () => {
     if (selectedReservationId) {
-      setReservations((prev) =>
-        prev.filter((reservation) => reservation.id !== selectedReservationId),
-      );
-      setShowCancelDialog(false);
-      setSelectedReservationId(null);
+      try {
+        const result = await cancelReservation(selectedReservationId);
+        
+        if (result.error) {
+          setError(result.errorMessage || 'Failed to cancel reservation');
+        } else {
+          // Remove the cancelled reservation from local state
+          setReservations((prev) =>
+            prev.filter((reservation) => reservation.id !== selectedReservationId),
+          );
+        }
+      } catch (err) {
+        setError('Failed to cancel reservation');
+        console.error('Error cancelling reservation:', err);
+      } finally {
+        setShowCancelDialog(false);
+        setSelectedReservationId(null);
+      }
     }
   };
 
@@ -105,6 +168,59 @@ export default function PendingReservations() {
       console.error("Failed to copy: ", err);
     }
   };
+
+  // Date Formatting
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: '2-digit',
+      day: '2-digit', 
+      year: 'numeric'
+    });
+  };
+
+  // Time Formatting
+  const formatTime = (startTime: string, endTime: string) => {
+    const formatTimeString = (time: string) => {
+      const [hours, minutes] = time.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+      return `${displayHour}:${minutes} ${ampm}`;
+    };
+    
+    return `${formatTimeString(startTime)} - ${formatTimeString(endTime)}`;
+  };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F5EEEA] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading reservations...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#F5EEEA] flex items-center justify-center">
+        <div className="text-center">
+          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <p className="text-red-600 text-lg font-medium mb-2">Error Loading Reservations</p>
+          <p className="text-gray-600">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -138,8 +254,8 @@ export default function PendingReservations() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <p className="text-sm text-blue-800">
-                      <strong>Note:</strong> When you can&apos;t find your
-                      recent reservation here, check your email for more status
+                      <strong>Note:</strong> If you can&apos;t find your recent
+                      reservation here, check your email for more status
                       updates.
                     </p>
                   </div>
@@ -179,7 +295,7 @@ export default function PendingReservations() {
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                           <div className="flex items-center gap-2">
                             <div className="border border-[#0A1128] bg-white rounded px-3 py-1 text-sm font-medium">
-                              Reservation ID {reservation.id}
+                              Reservation ID #{reservation.id}
                             </div>
                             <button
                               onClick={() => copyToClipboard(reservation.id)}
@@ -208,27 +324,27 @@ export default function PendingReservations() {
                             <div className="space-y-2 text-sm">
                               <p>
                                 <span className="font-medium">Name:</span>{" "}
-                                {reservation.contactDetails.name}
+                                {reservation.name}
                               </p>
                               <p>
                                 <span className="font-medium">Email:</span>{" "}
-                                {reservation.contactDetails.email}
+                                {reservation.email_address}
                               </p>
                               <p>
                                 <span className="font-medium">
                                   Contact Number:
                                 </span>{" "}
-                                {reservation.contactDetails.contactNumber}
+                                {reservation.contact_number}
                               </p>
                               <p>
                                 <span className="font-medium">Role:</span>{" "}
-                                {reservation.contactDetails.role}
+                                {reservation.role}
                               </p>
                               <p>
                                 <span className="font-medium">
                                   Course/Dept/Org:
                                 </span>{" "}
-                                {reservation.contactDetails.courseDeptOrg}
+                                {reservation.course}
                               </p>
                             </div>
                           </div>
@@ -241,33 +357,33 @@ export default function PendingReservations() {
                             <div className="space-y-2 text-sm">
                               <p>
                                 <span className="font-medium">Room:</span>{" "}
-                                {reservation.jobOrder.room}
+                                {reservation.rooms?.name}
                               </p>
                               <p>
                                 <span className="font-medium">
                                   Location/Building:
                                 </span>{" "}
-                                {reservation.jobOrder.locationBuilding}
+                                {reservation.rooms?.room_location}
                               </p>
                               <p>
                                 <span className="font-medium">Type:</span>{" "}
-                                {reservation.jobOrder.type}
+                                {reservation.type}
                               </p>
                               <p>
                                 <span className="font-medium">
                                   Date of Reservation:
                                 </span>{" "}
-                                {reservation.jobOrder.dateOfReservation}
+                                {formatDate(reservation.date_requested)}
                               </p>
                               <p>
                                 <span className="font-medium">Time:</span>{" "}
-                                {reservation.jobOrder.time}
+                                {formatTime(reservation.start_time, reservation.end_time)}
                               </p>
                               <p>
                                 <span className="font-medium">
                                   Nature of Work:
                                 </span>{" "}
-                                {reservation.jobOrder.natureOfWork}
+                                {reservation.nature_of_work}
                               </p>
                             </div>
                           </div>
@@ -275,14 +391,14 @@ export default function PendingReservations() {
 
                         {/* Cancel Button in Blue Area */}
                         <div className="flex justify-end">
-                          <button
-                            onClick={() =>
-                              handleCancelReservation(reservation.id)
-                            }
-                            className="bg-[#780D29] text-white font-medium px-6 py-2 rounded-full hover:bg-[#5a0a1f] transition-colors"
-                          >
-                            Cancel Reservation
-                          </button>
+                          {reservation.status === "Pending" && (
+                            <button
+                              onClick={() => handleCancelReservation(reservation.id)}
+                              className="bg-[#780D29] text-white font-medium px-6 py-2 rounded-full hover:bg-[#5a0a1f] transition-colors"
+                            >
+                              Cancel Reservation
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>

@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation"; // Add useRouter import
 import { roomData } from "@/app/roomData";
 import { Field, Form, Formik, useFormikContext } from "formik";
 import * as Yup from "yup";
-import Link from "next/link";
+import { createReservation } from "@/actions/users"; // Import the server action
 
 type TimePeriodSelectorProps = {
   timeFieldName: string;
@@ -211,9 +212,14 @@ const ReservationDetails = () => {
     endTime: Yup.string().required("End Time is required"),
     endPeriod: Yup.string().required("End Period is required"),
     natureOfWork: Yup.string().required("Nature of Work is required"),
+    reservationOptions: Yup.array().when("natureOfWork", {
+      is: "Reservation/Set-up",
+      then: (schema) => schema.min(1, "Select at least one option"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
     otherPurpose: Yup.string().when("natureOfWork", {
       is: "Others",
-      then: (schema) => schema.required("Please describe your purpose"),
+      then: (schema) => schema.required("Please specify your purpose"),
       otherwise: (schema) => schema.notRequired(),
     }),
   }).test("time-interval", "Invalid time interval", function (values) {
@@ -255,9 +261,54 @@ const ReservationDetails = () => {
     return true;
   });
 
-  const handleSubmit = () => {
-    // If the form is valid, navigate to the next page
-    router.push(`/rooms/${encodeURIComponent(room?.id)}/reserve/page2`);
+  // Modified handleSubmit with client-side navigation
+  const handleSubmit = async (values: ReservationFormValues) => {
+    try {
+      // Format start and end times with periods (AM/PM)
+      const startTimeFormatted = `${values.startTime} ${values.startPeriod}`;
+      const endTimeFormatted = `${values.endTime} ${values.endPeriod}`;
+
+      // Create FormData object to send to the server action
+      const formData = new FormData();
+      formData.append("name", values.contactName);
+      formData.append("email_address", values.email);
+      formData.append("contact_number", values.contactNumber);
+      formData.append("role", values.role);
+      formData.append("course", values.course);
+      formData.append("date_requested", values.dateOfReservation);
+      formData.append("start_time", startTimeFormatted);
+      formData.append("end_time", endTimeFormatted);
+      formData.append("room_id", room.id);
+      formData.append("room_location", room.floor || "");
+      formData.append("type", values.type);
+      formData.append("nature_of_work", values.natureOfWork);
+
+      // Add optional fields if they exist
+      if (
+        values.natureOfWork === "Reservation/Set-up" &&
+        values.reservationOptions
+      ) {
+        formData.append(
+          "reservation_option",
+          values.reservationOptions.join(",")
+        );
+      }
+
+      if (values.natureOfWork === "Others" && values.otherPurpose) {
+        formData.append("other_purpose", values.otherPurpose);
+      }
+
+      // Call the server action with the form data
+      await createReservation(formData);
+
+      // Handle navigation on client side
+      router.push(`/rooms/${encodeURIComponent(room.id)}/reserve/page2/`);
+    } catch (error) {
+      console.error("Error submitting reservation:", error);
+      alert(
+        "An error occurred while submitting the reservation. Please try again.",
+      );
+    }
   };
 
   const timeOptions = [
@@ -299,7 +350,7 @@ const ReservationDetails = () => {
     startPeriod: "AM",
     endTime: "",
     endPeriod: "AM",
-    natureOfWork: "",
+    natureOfWork: "",  // Changed from nature_of_work to match type
     reservationOptions: [],
     otherPurpose: "",
   };
@@ -325,14 +376,53 @@ const ReservationDetails = () => {
       </p>
 
       <Formik
-        enableReinitialize
-        initialValues={initialValues}
+        initialValues={{
+          contactName: "",
+          email: "",
+          contactNumber: "",
+          role: "",
+          course: "",
+          type: "",
+          dateOfReservation: "",
+          startTime: "",
+          startPeriod: "AM",
+          endTime: "",
+          endPeriod: "AM",
+          natureOfWork: "",  // Changed from nature_of_work to match type
+          reservationOptions: [],
+          otherPurpose: "",
+        }}
+        validationSchema={Yup.object().shape({
+          contactName: Yup.string().required("Name is required"),
+          email: Yup.string()
+            .email("Invalid email")
+            .required("Email is required"),
+          contactNumber: Yup.string()
+            .matches(/^[0-9]+$/, "Must be only digits")
+            .min(10, "Must be exactly 10 digits")
+            .max(10, "Must be exactly 10 digits")
+            .required("Contact number is required"),
+          role: Yup.string().required("Role is required"),
+          course: Yup.string().required("Course/Department is required"),
+          type: Yup.string().required("Type is required"),
+          dateOfReservation: Yup.string().required("Date is required"),
+          startTime: Yup.string().required("Start time is required"),
+          endTime: Yup.string().required("End time is required"),
+          natureOfWork: Yup.string().required("Nature of work is required"),  // Changed from nature_of_work
+          reservationOptions: Yup.array().when("natureOfWork", {  // Changed from nature_of_work
+            is: "Reservation/Set-up",
+            then: (schema) => schema.min(1, "Select at least one option"),
+            otherwise: (schema) => schema.notRequired(),
+          }),
+          otherPurpose: Yup.string().when("natureOfWork", {  // Changed from nature_of_work
+            is: "Others",
+            then: (schema) => schema.required("Please specify your purpose"),
+            otherwise: (schema) => schema.notRequired(),
+          }),
+        })}
         onSubmit={handleSubmit}
-        validationSchema={validationSchema}
-        validateOnChange={true}
-        validateOnBlur={true}
       >
-        {({ values, errors, touched }) => (
+        {({ values, errors, touched, setFieldValue }) => (
           <Form className="flex flex-col items-center gap-6 pb-10">
             {/* Error Messages Box */}
             {Object.keys(errors).length > 0 && (
@@ -745,7 +835,7 @@ const ReservationDetails = () => {
                       <label className="flex items-center gap-2">
                         <Field
                           type="radio"
-                          name="natureOfWork"
+                          name="natureOfWork"  // Changed from nature_of_work
                           value="Room/Space"
                           className="h-4 w-4"
                         />
@@ -754,7 +844,7 @@ const ReservationDetails = () => {
                       <label className="flex items-center gap-2">
                         <Field
                           type="radio"
-                          name="natureOfWork"
+                          name="natureOfWork"  // Changed from nature_of_work
                           value="Equipment"
                           className="h-4 w-4"
                         />
@@ -763,7 +853,7 @@ const ReservationDetails = () => {
                       <label className="flex items-center gap-2">
                         <Field
                           type="radio"
-                          name="natureOfWork"
+                          name="natureOfWork"  // Changed from nature_of_work
                           value="Transportation"
                           className="h-4 w-4"
                         />
@@ -777,7 +867,7 @@ const ReservationDetails = () => {
                     <Field
                       type="radio"
                       value="Repairs"
-                      name="natureOfWork"
+                      name="natureOfWork"  // Changed from nature_of_work
                       className="h-4 w-4"
                     />
                     <span>Repairs</span>
@@ -788,7 +878,7 @@ const ReservationDetails = () => {
                     <Field
                       type="radio"
                       value="Activity/Program"
-                      name="natureOfWork"
+                      name="natureOfWork"  // Changed from nature_of_work
                       className="h-4 w-4"
                     />
                     <span>Activity/Program</span>
@@ -799,7 +889,7 @@ const ReservationDetails = () => {
                     <Field
                       type="radio"
                       value="Others"
-                      name="natureOfWork"
+                      name="natureOfWork"  // Changed from nature_of_work
                       className="h-4 w-4 mt-1"
                     />
                     <div className="flex flex-col gap-2">
@@ -830,6 +920,11 @@ const ReservationDetails = () => {
               <button
                 type="submit"
                 className="bg-[#274C77] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03] order-1 md:order-2"
+                onClick={() =>
+                  router.push(
+                    `/rooms/${encodeURIComponent(room?.id ?? decodedRoomId)}/reserve/page2`
+                  )
+            }
               >
                 Submit for Approval
               </button>

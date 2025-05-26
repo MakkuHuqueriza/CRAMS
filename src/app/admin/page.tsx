@@ -2,6 +2,10 @@ import { Card } from "@/components/ui/card";
 import { CalendarDays } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import {
+  getRoomCountsAction,
+  getPendingReservationsCountAction,
+} from "@/actions/admin"; // Connect to server side
 
 const holidays2024 = [
   { date: "08/21", day: "Wednesday", name: "Ninoy Aquino Day" },
@@ -31,7 +35,31 @@ const holidays2025 = [
   { date: "06/12", day: "Thursday", name: "Independence Day" },
 ];
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  // Fetch room counts data & pending reservations count
+  const roomCountsResult = await getRoomCountsAction();
+  const pendingReservationsResult = await getPendingReservationsCountAction();
+
+  // Handle potential errors or use default values
+  const roomCounts = roomCountsResult.counts || {
+    lectureRooms: 0,
+    dbsesLabs: 0,
+    dmpcsLabs: 0,
+    dfscLabs: 0,
+    totalRooms: 0,
+  };
+
+  // Handle potential errors or use default values for pending count
+  const pendingCount = pendingReservationsResult.count || 0;
+
+  // Calculate percentages for the color bar
+  const total = roomCounts.totalRooms;
+  const lecturePercent =
+    total > 0 ? (roomCounts.lectureRooms / total) * 100 : 0;
+  const dbsesPercent = total > 0 ? (roomCounts.dbsesLabs / total) * 100 : 0;
+  const dmpcsPercent = total > 0 ? (roomCounts.dmpcsLabs / total) * 100 : 0;
+  const dfscPercent = total > 0 ? (roomCounts.dfscLabs / total) * 100 : 0;
+
   return (
     <div className="flex h-screen overflow-hidden">
       <main className="flex-1 bg-[#f2ede4] p-6 overflow-y-auto">
@@ -48,7 +76,9 @@ export default function DashboardPage() {
                   <CalendarDays className="w-5 h-5 text-[#1c2b3b] cursor-pointer hover:text-[#274c77] transition" />
                 </Link>
               </div>
-              <p className="text-[50px] font-bold mb-[-15px]">05</p>
+              <p className="text-[50px] font-bold mb-[-15px]">
+                {pendingCount.toString().padStart(2, "0")}
+              </p>
               <p className="text-sm text-gray-600">
                 Check the management tab to see pending reservations that may
                 require your attention.
@@ -61,10 +91,22 @@ export default function DashboardPage() {
 
               {/* Stacked color bar */}
               <div className="w-full h-[72px] overflow-hidden outline-none flex mb-4">
-                <div className="bg-blue-300 w-[60%] border-2 border-white rounded-l-xl" />
-                <div className="bg-blue-500 w-[20%] border-2 border-white" />
-                <div className="bg-blue-700 w-[10%] border-2 border-white" />
-                <div className="bg-blue-900 w-[10%] border-2 border-white rounded-r-xl" />
+                <div
+                  className="bg-blue-300 w-[60%] border-2 border-white rounded-l-xl"
+                  style={{ width: `${lecturePercent}%` }}
+                />
+                <div
+                  className="bg-blue-500 w-[20%] border-2 border-white"
+                  style={{ width: `${dbsesPercent}%` }}
+                />
+                <div
+                  className="bg-blue-700 w-[10%] border-2 border-white"
+                  style={{ width: `${dmpcsPercent}%` }}
+                />
+                <div
+                  className="bg-blue-900 w-[10%] border-2 border-white rounded-r-xl"
+                  style={{ width: `${dfscPercent}%` }}
+                />
               </div>
 
               {/* Room types grid */}
@@ -73,7 +115,9 @@ export default function DashboardPage() {
                   <div className="w-[5px] h-[60px] bg-blue-300 rounded-sm mr-2" />
                   <div>
                     <p className="text-sm text-gray-600 mb-2">Lecture Rooms</p>
-                    <p className="text-[32px] font-bold leading-none">60</p>
+                    <p className="text-[32px] font-bold leading-none">
+                      {roomCounts.lectureRooms}
+                    </p>
                   </div>
                 </div>
 
@@ -81,7 +125,9 @@ export default function DashboardPage() {
                   <div className="w-[5px] h-[60px] bg-blue-500 rounded-sm mr-2" />
                   <div>
                     <p className="text-sm text-gray-600 mb-2">DBSES Labs</p>
-                    <p className="text-[32px] font-bold leading-none">05</p>
+                    <p className="text-[32px] font-bold leading-none">
+                      {roomCounts.dbsesLabs}
+                    </p>
                   </div>
                 </div>
 
@@ -89,7 +135,9 @@ export default function DashboardPage() {
                   <div className="w-[5px] h-[60px] bg-blue-700 rounded-sm mr-2" />
                   <div>
                     <p className="text-sm text-gray-600 mb-2">DMPCS Labs</p>
-                    <p className="text-[32px] font-bold leading-none">05</p>
+                    <p className="text-[32px] font-bold leading-none">
+                      {roomCounts.dmpcsLabs}
+                    </p>
                   </div>
                 </div>
 
@@ -97,7 +145,9 @@ export default function DashboardPage() {
                   <div className="w-[5px] h-[60px] bg-blue-900 rounded-sm mr-2" />
                   <div>
                     <p className="text-sm text-gray-600 mb-2">DFSC Labs</p>
-                    <p className="text-[32px] font-bold leading-none">05</p>
+                    <p className="text-[32px] font-bold leading-none">
+                      {roomCounts.dfscLabs}
+                    </p>
                   </div>
                 </div>
               </div>
