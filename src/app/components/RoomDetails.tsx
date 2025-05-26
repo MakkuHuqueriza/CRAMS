@@ -23,6 +23,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { formatTimeTo12Hour } from "@/lib/utils";
+import { LoadingOverlay } from "@/components/ui/loading-spinner";
 
 interface Room {
   id: string;
@@ -51,6 +52,8 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
     typeof roomId === "string" ? decodeURIComponent(roomId) : "";
   const room = roomDetails.find((room: Room) => room.name === decodedRoomId);
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [isLoadingTimeSlots, setIsLoadingTimeSlots] = useState(false);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState(roomTimes);
 
   const getRoomIcon = (type: string) => {
     switch (type) {
@@ -73,6 +76,30 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
         );
       default:
         return null;
+    }
+  };
+
+  // Handle date selection with loading state
+  const handleDateSelect = async (selectedDate: Date | undefined) => {
+    if (!selectedDate) return;
+
+    setDate(selectedDate);
+    setIsLoadingTimeSlots(true);
+
+    try {
+      // Simulate API call to fetch available time slots for the selected date
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // Here you would typically make an API call to fetch time slots for the specific date
+      // For now, we'll just use the existing roomTimes
+      // const response = await fetch(`/api/timeslots?date=${selectedDate.toISOString()}&roomId=${room?.id}`);
+      // const timeSlots = await response.json();
+
+      setAvailableTimeSlots(roomTimes); // Replace with actual API response
+    } catch (error) {
+      console.error("Error fetching time slots:", error);
+    } finally {
+      setIsLoadingTimeSlots(false);
     }
   };
 
@@ -162,7 +189,7 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
                   <Calendar
                     mode="single"
                     selected={date}
-                    onSelect={setDate}
+                    onSelect={handleDateSelect}
                     initialFocus
                     className="border-none"
                   />
@@ -172,20 +199,30 @@ const RoomDetails = ({ roomDetails, roomTimes }: RoomsProps) => {
                 (Click calendar to see more dates)
               </p>
             </div>
-            <h2 className="text-lg font-semibold text-[#274c77]">
-              Available Time
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-              {roomTimes.map((time, index) => (
-                <div
-                  key={index}
-                  className="flex items-center text-sm text-muted-foreground"
-                >
-                  <Clock className="w-4 h-4 mr-2 text-[#274c77]" />
-                  {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(time.end_time)}`}
+
+            {/* Available Time Slots with Loading Overlay */}
+            <LoadingOverlay
+              isLoading={isLoadingTimeSlots}
+              message="Loading available time slots for selected date..."
+              spinnerType="pulse"
+            >
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-[#274c77]">
+                  Available Time
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  {availableTimeSlots.map((time, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center text-sm text-muted-foreground"
+                    >
+                      <Clock className="w-4 h-4 mr-2 text-[#274c77]" />
+                      {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(time.end_time)}`}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            </LoadingOverlay>
           </div>
 
           {/* Reserve Button */}

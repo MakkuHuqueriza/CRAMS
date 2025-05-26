@@ -75,7 +75,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/pending-reservations"
+                  href="/pending"
                   className="text-gray-200 hover:text-white transition text-left w-fit"
                 >
                   Pending Reservations

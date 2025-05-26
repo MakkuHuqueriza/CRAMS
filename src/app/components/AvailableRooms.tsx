@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -25,6 +26,7 @@ import {
   ArrowDown,
 } from "lucide-react";
 import { formatTimeTo12Hour } from "@/lib/utils";
+import { FullPageLoading } from "@/components/ui/loading-spinner";
 
 interface Room {
   id: string;
@@ -51,6 +53,8 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
   const [showAllRooms, setShowAllRooms] = useState(false);
   const [showMoreRooms, setShowMoreRooms] = useState(false);
   const [sortFilter, setSortFilter] = useState("");
+  const [isLoadingRoomDetails, setIsLoadingRoomDetails] = useState(false);
+  const router = useRouter();
 
   // Filter rooms based on the selected floor and sort filter
   const getFilteredRooms = () => {
@@ -74,6 +78,16 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
   };
 
   const filteredRooms = getFilteredRooms();
+
+  // Handle view details with full-page loading
+  const handleViewDetails = async (roomName: string) => {
+    setIsLoadingRoomDetails(true);
+
+    // Simulate loading delay
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    router.push(`/rooms/${encodeURIComponent(roomName)}`);
+  };
 
   const RoomCard = ({ room }: { room: Room }) => {
     const [showAllTimes, setShowAllTimes] = useState(false);
@@ -172,15 +186,15 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
           <div className="flex justify-center md:justify-end gap-2 mt-6 md:mt-4">
             <Button
               size="extraSmall"
+              onClick={() => handleViewDetails(room.name)}
+              disabled={isLoadingRoomDetails}
               className="border-[#182657] text-[#182657] hover:shadow-lg border-2 
               xl:text-[15px] xl:px-4 xl:py-3 
               lg:text-[14px] lg:px-4 lg:py-2 
               md:text-[11px] md:px-2 md:py-1 
-              text-[11px] px-3 py-2"
+              text-[11px] px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Link href={`/rooms/${encodeURIComponent(room.name)}`}>
-                View Details
-              </Link>
+              View Details
             </Button>
             <Button
               size="extraSmall"
@@ -203,141 +217,147 @@ const AvailableRooms = ({ roomDetails, roomTimes }: AvailableRoomsProps) => {
   };
 
   return (
-    <section className="flex justify-center py-12">
-      <div className="w-full rounded-xl shadow-lg bg-primary">
-        <div className="bg-primary w-[75%] max-w-6xl mx-auto py-10 border-b border-muted">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <div>
-              <h1 className="text-[28px] xl:text-[42px] md:text-[30px] font-bold text-primary whitespace-nowrap">
-                Available Rooms
-              </h1>
-              <p className="text-[14px] xl:text-[20px] md:text-[14px] text-muted-foreground whitespace-nowrap">
-                Browse to see room&apos;s availability
-              </p>
-            </div>
-            <div className="flex gap-2 xl:gap-3 lg:gap-2">
-              <Button
-                size="extraSmall"
-                onClick={() => {
-                  setSelectedFloor("1st Floor, CSM");
-                  setShowAllRooms(false);
-                  setShowMoreRooms(false);
-                }}
-                className={`rounded-md font-semibold border-2 ${
-                  selectedFloor === "1st Floor, CSM" && !showAllRooms
-                    ? "text-[#274c77] border-[#274c77] hover:shadow-lg"
-                    : showAllRooms
-                      ? "bg-[#274c77] text-white border-[#274c77] hover:bg-[#182657] opacity-70"
-                      : "bg-[#274c77] text-white border-[#274c77] hover:bg-[#182657]"
-                } xl:text-[16px] xl:px-4 xl:py-4 lg:text-[14px] lg:px-3 lg:py-3 md:text-[12px] md:px-2 md:py-1 text-[11px] px-2 py-1`}
-              >
-                Floor 1 - CSM Lobby
-              </Button>
-              <Button
-                size="extraSmall"
-                onClick={() => {
-                  setSelectedFloor("2nd Floor, CSM");
-                  setShowAllRooms(false);
-                  setShowMoreRooms(false);
-                }}
-                className={`rounded-md font-semibold border-2 ${
-                  selectedFloor === "2nd Floor, CSM" && !showAllRooms
-                    ? "text-[#274c77] border-[#274c77] hover:shadow-lg"
-                    : showAllRooms
-                      ? "bg-[#274c77] text-white border-[#274c77] hover:bg-[#182657] opacity-70"
-                      : "bg-[#274c77] text-white border-[#274c77] hover:bg-[#182657]"
-                } xl:text-[16px] xl:px-4 xl:py-4 lg:text-[14px] lg:px-3 lg:py-3 md:text-[12px] md:px-2 md:py-1 text-[11px] px-2 py-1`}
-              >
-                Floor 2 - Rooms
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div className="rooms-secondary h-full px-4 md:px-8 pt-10 rounded-t-[30px]">
-          <div className="bg-primary xl:w-[75%] lg:w-[90%] md:w-[89%] w-[85%] max-w-6xl mx-auto p-6 px-2 md:space-y-5 rounded-3xl shadow-xl text-[24px]">
-            <div className="flex justify-center md:justify-end lg:mr-2">
-              <Select
-                onValueChange={(value) => {
-                  setSortFilter(value);
-                  if (value === "all") {
-                    setShowAllRooms(true);
+    <>
+      <FullPageLoading
+        isLoading={isLoadingRoomDetails}
+        message="Fetching room details..."
+      />
+      <section className="flex justify-center py-12">
+        <div className="w-full rounded-xl shadow-lg bg-primary">
+          <div className="bg-primary w-[75%] max-w-6xl mx-auto py-10 border-b border-muted">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+              <div>
+                <h1 className="text-[28px] xl:text-[42px] md:text-[30px] font-bold text-primary whitespace-nowrap">
+                  Available Rooms
+                </h1>
+                <p className="text-[14px] xl:text-[20px] md:text-[14px] text-muted-foreground whitespace-nowrap">
+                  Browse to see room&apos;s availability
+                </p>
+              </div>
+              <div className="flex gap-2 xl:gap-3 lg:gap-2">
+                <Button
+                  size="extraSmall"
+                  onClick={() => {
+                    setSelectedFloor("1st Floor, CSM");
+                    setShowAllRooms(false);
                     setShowMoreRooms(false);
-                  }
-                }}
-                value={sortFilter}
-              >
-                <SelectTrigger className="w-[190px] text-[#8a8a8a] py-2 mr-4 border border-gray-300 rounded-lg shadow-sm bg-white hover:bg-gray-100 mb-0 md:mb-0">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent className="w-full bg-white text-black border border-gray-300 shadow-md rounded-lg mt-2">
-                  <SelectItem
-                    value="lecture"
-                    className="hover:bg-gray-200 active:bg-[#274c77] active:text-white px-4 py-[2px] rounded-md cursor-pointer"
-                  >
-                    Lecture Room
-                  </SelectItem>
-                  <SelectItem
-                    value="lab"
-                    className="hover:bg-gray-200 active:bg-[#274c77] active:text-white px-4 py-[2px] rounded-md cursor-pointer"
-                  >
-                    Laboratory Room
-                  </SelectItem>
-                  <SelectItem
-                    value="all"
-                    className="hover:bg-gray-200 active:bg-[#274c77] active:text-white px-4 py-[2px] rounded-md cursor-pointer"
-                  >
-                    All Rooms
-                  </SelectItem>
-                  <div>
-                    <button
-                      onClick={() => {
-                        setSortFilter("");
-                        setShowAllRooms(false);
-                        setShowMoreRooms(false);
-                      }}
-                      className="text-[#274c77] border border-[#274c77] text-sm font-medium rounded-md w-full px-4 py-[2px] active:bg-[#274c77] active:text-white transition"
-                    >
-                      Reset Filter
-                    </button>
-                  </div>
-                </SelectContent>
-              </Select>
+                  }}
+                  className={`rounded-md font-semibold border-2 ${
+                    selectedFloor === "1st Floor, CSM" && !showAllRooms
+                      ? "text-[#274c77] border-[#274c77] hover:shadow-lg"
+                      : showAllRooms
+                        ? "bg-[#274c77] text-white border-[#274c77] hover:bg-[#182657] opacity-70"
+                        : "bg-[#274c77] text-white border-[#274c77] hover:bg-[#182657]"
+                  } xl:text-[16px] xl:px-4 xl:py-4 lg:text-[14px] lg:px-3 lg:py-3 md:text-[12px] md:px-2 md:py-1 text-[11px] px-2 py-1`}
+                >
+                  Floor 1 - CSM Lobby
+                </Button>
+                <Button
+                  size="extraSmall"
+                  onClick={() => {
+                    setSelectedFloor("2nd Floor, CSM");
+                    setShowAllRooms(false);
+                    setShowMoreRooms(false);
+                  }}
+                  className={`rounded-md font-semibold border-2 ${
+                    selectedFloor === "2nd Floor, CSM" && !showAllRooms
+                      ? "text-[#274c77] border-[#274c77] hover:shadow-lg"
+                      : showAllRooms
+                        ? "bg-[#274c77] text-white border-[#274c77] hover:bg-[#182657] opacity-70"
+                        : "bg-[#274c77] text-white border-[#274c77] hover:bg-[#182657]"
+                  } xl:text-[16px] xl:px-4 xl:py-4 lg:text-[14px] lg:px-3 lg:py-3 md:text-[12px] md:px-2 md:py-1 text-[11px] px-2 py-1`}
+                >
+                  Floor 2 - Rooms
+                </Button>
+              </div>
             </div>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={selectedFloor}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="flex flex-col items-center space-y-[-30px] md:space-y-4"
-              >
-                {filteredRooms.map((room, index) => (
-                  <RoomCard key={index} room={room} />
-                ))}
-              </motion.div>
-            </AnimatePresence>
           </div>
-          {!showAllRooms && (
-            <div className="flex justify-center pt-12">
-              <Button
-                onClick={() => {
-                  setShowMoreRooms(!showMoreRooms);
-                }}
-                className="rounded-full bg-primary px-5 py-[18px] font-semibold text-[#274c77] border-[#274c77] border-2 transition-all duration-300 transform hover:scale-105"
-              >
-                {showMoreRooms ? "Show Less" : "Show More"}
-                <ArrowDown
-                  className={`w-4 h-4 ml-2 transition-transform duration-300 ${showMoreRooms ? "rotate-180" : ""}`}
-                />
-              </Button>
+
+          <div className="rooms-secondary h-full px-4 md:px-8 pt-10 rounded-t-[30px]">
+            <div className="bg-primary xl:w-[75%] lg:w-[90%] md:w-[89%] w-[85%] max-w-6xl mx-auto p-6 px-2 md:space-y-5 rounded-3xl shadow-xl text-[24px]">
+              <div className="flex justify-center md:justify-end lg:mr-2">
+                <Select
+                  onValueChange={(value) => {
+                    setSortFilter(value);
+                    if (value === "all") {
+                      setShowAllRooms(true);
+                      setShowMoreRooms(false);
+                    }
+                  }}
+                  value={sortFilter}
+                >
+                  <SelectTrigger className="w-[190px] text-[#8a8a8a] py-2 mr-4 border border-gray-300 rounded-lg shadow-sm bg-white hover:bg-gray-100 mb-0 md:mb-0">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent className="w-full bg-white text-black border border-gray-300 shadow-md rounded-lg mt-2">
+                    <SelectItem
+                      value="lecture"
+                      className="hover:bg-gray-200 active:bg-[#274c77] active:text-white px-4 py-[2px] rounded-md cursor-pointer"
+                    >
+                      Lecture Room
+                    </SelectItem>
+                    <SelectItem
+                      value="lab"
+                      className="hover:bg-gray-200 active:bg-[#274c77] active:text-white px-4 py-[2px] rounded-md cursor-pointer"
+                    >
+                      Laboratory Room
+                    </SelectItem>
+                    <SelectItem
+                      value="all"
+                      className="hover:bg-gray-200 active:bg-[#274c77] active:text-white px-4 py-[2px] rounded-md cursor-pointer"
+                    >
+                      All Rooms
+                    </SelectItem>
+                    <div>
+                      <button
+                        onClick={() => {
+                          setSortFilter("");
+                          setShowAllRooms(false);
+                          setShowMoreRooms(false);
+                        }}
+                        className="text-[#274c77] border border-[#274c77] text-sm font-medium rounded-md w-full px-4 py-[2px] active:bg-[#274c77] active:text-white transition"
+                      >
+                        Reset Filter
+                      </button>
+                    </div>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={selectedFloor}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex flex-col items-center space-y-[-30px] md:space-y-4"
+                >
+                  {filteredRooms.map((room, index) => (
+                    <RoomCard key={index} room={room} />
+                  ))}
+                </motion.div>
+              </AnimatePresence>
             </div>
-          )}
+            {!showAllRooms && (
+              <div className="flex justify-center pt-12">
+                <Button
+                  onClick={() => {
+                    setShowMoreRooms(!showMoreRooms);
+                  }}
+                  className="rounded-full bg-primary px-5 py-[18px] font-semibold text-[#274c77] border-[#274c77] border-2 transition-all duration-300 transform hover:scale-105"
+                >
+                  {showMoreRooms ? "Show Less" : "Show More"}
+                  <ArrowDown
+                    className={`w-4 h-4 ml-2 transition-transform duration-300 ${showMoreRooms ? "rotate-180" : ""}`}
+                  />
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };
 
