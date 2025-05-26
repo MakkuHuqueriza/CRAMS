@@ -38,8 +38,7 @@ const Hero = ({ onSearch }: HeroProps) => {
       setIsSearching(false);
     }, 3000); // Adjust the delay as needed
     return () => clearTimeout(timer);
-  }
-  , []);
+  }, []);
 
   // Function to filter end times based on the selected start time
   const getFilteredEndTimes = () => {
@@ -74,13 +73,12 @@ const Hero = ({ onSearch }: HeroProps) => {
     }
     if (onSearch) {
       await onSearch(formData);
-    } 
+    }
     // Simulate a search delay
     // This is where you would typically call your search function
     // For demonstration, we can simulate a delay
     // Uncomment the line below to simulate a delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
-
 
     // await new Promise((resolve) => setTimeout(resolve, 3000));
     setIsSearching(false);
@@ -196,29 +194,28 @@ const Hero = ({ onSearch }: HeroProps) => {
                         <div className="flex items-center justify-center w-10 h-10">
                           <MapPin className="text-color-primary w-6 h-6" />
                         </div>
-                          <div className="flex flex-col flex-1">
-                            <label className="text-sm font-medium text-black mb-1">
-                              LOCATION
-                            </label>
-                            <div
-                              className={`text-md ${selectedRoom ? "text-black" : "text-gray-400"}`}
-                            >
-                              {selectedRoom || "Select Room"}
-                            </div>
+                        <div className="flex flex-col flex-1">
+                          <label className="text-sm font-medium text-black mb-1">
+                            LOCATION
+                          </label>
+                          <div
+                            className={`text-md ${selectedRoom ? "text-black" : "text-gray-400"}`}
+                          >
+                            {selectedRoom || "Select Room"}
                           </div>
-                          {selectedRoom && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                clearRoom();
-                              }}
-                              className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
-                            >
-                              <X className="w-4 h-4 text-gray-500" />
-                            </button>
-                          )}
                         </div>
-                      
+                        {selectedRoom && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              clearRoom();
+                            }}
+                            className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
+                          >
+                            <X className="w-4 h-4 text-gray-500" />
+                          </button>
+                        )}
+                      </div>
                     </PopoverTrigger>
                     <PopoverContent
                       align="start"

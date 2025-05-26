@@ -25,15 +25,15 @@ export default function MainRoomsPage() {
   const handleSearch = async (formData: FormData) => {
     setLoading(true);
     const searchPromise = searchAvailableRooms(formData).then((data) => {
-    const location = formData.get("location");
-    let mappedFloor = "1st Floor, CSM";
-    if (location === "Floor 2") mappedFloor = "2nd Floor, CSM";
-    if (location === "Floor 1") mappedFloor = "1st Floor, CSM";
-    setSearchedFloor(mappedFloor);
-    setRoomDetails(data || []);
-    setLoading(false);
-  });
-  return searchPromise;
+      const location = formData.get("location");
+      let mappedFloor = "1st Floor, CSM";
+      if (location === "Floor 2") mappedFloor = "2nd Floor, CSM";
+      if (location === "Floor 1") mappedFloor = "1st Floor, CSM";
+      setSearchedFloor(mappedFloor);
+      setRoomDetails(data || []);
+      setLoading(false);
+    });
+    return searchPromise;
   };
 
   return (
