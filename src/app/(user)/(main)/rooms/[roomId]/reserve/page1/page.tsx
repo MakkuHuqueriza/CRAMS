@@ -811,7 +811,7 @@ const ReservationDetails = () => {
                   </div>
 
                   {/* Repairs */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center font-medium gap-2">
                     <Field
                       type="radio"
                       value="Repairs"
@@ -822,7 +822,7 @@ const ReservationDetails = () => {
                   </div>
 
                   {/* Activity/Program */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center font-medium gap-2">
                     <Field
                       type="radio"
                       value="Activity/Program"
@@ -833,7 +833,7 @@ const ReservationDetails = () => {
                   </div>
 
                   {/* Others */}
-                  <div className="flex items-start gap-2">
+                  <div className="flex items-start font-medium gap-2">
                     <Field
                       type="radio"
                       value="Others"
@@ -860,14 +860,14 @@ const ReservationDetails = () => {
             <div className="flex flex-col md:flex-row justify-between w-full gap-4 mt-1">
               <button
                 type="button"
-                className="bg-[#780D29] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03] order-2 md:order-1"
+                className="bg-[#780D29] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.02] order-2 md:order-1"
                 onClick={() => router.back()}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-[#274C77] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03] order-1 md:order-2"
+                className="bg-[#274C77] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.02] order-1 md:order-2"
                 onClick={() => setHasSubmitted(true)}
               >
                 Submit for Approval

@@ -91,7 +91,7 @@ export default function ReservationSummary() {
             onClick={() =>
               router.push(`/rooms/${encodeURIComponent(room.id)}/reserve/page1`)
             }
-            className="w-full md:w-auto bg-[#780D29] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03] order-2 md:order-1"
+            className="w-full md:w-auto bg-[#780D29] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.02] order-2 md:order-1"
           >
             Edit Details
           </button>
@@ -100,7 +100,7 @@ export default function ReservationSummary() {
             onClick={() =>
               router.push(`/rooms/${encodeURIComponent(room.id)}/reserve/page3`)
             }
-            className="w-full md:w-auto bg-[#274C77] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03] order-1 md:order-2"
+            className="w-full md:w-auto bg-[#274C77] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.02] order-1 md:order-2"
           >
             Confirm Details
           </button>
