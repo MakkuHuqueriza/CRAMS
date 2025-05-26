@@ -4,7 +4,6 @@ import type React from "react";
 import { useState, useRef, useEffect } from "react";
 import { ArrowDownWideNarrow, Search, X, Check, XIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Sidebar from "../Sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

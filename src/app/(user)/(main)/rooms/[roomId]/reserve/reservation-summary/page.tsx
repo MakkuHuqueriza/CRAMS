@@ -39,7 +39,7 @@ export default function ReservationSummary() {
         </Link>{" "}
         &gt;{" "}
         <Link
-          href={`/rooms/${encodeURIComponent(room.id)}/reserve/page1`}
+          href={`/rooms/${encodeURIComponent(room.id)}/reserve/reservation-form`}
           className="text-[#274c77] hover:underline cursor-pointer"
         >
           Reservation Form
@@ -89,7 +89,9 @@ export default function ReservationSummary() {
           <button
             type="button"
             onClick={() =>
-              router.push(`/rooms/${encodeURIComponent(room.id)}/reserve/page1`)
+              router.push(
+                `/rooms/${encodeURIComponent(room.id)}/reserve/reservation-form`,
+              )
             }
             className="w-full md:w-auto bg-[#780D29] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.02] order-2 md:order-1"
           >
@@ -98,7 +100,9 @@ export default function ReservationSummary() {
           <button
             type="button"
             onClick={() =>
-              router.push(`/rooms/${encodeURIComponent(room.id)}/reserve/page3`)
+              router.push(
+                `/rooms/${encodeURIComponent(room.id)}/reserve/reservation-confirmation`,
+              )
             }
             className="w-full md:w-auto bg-[#274C77] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.02] order-1 md:order-2"
           >

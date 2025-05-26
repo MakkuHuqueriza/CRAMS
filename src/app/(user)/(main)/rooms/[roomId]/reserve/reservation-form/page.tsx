@@ -288,7 +288,9 @@ const ReservationDetails = () => {
   ) => {
     setHasSubmitted(true);
     // If the form is valid, navigate to the next page
-    router.push(`/rooms/${encodeURIComponent(room?.id)}/reserve/page2`);
+    router.push(
+      `/rooms/${encodeURIComponent(room?.id)}/reserve/reservation-summary`,
+    );
     setSubmitting(false);
   };
 
@@ -861,7 +863,7 @@ const ReservationDetails = () => {
               <button
                 type="button"
                 className="bg-[#780D29] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.02] order-2 md:order-1"
-                onClick={() => router.back()}
+                onClick={() => router.push("/")}
               >
                 Cancel
               </button>

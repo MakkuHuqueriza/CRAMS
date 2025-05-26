@@ -41,14 +41,14 @@ export default function Confirmation() {
         </Link>{" "}
         &gt;{" "}
         <Link
-          href={`/rooms/${encodeURIComponent(roomId as string)}/reserve/page1`}
+          href={`/rooms/${encodeURIComponent(roomId as string)}/reserve/reservation-form`}
           className="text-[#274c77] hover:underline cursor-pointer"
         >
           Reservation Form
         </Link>{" "}
         &gt;{" "}
         <Link
-          href={`/rooms/${encodeURIComponent(roomId as string)}/reserve/page2`}
+          href={`/rooms/${encodeURIComponent(roomId as string)}/reserve/reservation-summary`}
           className="text-[#274c77] hover:underline cursor-pointer"
         >
           Reservation Summary

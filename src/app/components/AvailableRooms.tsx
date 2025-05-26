@@ -147,7 +147,6 @@ const AvailableRooms = ({
                   showAllTimes ? "grid grid-cols-3 gap-1" : "space-y-1"
                 }
               >
-
                 {(showAllTimes
                   ? room.availableTimeslots
                   : room.availableTimeslots.slice(0, 2)
@@ -198,7 +197,7 @@ const AvailableRooms = ({
               text-[11px] px-3 py-2"
             >
               <Link
-                href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1`}
+                href={`/rooms/${encodeURIComponent(room.name)}/reserve/reservation-form`}
               >
                 Reserve Now
               </Link>
@@ -348,22 +347,6 @@ const AvailableRooms = ({
               </div>
             )}
           </div>
-          
-          {!showAllRooms && (
-            <div className="flex justify-center pt-12">
-              <Button
-                onClick={() => {
-                  setShowMoreRooms(!showMoreRooms);
-                }}
-                className="rounded-full bg-primary px-5 py-[18px] font-semibold text-[#274c77] border-[#274c77] border-2 transition-all duration-300 transform hover:scale-105"
-              >
-                {showMoreRooms ? "Show Less" : "Show More"}
-                <ArrowDown
-                  className={`w-4 h-4 transition-transform duration-300 ${showMoreRooms ? "rotate-180" : ""}`}
-                />
-              </Button>
-            </div>
-          )}
         </div>
       </section>
     </>
