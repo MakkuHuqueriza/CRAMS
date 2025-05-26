@@ -359,7 +359,7 @@ const AvailableRooms = ({
               >
                 {showMoreRooms ? "Show Less" : "Show More"}
                 <ArrowDown
-                  className={`w-4 h-4 ml-2 transition-transform duration-300 ${showMoreRooms ? "rotate-180" : ""}`}
+                  className={`w-4 h-4 transition-transform duration-300 ${showMoreRooms ? "rotate-180" : ""}`}
                 />
               </Button>
             </div>
