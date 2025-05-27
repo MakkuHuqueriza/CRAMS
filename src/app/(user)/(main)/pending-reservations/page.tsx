@@ -28,15 +28,15 @@ export default function PendingReservations() {
     status: "Pending" | "Accepted" | "Rejected" | "Completed",
   ) => {
     const statusConfig = {
-      Pending: "bg-[#FFA500] text-white",
-      Accepted: "bg-[#006225] text-white",
-      Rejected: "bg-[#780D29] text-white",
-      Completed: "bg-[#034078] text-white",
+      Pending: "bg-[#FFC442] hover:bg-[#ffbe33]",
+      Accepted: "bg-[#006225] text-[#A5EEC0]",
+      Rejected: "bg-[#780D29] text-[#ffb7ca]",
+      Completed: "bg-[#034078] text-[#92C2F9]",
     };
 
     return (
       <span
-        className={`px-4 py-1 rounded-full text-sm font-medium ${statusConfig[status]}`}
+        className={`px-4 py-1 rounded-lg text-sm font-medium ${statusConfig[status]}`}
       >
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>

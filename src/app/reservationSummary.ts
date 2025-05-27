@@ -44,8 +44,49 @@ export const mockReservations: Reservation[] = [
       natureOfWork: "Reservation/Setup Room/Space",
     },
   },
+
   {
     id: "#111-70",
+    status: "Rejected",
+    contactDetails: {
+      name: "Makku Kuma",
+      email: "makkukuma@g8.com",
+      contactNumber: "+639462666969",
+      role: "Student",
+      courseDeptOrg: "BS Computer Science",
+    },
+    jobOrder: {
+      room: "CSM 227",
+      locationBuilding: "CSM, 2nd Floor",
+      type: "Event",
+      dateOfReservation: "04/13/2025",
+      time: "12:00 AM - 2:00 PM",
+      natureOfWork: "Reservation/Setup Room/Space",
+    },
+  },
+
+  {
+    id: "#111-71",
+    status: "Completed",
+    contactDetails: {
+      name: "Joditech Gabano",
+      email: "joditech.com.ph.edu.org",
+      contactNumber: "+639411234567",
+      role: "Student",
+      courseDeptOrg: "BS Computer Science",
+    },
+    jobOrder: {
+      room: "CSM 228",
+      locationBuilding: "CSM, 2nd Floor",
+      type: "Event",
+      dateOfReservation: "05/13/2025",
+      time: "12:00 AM - 3:00 PM",
+      natureOfWork: "Reservation/Setup Room/Space",
+    },
+  },
+
+  {
+    id: "#111-72",
     status: "Accepted",
     contactDetails: {
       name: "Joditech Gabano",
