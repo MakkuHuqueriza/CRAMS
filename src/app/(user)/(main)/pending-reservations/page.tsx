@@ -12,52 +12,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-// Mock data - replace with actual data from your backend
-const mockReservations = [
-  {
-    id: "#111-69",
-    status: "pending" as "pending" | "accepted" | "rejected",
-    contactDetails: {
-      name: "Makku Kuma",
-      email: "makkukuma@g8.com",
-      contactNumber: "+639462666969",
-      role: "Student",
-      courseDeptOrg: "BS Computer Science",
-    },
-    jobOrder: {
-      room: "CSM 227",
-      locationBuilding: "CSM, 2nd Floor",
-      type: "Event",
-      dateOfReservation: "04/13/2025",
-      time: "12:00 AM - 2:00 PM",
-      natureOfWork: "Reservation/Setup Room/Space",
-    },
-  },
-  {
-    id: "#111-70",
-    status: "accepted" as "pending" | "accepted" | "rejected",
-    contactDetails: {
-      name: "Joditech Gabano",
-      email: "joditech.com.ph.edu.org",
-      contactNumber: "+639411234567",
-      role: "Student",
-      courseDeptOrg: "BS Computer Science",
-    },
-    jobOrder: {
-      room: "CSM 228",
-      locationBuilding: "CSM, 2nd Floor",
-      type: "Event",
-      dateOfReservation: "05/13/2025",
-      time: "12:00 AM - 3:00 PM",
-      natureOfWork: "Reservation/Setup Room/Space",
-    },
-  },
-  // Add more reservations as needed
-];
+import { mockReservations, type Reservation } from "@/app/reservationSummary";
 
 export default function PendingReservations() {
-  const [reservations, setReservations] = useState(mockReservations);
+  const [reservations, setReservations] =
+    useState<Reservation[]>(mockReservations);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [selectedReservationId, setSelectedReservationId] = useState<
     string | null
@@ -65,11 +24,14 @@ export default function PendingReservations() {
   const [showDisclaimer, setShowDisclaimer] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const getStatusBadge = (status: "pending" | "accepted" | "rejected") => {
+  const getStatusBadge = (
+    status: "Pending" | "Accepted" | "Rejected" | "Completed",
+  ) => {
     const statusConfig = {
-      pending: "bg-[#FFA500] text-white",
-      accepted: "bg-[#006225] text-white",
-      rejected: "bg-[#780D29] text-white",
+      Pending: "bg-[#FFA500] text-white",
+      Accepted: "bg-[#006225] text-white",
+      Rejected: "bg-[#780D29] text-white",
+      Completed: "bg-[#034078] text-white",
     };
 
     return (
@@ -274,15 +236,18 @@ export default function PendingReservations() {
                         </div>
 
                         {/* Cancel Button in Blue Area */}
+                        {/* Cancel Button in Pending Area Only */}
                         <div className="flex justify-end">
-                          <button
-                            onClick={() =>
-                              handleCancelReservation(reservation.id)
-                            }
-                            className="bg-[#780D29] text-white font-medium px-6 py-2 rounded-full hover:bg-[#5a0a1f] transition-colors"
-                          >
-                            Cancel Reservation
-                          </button>
+                          {reservation.status === "Pending" && (
+                            <button
+                              onClick={() =>
+                                handleCancelReservation(reservation.id)
+                              }
+                              className="bg-[#780D29] text-white font-medium px-6 py-2 rounded-full hover:bg-[#5a0a1f] transition-colors"
+                            >
+                              Cancel Reservation
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
