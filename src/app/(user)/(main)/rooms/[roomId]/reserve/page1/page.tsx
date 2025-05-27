@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation"; // Add useRouter import
 import { Field, Form, Formik, useFormikContext } from "formik";
 import * as Yup from "yup";
 import { createReservation, getAllRoomsWithTimeslots } from "@/actions/users"; // Import the server action
-import { EditReservationDetails } from "@/actions/users";
+import { EditReservationDetails, deletePendingReservation } from "@/actions/users";
 import { Room } from "@/lib/types";
 
 type TimePeriodSelectorProps = {
@@ -175,7 +175,8 @@ const ReservationDetails = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(true);
   const [initialValues, setInitialValues] = useState<ReservationFormValues | null>(null);
-   useEffect(() => {
+  const [pendingReservationId, setPendingReservationId] = useState<string | null>(null);
+  useEffect(() => {
     // Fetch rooms with timeslots from Supabase
     getAllRoomsWithTimeslots().then((data) => {
       setRooms(data || []);
@@ -186,6 +187,7 @@ const ReservationDetails = () => {
     // Fetch pending reservation on mount
     EditReservationDetails().then((data) => {
       if (data) {
+        setPendingReservationId(data.id);
         // Map Supabase JSON keys to your form fields if needed
         setInitialValues({
           contactName: data.name || "",
@@ -221,6 +223,18 @@ const ReservationDetails = () => {
       }
     });
   }, []);
+
+  // Handle cancel button click
+  const handleCancel = async () => {
+    try {
+      if (pendingReservationId) {
+        await deletePendingReservation(pendingReservationId);
+      }
+      router.back();
+    } catch (error) {
+      alert("Failed to cancel reservation.");
+    }
+  };
 
 
   const room = rooms.find((room) => room.name === decodedRoomId);
@@ -909,7 +923,7 @@ const ReservationDetails = () => {
               <button
                 type="button"
                 className="bg-[#780D29] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03] order-2 md:order-1"
-                onClick={() => router.back()}
+                onClick={handleCancel}
               >
                 Cancel
               </button>

@@ -799,13 +799,29 @@ export const EditReservationDetails = async () => {
   // Fetch the latest pending reservation for this user
   const { data, error } = await supabase
     .from("pending_reservation")
-    .select("reservation_data")
+    .select("id, reservation_data")
     .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
     .single();
 
   if (error || !data) {
     return null;
   }
 
-  return data.reservation_data; // This is your JSON object
+  // Return both id and reservation_data
+  return { id: data.id, ...data.reservation_data };
+}
+
+export const deletePendingReservation = async (reservationId: string) => {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("pending_reservation")
+    .delete()
+    .eq("id", reservationId); // or use another unique identifier
+
+  if (error) {
+    throw error;
+  }
 }

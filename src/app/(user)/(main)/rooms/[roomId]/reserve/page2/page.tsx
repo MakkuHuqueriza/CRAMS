@@ -34,7 +34,7 @@ export default function ReservationSummary() {
             const convertedData = {
               name: parsedData.contactName,
               email: parsedData.email,
-              contact_number: parsedData.contactNumber,
+              contact_number: "+63" + parsedData.contactNumber,
               role: parsedData.role,
               course: parsedData.course,
               room_id: room?.id ?? "",
@@ -64,7 +64,7 @@ export default function ReservationSummary() {
           const convertedData = {
             name: parsedData.contactName,
             email: parsedData.email,
-            contact_number: parsedData.contactNumber,
+            contact_number: "+63" + parsedData.contactNumber,
             role: parsedData.role,
             course: parsedData.course,
             room_id: room?.id ?? "",
