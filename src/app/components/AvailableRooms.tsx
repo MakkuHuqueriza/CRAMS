@@ -27,23 +27,15 @@ import {
 } from "lucide-react";
 import { formatTimeTo12Hour } from "@/lib/utils";
 import { FullPageLoading } from "@/components/ui/loading-spinner";
-import { Room } from "@/lib/types"; // Adjust the import path as necessary
-
-interface Timeslot {
-  id: string;
-  start_time: string;
-  end_time: string;
-}
+import { Room } from "@/lib/types";
 
 interface AvailableRoomsProps {
   roomDetails: Room[];
-  roomTimes: Timeslot[];
   searchedFloor?: string;
 }
 
 const AvailableRooms = ({
   roomDetails,
-  roomTimes,
   searchedFloor,
 }: AvailableRoomsProps) => {
   const [selectedFloor, setSelectedFloor] = useState("1st Floor, CSM");

@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { format } from "date-fns";
 
 // For room counts
 type RoomCounts = {
@@ -526,7 +527,6 @@ export const updateRoomDetailsAction = async (formData: FormData) => {
   const roomId = formData.get("roomId") as string;
   const roomName = formData.get("roomName") as string;
   const description = formData.get("description") as string;
-  const equipments = formData.get("equipments") as string;
   const capacity = formData.get("capacity") as string;
   const floor = formData.get("floor") as string;
   const roomType = formData.get("roomType") as string;
@@ -563,14 +563,13 @@ export const updateRoomDetailsAction = async (formData: FormData) => {
     const { data: updatedRoom, error } = await supabase
       .from("room")
       .update({
-        room_name: roomName,
-        description: description,
-        equipments: equipments,
+        name: roomName,
+        room_description: description,
         capacity: capacity ? parseInt(capacity) : null,
-        floor: floor,
+        room_location: floor,
         room_type: roomType,
       })
-      .eq("id", roomId)
+      .eq("room_id", roomId)
       .select()
       .single();
 
@@ -631,7 +630,7 @@ export const deleteRoomAction = async (roomId: string) => {
     }
 
     // Delete the room
-    const { error } = await supabase.from("room").delete().eq("id", roomId);
+    const { error } = await supabase.from("room").delete().eq("room_id", roomId);
 
     if (error) {
       return { error: { message: "Failed to delete room" } };
@@ -647,21 +646,39 @@ export const deleteRoomAction = async (roomId: string) => {
 };
 
 export const createRoomAction = async (formData: FormData) => {
-  const roomName = formData.get("roomName") as string;
-  const description = formData.get("description") as string;
-  const equipments = formData.get("equipments") as string;
+  const supabase = await createClient();
+
+  const name = formData.get("roomName") as string;
+  const room_description = formData.get("description") as string;
   const capacity = formData.get("capacity") as string;
-  const floor = formData.get("floor") as string;
-  const roomType = formData.get("roomType") as string;
+  const room_location = formData.get("floor") as string;
+  const room_type = formData.get("roomType") as string;
+
+  // Enum values (must match your Supabase enum exactly)
+  const validRoomTypes = [
+    "DBSES LABORATORY ROOM",
+    "LECTURE ROOM",
+    "DFSC LABORATORY ROOM",
+    "DMPCS LABORATORY ROOM",
+    "LECTURE ROOM/AUDITORIUM",
+  ];
+  const validRoomLocations = [
+    "1st Floor, CSM",
+    "2nd Floor, CSM",
+  ];
 
   // Validate input
-  if (!roomName || !floor || !roomType) {
+  if (
+    !name ||
+    !room_location ||
+    !room_type ||
+    !validRoomTypes.includes(room_type) ||
+    !validRoomLocations.includes(room_location)
+  ) {
     return {
-      error: { message: "Room name, floor, and room type are required" },
+      error: { message: "Invalid room type or location." },
     };
   }
-
-  const supabase = await createClient();
 
   // Get the current user (admin)
   const {
@@ -684,26 +701,23 @@ export const createRoomAction = async (formData: FormData) => {
   }
 
   try {
-    // Create new room
     const { data: newRoom, error } = await supabase
       .from("room")
       .insert({
-        room_name: roomName,
-        description: description,
-        equipments: equipments,
+        name,
+        room_description,
         capacity: capacity ? parseInt(capacity) : null,
-        floor: floor,
-        room_type: roomType,
+        room_location,
+        room_type,
         created_at: new Date().toISOString(),
       })
       .select()
       .single();
 
     if (error) {
-      return { error: { message: "Failed to create room" } };
+      return { error: { message: error.message || "Failed to create room" } };
     }
 
-    // Revalidate the room management page
     revalidatePath("/admin/room-management");
 
     return {
@@ -756,70 +770,32 @@ export const searchRoomsAction = async (searchTerm: string) => {
   }
 };
 
-export const getRoomEquipmentsAction = async (roomId: string) => {
+// Add this helper if not present
+export const getAllReservations = async () => {
   const supabase = await createClient();
-
-  // Get the current user (admin)
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/admin/login");
-  }
-
-  // Verify user is an admin
+  // Get all reservations (customize fields as needed)
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/admin/login");
   const { data: adminData, error: adminError } = await supabase
     .from("admin")
     .select("admin_id")
     .eq("admin_id", user.id)
     .single();
-
-  if (adminError || !adminData) {
-    redirect("/admin/login");
-  }
-
-  try {
-    // Fetch equipments for the specific room
-    const { data: equipments, error } = await supabase
-      .from("equipment")
-      .select("*")
-      .eq("room_id", roomId)
-      .order("equipment_name", { ascending: true });
-
-    if (error) {
-      return { error: { message: "Failed to fetch room equipments" } };
-    }
-
-    return { equipments: equipments || [] };
-  } catch (error) {
-    return { error: { message: "An unexpected error occurred" } };
-  }
+  if (adminError || !adminData) redirect("/admin/login");
+  const { data: reservations, error } = await supabase
+    .from("reservation")
+    .select("*");
+  if (error) return [];
+  return reservations || [];
 };
 
-export const createEquipmentAction = async (formData: FormData) => {
-  const roomId = formData.get("roomId") as string;
-  const equipmentName = formData.get("equipmentName") as string;
-  const condition = formData.get("condition") as string;
-  const lastMaintenanceDate = formData.get("lastMaintenanceDate") as string;
-
-  // Validate input
-  if (!roomId || !equipmentName) {
-    return {
-      error: { message: "Room ID and equipment name are required" },
-    };
-  }
-
+// --- NEW FUNCTION: getAllRoomsWithTimeslots ---
+export const getAllRoomsWithTimeslots = async () => {
   const supabase = await createClient();
 
   // Get the current user (admin)
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/admin/login");
-  }
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/admin/login");
 
   // Verify user is an admin
   const { data: adminData, error: adminError } = await supabase
@@ -827,190 +803,82 @@ export const createEquipmentAction = async (formData: FormData) => {
     .select("admin_id")
     .eq("admin_id", user.id)
     .single();
+  if (adminError || !adminData) redirect("/admin/login");
 
-  if (adminError || !adminData) {
-    redirect("/admin/login");
+  // Fetch all rooms
+  const { data: rooms, error: roomError } = await supabase
+    .from("room")
+    .select("*")
+    .order("name", { ascending: true });
+
+  if (roomError) {
+    console.error("Error fetching rooms:", roomError);
+    return { rooms: [] };
   }
 
-  try {
-    // Create new equipment
-    const { data: newEquipment, error } = await supabase
-      .from("equipment")
-      .insert({
-        room_id: roomId,
-        equipment_name: equipmentName,
-        condition: condition as "Good" | "Fair" | "Poor" | "Needs Repair",
-        last_maintenance_date: lastMaintenanceDate,
-        created_at: new Date().toISOString(),
-      })
-      .select()
-      .single();
+  // Fetch all timeslots
+  const { data: timeslots, error: timeslotError } = await supabase
+    .from("schedule")
+    .select("*")
+    .order("start_time", { ascending: true });
 
-    if (error) {
-      return { error: { message: "Failed to create equipment" } };
+  if (timeslotError) {
+    console.error("Error fetching timeslots:", timeslotError);
+    return { rooms: [] };
+  }
+
+  const reservations = await getAllReservations();
+
+  // get the current date in YYYY-MM-DD format
+  const currentDate = format(new Date(), "yyyy-MM-dd");
+
+  // Filter out reservations for the current date
+  const reservationsForToday = reservations.filter((reservation) => {
+    return reservation.date_requested === currentDate;
+  });
+
+  function get30MinIntervals(start: string, end: string): string[] {
+    const intervals: string[] = [];
+    let [h, m] = start.split(":").map(Number);
+    const [endH, endM] = end.split(":").map(Number);
+
+    while (h < endH || (h === endH && m < endM)) {
+      const hourStr = h.toString().padStart(2, "0");
+      const minStr = m.toString().padStart(2, "0");
+      intervals.push(`${hourStr}:${minStr}:00`);
+      m += 30;
+      if (m >= 60) {
+        m = 0;
+        h += 1;
+      }
     }
+    return intervals;
+  }
 
-    // Revalidate the room management page
-    revalidatePath("/admin/room-management");
+  const roomsWithAvailableTimeslots = rooms.map((room) => {
+    // Get all reservations for this room for today
+    const roomReservations = reservationsForToday.filter(
+      (reservation) => reservation.room_id === room.room_id,
+    );
+
+    // Collect all booked 30-min intervals for this room
+    let bookedIntervals: string[] = [];
+    roomReservations.forEach((res) => {
+      bookedIntervals = bookedIntervals.concat(
+        get30MinIntervals(res.start_time, res.end_time),
+      );
+    });
+
+    // Filter out timeslots that are booked (by start_time)
+    const availableTimeslots = timeslots.filter(
+      (slot) => !bookedIntervals.includes(slot.start_time),
+    );
 
     return {
-      message: "Equipment created successfully",
-      equipment: newEquipment,
+      ...room,
+      availableTimeslots,
     };
-  } catch (error) {
-    return { error: { message: "An unexpected error occurred" } };
-  }
-};
+  });
 
-export const updateEquipmentAction = async (formData: FormData) => {
-  const equipmentId = formData.get("equipmentId") as string;
-  const equipmentName = formData.get("equipmentName") as string;
-  const condition = formData.get("condition") as string;
-  const lastMaintenanceDate = formData.get("lastMaintenanceDate") as string;
-
-  // Validate input
-  if (!equipmentId || !equipmentName) {
-    return {
-      error: { message: "Equipment ID and equipment name are required" },
-    };
-  }
-
-  const supabase = await createClient();
-
-  // Get the current user (admin)
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/admin/login");
-  }
-
-  // Verify user is an admin
-  const { data: adminData, error: adminError } = await supabase
-    .from("admin")
-    .select("admin_id")
-    .eq("admin_id", user.id)
-    .single();
-
-  if (adminError || !adminData) {
-    redirect("/admin/login");
-  }
-
-  try {
-    // Update equipment
-    const { data: updatedEquipment, error } = await supabase
-      .from("equipment")
-      .update({
-        equipment_name: equipmentName,
-        condition: condition as "Good" | "Fair" | "Poor" | "Needs Repair",
-        last_maintenance_date: lastMaintenanceDate,
-      })
-      .eq("id", equipmentId)
-      .select()
-      .single();
-
-    if (error) {
-      return { error: { message: "Failed to update equipment" } };
-    }
-
-    // Revalidate the room management page
-    revalidatePath("/admin/room-management");
-
-    return {
-      message: "Equipment updated successfully",
-      equipment: updatedEquipment,
-    };
-  } catch (error) {
-    return { error: { message: "An unexpected error occurred" } };
-  }
-};
-
-export const deleteEquipmentAction = async (equipmentId: string) => {
-  const supabase = await createClient();
-
-  // Get the current user (admin)
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/admin/login");
-  }
-
-  // Verify user is an admin
-  const { data: adminData, error: adminError } = await supabase
-    .from("admin")
-    .select("admin_id")
-    .eq("admin_id", user.id)
-    .single();
-
-  if (adminError || !adminData) {
-    redirect("/admin/login");
-  }
-
-  try {
-    // Delete the equipment
-    const { error } = await supabase
-      .from("equipment")
-      .delete()
-      .eq("id", equipmentId);
-
-    if (error) {
-      return { error: { message: "Failed to delete equipment" } };
-    }
-
-    // Revalidate the room management page
-    revalidatePath("/admin/room-management");
-
-    return { message: "Equipment deleted successfully" };
-  } catch (error) {
-    return { error: { message: "An unexpected error occurred" } };
-  }
-};
-
-export const getEquipmentsByConditionAction = async (condition: string) => {
-  const supabase = await createClient();
-
-  // Get the current user (admin)
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/admin/login");
-  }
-
-  // Verify user is an admin
-  const { data: adminData, error: adminError } = await supabase
-    .from("admin")
-    .select("admin_id")
-    .eq("admin_id", user.id)
-    .single();
-
-  if (adminError || !adminData) {
-    redirect("/admin/login");
-  }
-
-  try {
-    // Fetch equipments by condition across all rooms
-    const { data: equipments, error } = await supabase
-      .from("equipment")
-      .select(
-        `
-        *,
-        room:room_id (room_name, room_type)
-      `,
-      )
-      .eq("condition", condition)
-      .order("last_maintenance_date", { ascending: true });
-
-    if (error) {
-      return { error: { message: "Failed to fetch equipments by condition" } };
-    }
-
-    return { equipments: equipments || [] };
-  } catch (error) {
-    return { error: { message: "An unexpected error occurred" } };
-  }
+  return { rooms: roomsWithAvailableTimeslots };
 };

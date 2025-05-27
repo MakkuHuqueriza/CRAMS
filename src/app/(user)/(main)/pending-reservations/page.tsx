@@ -405,7 +405,7 @@ export default function PendingReservationsPage() {
                           </div>
                         </div>
 
-                        {/* Cancel Button in Blue Area */}
+                        {/* Cancel Button in Pending Area Only */}
                         <div className="flex justify-end">
                           {reservation.status === "Pending" && (
                             <button

@@ -55,7 +55,6 @@ export interface Database {
             | "DMPCS LABORATORY ROOM"
             | "DFSC LABORATORY ROOM";
           room_description: string;
-          room_image: string | null;
           created_at: string;
         };
         Insert: {
@@ -69,7 +68,6 @@ export interface Database {
             | "DMPCS LABORATORY ROOM"
             | "DFSC LABORATORY ROOM";
           room_description: string;
-          room_image: string | null;
         };
         Update: {
           name?: string;
@@ -81,7 +79,6 @@ export interface Database {
             | "DMPCS LABORATORY ROOM"
             | "DFSC LABORATORY ROOM";
           room_description?: string;
-          room_image?: string | null;
         };
       };
       schedule: {
