@@ -219,9 +219,15 @@ export default function BookingManagementPage() {
     useState<BookingData | null>(null);
   const [showAcceptConfirmation, setShowAcceptConfirmation] = useState(false);
   const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [showScrollbar, setShowScrollbar] = useState(false);
+  const [dragStartY, setDragStartY] = useState(0);
+  const [scrollbarStartY, setScrollbarStartY] = useState(0);
 
   const tableRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollbarRef = useRef<HTMLDivElement>(null);
 
   // Handle click outside table to deselect row
   useEffect(() => {
@@ -239,6 +245,14 @@ export default function BookingManagementPage() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Check if scrollbar should be shown
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const { scrollHeight, clientHeight } = scrollContainerRef.current;
+      setShowScrollbar(scrollHeight > clientHeight);
+    }
+  }, [filteredBookings]);
 
   // Filter and sort bookings when search term or sort option changes
   useEffect(() => {
@@ -284,6 +298,57 @@ export default function BookingManagementPage() {
 
     setFilteredBookings(result);
   }, [searchTerm, sortOption]);
+
+  // Handle scrollbar dragging
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging || !scrollContainerRef.current || !scrollbarRef.current)
+        return;
+
+      e.preventDefault();
+
+      const scrollContainer = scrollContainerRef.current;
+      const scrollbarContainer = scrollbarRef.current.parentElement;
+      if (!scrollbarContainer) return;
+
+      // Calculate the new position based on mouse movement
+      const deltaY = e.clientY - dragStartY;
+      const newScrollbarY = scrollbarStartY + deltaY;
+
+      const containerHeight = scrollbarContainer.offsetHeight - 16; // Account for padding
+      const scrollbarHeight = scrollbarRef.current.offsetHeight;
+      const maxY = containerHeight - scrollbarHeight;
+
+      const clampedY = Math.max(0, Math.min(newScrollbarY, maxY));
+      const scrollPercentage = maxY > 0 ? clampedY / maxY : 0;
+
+      // Update scrollbar position immediately
+      scrollbarRef.current.style.transform = `translateY(${clampedY}px)`;
+
+      // Update scroll container
+      const maxScroll =
+        scrollContainer.scrollHeight - scrollContainer.clientHeight;
+      scrollContainer.scrollTop = scrollPercentage * maxScroll;
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.body.style.userSelect = "none";
+      document.body.style.cursor = "default";
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
+    };
+  }, [isDragging, dragStartY, scrollbarStartY]);
 
   // Function to handle row click
   const handleRowClick = (bookingId: string) => {
@@ -411,7 +476,7 @@ export default function BookingManagementPage() {
 
     const isViewOnly =
       selectedBookingData.status === "Accepted" ||
-      selectedBookingData.status === "Completed";
+      selectedBookingData.status === "Complete";
     const isRejected = selectedBookingData.status === "Rejected";
     const isPending = selectedBookingData.status === "Pending";
 
@@ -529,7 +594,7 @@ export default function BookingManagementPage() {
     <div className="flex h-screen bg-gray-50">
       {/* Main Content */}
       <div className="flex-1 bg-[#f2ede4] overflow-y-auto">
-        <div className="container mx-auto px-8 py-6">
+        <div className="container mx-auto px-2 py-4">
           <h1 className="text-3xl font-bold mb-6">Booking Management</h1>
 
           {/* Search and filter controls */}
@@ -572,84 +637,156 @@ export default function BookingManagementPage() {
             </div>
           </div>
 
-          {/* Main content container */}
+          {/* Main content container with overlay scrollbar */}
           <div
             className="bg-white rounded-lg shadow-md w-full max-w-screen-xl mx-auto overflow-hidden"
             ref={tableRef}
           >
             <div className="relative">
-              <Table>
-                <TableHeader className="rounded-t-lg overflow-hidden">
-                  <TableRow className="hover:bg-white rounded-t-lg">
-                    <TableHead className="text-center py-4 w-[25%] bg-white rounded-tl-lg">
-                      Booking ID
-                    </TableHead>
-                    <TableHead className="text-center py-4 w-[25%] bg-white">
-                      Room Number
-                    </TableHead>
-                    <TableHead className="text-center py-4 w-[25%] bg-white">
-                      Submitted On
-                    </TableHead>
-                    <TableHead className="text-center py-4 w-[25%] bg-white rounded-tr-lg">
-                      Status
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-              </Table>
-
-              <div
-                className="max-h-[330px] overflow-y-auto scrollbar-custom"
-                style={{
-                  scrollbarWidth: "thin",
-                  scrollbarColor: "#274c77 #f0f0f0",
-                }}
-              >
+              {/* Fixed Header */}
+              <div className="border-b border-gray-200">
                 <Table>
-                  <TableBody>
-                    {filteredBookings.length > 0 ? (
-                      filteredBookings.map((booking) => (
-                        <TableRow
-                          key={booking.id}
-                          className={`hover:bg-blue-50 cursor-pointer transition-colors duration-200 ${
-                            selectedBooking === booking.id ? "bg-blue-200" : ""
-                          }`}
-                          onClick={() => handleRowClick(booking.id)}
-                        >
-                          <TableCell className="font-medium text-center py-4 w-[25%]">
-                            {booking.id}
-                          </TableCell>
-                          <TableCell className="text-center py-4 w-[25%]">
-                            {booking.room}
-                          </TableCell>
-                          <TableCell className="text-center py-4 w-[26%]">
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium">
-                                {formatDate(booking.submittedDate)}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                {booking.submittedTime}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center py-4 w-[25%]">
-                            <div className="flex justify-center">
-                              {getStatusBadge(booking.status)}
-                            </div>
+                  <TableHeader className="rounded-t-lg overflow-hidden">
+                    <TableRow className="hover:bg-white rounded-t-lg">
+                      <TableHead className="text-center font-semibold text-[18px] py-6 w-[25%] bg-white rounded-tl-lg">
+                        Booking ID
+                      </TableHead>
+                      <TableHead className="text-center font-semibold text-[18px] py-6 w-[25%] bg-white">
+                        Room Number
+                      </TableHead>
+                      <TableHead className="text-center font-semibold text-[18px] py-6 w-[25%] bg-white">
+                        Submitted On
+                      </TableHead>
+                      <TableHead className="text-center font-semibold text-[18px] py-6 w-[25%] bg-white rounded-tr-lg">
+                        Status
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                </Table>
+              </div>
+
+              {/* Scrollable Body with Overlay Scrollbar */}
+              <div className="relative">
+                <div
+                  ref={scrollContainerRef}
+                  className="max-h-[350px] overflow-y-auto overflow-x-hidden"
+                  style={{
+                    scrollbarWidth: "none",
+                    msOverflowStyle: "none",
+                  }}
+                  onScroll={(e) => {
+                    if (isDragging) return; // Don't update position while dragging
+
+                    const scrollTop = e.currentTarget.scrollTop;
+                    const scrollHeight = e.currentTarget.scrollHeight;
+                    const clientHeight = e.currentTarget.clientHeight;
+                    const scrollPercentage =
+                      scrollTop / (scrollHeight - clientHeight);
+
+                    // Update scrollbar position
+                    if (scrollbarRef.current) {
+                      const scrollbarContainer =
+                        scrollbarRef.current.parentElement;
+                      if (scrollbarContainer) {
+                        const containerHeight =
+                          scrollbarContainer.offsetHeight - 16; // Account for padding
+                        const scrollbarHeight =
+                          scrollbarRef.current.offsetHeight;
+                        const maxScroll = containerHeight - scrollbarHeight;
+                        scrollbarRef.current.style.transform = `translateY(${scrollPercentage * maxScroll}px)`;
+                      }
+                    }
+                  }}
+                >
+                  <style jsx>{`
+                    div::-webkit-scrollbar {
+                      width: 0px;
+                      background: transparent;
+                    }
+                  `}</style>
+                  <Table>
+                    <TableBody>
+                      {filteredBookings.length > 0 ? (
+                        filteredBookings.map((booking) => (
+                          <TableRow
+                            key={booking.id}
+                            className={`hover:bg-blue-50 cursor-pointer transition-colors duration-200 ${
+                              selectedBooking === booking.id
+                                ? "bg-blue-200"
+                                : ""
+                            }`}
+                            onClick={() => handleRowClick(booking.id)}
+                          >
+                            <TableCell className="font-medium text-center py-4 w-[25%]">
+                              {booking.id}
+                            </TableCell>
+                            <TableCell className="text-center py-4 w-[25%]">
+                              {booking.room}
+                            </TableCell>
+                            <TableCell className="text-center py-4 w-[25%]">
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium">
+                                  {formatDate(booking.submittedDate)}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  {booking.submittedTime}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-center py-4 w-[25%]">
+                              <div className="flex justify-center">
+                                {getStatusBadge(booking.status)}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell
+                            colSpan={4}
+                            className="text-center py-8 text-gray-500"
+                          >
+                            Room has no reservations.
                           </TableCell>
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={4}
-                          className="text-center py-8 text-gray-500"
-                        >
-                          Room has no reservations.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Custom Overlay Scrollbar */}
+                {showScrollbar && (
+                  <div className="scrollbar-container absolute top-0 right-2 w-2 h-full flex items-start pt-2">
+                    <div
+                      ref={scrollbarRef}
+                      className="custom-scrollbar w-full bg-gray-400 rounded-full cursor-default"
+                      style={{
+                        height: `${Math.min(80, (350 / Math.max(filteredBookings.length * 120, 350)) * 100)}%`,
+                        minHeight: "20px",
+                        transition: isDragging
+                          ? "none"
+                          : "transform 75ms ease-out",
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setIsDragging(true);
+                        setDragStartY(e.clientY);
+
+                        // Get current scrollbar position
+                        const currentTransform =
+                          scrollbarRef.current?.style.transform ||
+                          "translateY(0px)";
+                        const currentY =
+                          Number.parseFloat(
+                            currentTransform
+                              .replace("translateY(", "")
+                              .replace("px)", ""),
+                          ) || 0;
+                        setScrollbarStartY(currentY);
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
