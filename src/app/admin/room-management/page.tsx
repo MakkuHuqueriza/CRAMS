@@ -51,6 +51,7 @@ import { Label } from "@/components/ui/label";
 import { roomData, type Room } from "@/app/roomData";
 import "@/styles/globals.css";
 
+
 // Function to get the appropriate icon based on room type
 const getRoomTypeIcon = (type: string) => {
   const typeUpperCase = type.toUpperCase();

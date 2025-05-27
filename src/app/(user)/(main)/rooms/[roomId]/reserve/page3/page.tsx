@@ -131,8 +131,8 @@ export default function Confirmation() {
             {reservationId
               ? reservationId
               : reservation?.id
-              ? reservation.id
-              : "N/A"}
+                ? reservation.id
+                : "N/A"}
           </span>
         </p>
         <div className="relative">

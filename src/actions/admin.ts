@@ -344,7 +344,9 @@ export const getPendingReservationsCountAction = async () => {
 // Room Management APIs
 export const getAllRoomsAction = async () => {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect("/admin/login");
@@ -994,10 +996,12 @@ export const getEquipmentsByConditionAction = async (condition: string) => {
     // Fetch equipments by condition across all rooms
     const { data: equipments, error } = await supabase
       .from("equipment")
-      .select(`
+      .select(
+        `
         *,
         room:room_id (room_name, room_type)
-      `)
+      `,
+      )
       .eq("condition", condition)
       .order("last_maintenance_date", { ascending: true });
 

@@ -48,7 +48,12 @@ export interface Database {
           name: string;
           room_location: string;
           capacity: number;
-          room_type: "LECTURE ROOM" | "LECTURE ROOM/AUDITORIUM" | "DBSES LABORATORY ROOM" | "DMPCS LABORATORY ROOM" | "DFSC LABORATORY ROOM";
+          room_type:
+            | "LECTURE ROOM"
+            | "LECTURE ROOM/AUDITORIUM"
+            | "DBSES LABORATORY ROOM"
+            | "DMPCS LABORATORY ROOM"
+            | "DFSC LABORATORY ROOM";
           room_description: string;
           room_image: string | null;
           created_at: string;
@@ -57,14 +62,24 @@ export interface Database {
           name: string;
           room_location: string;
           capacity: number;
-          room_type: "LECTURE ROOM" | "LECTURE ROOM/AUDITORIUM" | "DBSES LABORATORY ROOM" | "DMPCS LABORATORY ROOM" | "DFSC LABORATORY ROOM";
+          room_type:
+            | "LECTURE ROOM"
+            | "LECTURE ROOM/AUDITORIUM"
+            | "DBSES LABORATORY ROOM"
+            | "DMPCS LABORATORY ROOM"
+            | "DFSC LABORATORY ROOM";
           room_description: string;
           room_image: string | null;
         };
         Update: {
           name?: string;
           room_location?: string;
-          room_type: "LECTURE ROOM" | "LECTURE ROOM/AUDITORIUM" | "DBSES LABORATORY ROOM" | "DMPCS LABORATORY ROOM" | "DFSC LABORATORY ROOM";
+          room_type:
+            | "LECTURE ROOM"
+            | "LECTURE ROOM/AUDITORIUM"
+            | "DBSES LABORATORY ROOM"
+            | "DMPCS LABORATORY ROOM"
+            | "DFSC LABORATORY ROOM";
           room_description?: string;
           room_image?: string | null;
         };
@@ -136,8 +151,10 @@ export type ScheduleInsert = Database["public"]["Tables"]["schedule"]["Insert"];
 export type ScheduleUpdate = Database["public"]["Tables"]["schedule"]["Update"];
 
 export type Equipment = Database["public"]["Tables"]["equipment"]["Row"];
-export type EquipmentInsert = Database["public"]["Tables"]["equipment"]["Insert"];
-export type EquipmentUpdate = Database["public"]["Tables"]["equipment"]["Update"];
+export type EquipmentInsert =
+  Database["public"]["Tables"]["equipment"]["Insert"];
+export type EquipmentUpdate =
+  Database["public"]["Tables"]["equipment"]["Update"];
 
 // Extended Types
 export type ReservationWithRoom = Omit<Reservation, "room_id"> & {

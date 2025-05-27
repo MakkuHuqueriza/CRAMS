@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation"; // Add useRouter import
 import { roomData } from "@/app/roomData";
 import { Field, Form, Formik, useFormikContext } from "formik";
 import * as Yup from "yup";
 import { createReservation } from "@/actions/users"; // Import the server action
+import { EditReservationDetails } from "@/actions/users";
 
 type TimePeriodSelectorProps = {
   timeFieldName: string;
@@ -192,7 +193,7 @@ const ReservationDetails = () => {
         if (!value) return false;
         const date = new Date(value);
         if (isNaN(date.getTime())) return false;
-        const year = date.getFullYear();
+        const year = date.getFullYear();  
         // Only allow years between 2024 and 2100
         return year >= 2024 && year <= 2100;
       })
@@ -283,19 +284,8 @@ const ReservationDetails = () => {
       formData.append("type", values.type);
       formData.append("nature_of_work", values.natureOfWork);
 
-      // Add optional fields if they exist
-      if (
-        values.natureOfWork === "Reservation/Set-up" &&
-        values.reservationOptions
-      ) {
-        formData.append(
-          "reservation_option",
-          values.reservationOptions.join(",")
-        );
-      }
-
       if (values.natureOfWork === "Others" && values.otherPurpose) {
-        formData.append("other_purpose", values.otherPurpose);
+        formData.append("others_purpose", values.otherPurpose);
       }
 
       // Call the server action with the form data
@@ -338,22 +328,51 @@ const ReservationDetails = () => {
     "06:30",
   ];
 
-  const initialValues = {
-    contactName: "",
-    email: "",
-    contactNumber: "",
-    role: "",
-    course: "",
-    type: "",
-    dateOfReservation: "",
-    startTime: "",
-    startPeriod: "AM",
-    endTime: "",
-    endPeriod: "AM",
-    natureOfWork: "",  // Changed from nature_of_work to match type
-    reservationOptions: [],
-    otherPurpose: "",
-  };
+  const [initialValues, setInitialValues] = useState<ReservationFormValues | null>(null);
+
+   useEffect(() => {
+    // Fetch pending reservation on mount
+    EditReservationDetails().then((data) => {
+      if (data) {
+        // Map Supabase JSON keys to your form fields if needed
+        setInitialValues({
+          contactName: data.name || "",
+          email: data.email || "",
+          contactNumber: data.contact_number || "",
+          role: data.role || "",
+          course: data.course || "",
+          type: data.type || "",
+          dateOfReservation: data.date || "",
+          startTime: data.start_time ? data.start_time.split(" ")[0] : "",
+          startPeriod: data.start_time ? data.start_time.split(" ")[1] : "AM",
+          endTime: data.end_time ? data.end_time.split(" ")[0] : "",
+          endPeriod: data.end_time ? data.end_time.split(" ")[1] : "AM",
+          natureOfWork: data.nature_of_work || "",
+          otherPurpose: data.others_purpose || "",
+        });
+      } else {
+        setInitialValues({
+          contactName: "",
+          email: "",
+          contactNumber: "",
+          role: "",
+          course: "",
+          type: "",
+          dateOfReservation: "",
+          startTime: "",
+          startPeriod: "AM",
+          endTime: "",
+          endPeriod: "AM",
+          natureOfWork: "",
+          otherPurpose: "",
+        });
+      }
+    });
+  }, []);
+
+    if (!initialValues) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
@@ -376,53 +395,14 @@ const ReservationDetails = () => {
       </p>
 
       <Formik
-        initialValues={{
-          contactName: "",
-          email: "",
-          contactNumber: "",
-          role: "",
-          course: "",
-          type: "",
-          dateOfReservation: "",
-          startTime: "",
-          startPeriod: "AM",
-          endTime: "",
-          endPeriod: "AM",
-          natureOfWork: "",  // Changed from nature_of_work to match type
-          reservationOptions: [],
-          otherPurpose: "",
-        }}
-        validationSchema={Yup.object().shape({
-          contactName: Yup.string().required("Name is required"),
-          email: Yup.string()
-            .email("Invalid email")
-            .required("Email is required"),
-          contactNumber: Yup.string()
-            .matches(/^[0-9]+$/, "Must be only digits")
-            .min(10, "Must be exactly 10 digits")
-            .max(10, "Must be exactly 10 digits")
-            .required("Contact number is required"),
-          role: Yup.string().required("Role is required"),
-          course: Yup.string().required("Course/Department is required"),
-          type: Yup.string().required("Type is required"),
-          dateOfReservation: Yup.string().required("Date is required"),
-          startTime: Yup.string().required("Start time is required"),
-          endTime: Yup.string().required("End time is required"),
-          natureOfWork: Yup.string().required("Nature of work is required"),  // Changed from nature_of_work
-          reservationOptions: Yup.array().when("natureOfWork", {  // Changed from nature_of_work
-            is: "Reservation/Set-up",
-            then: (schema) => schema.min(1, "Select at least one option"),
-            otherwise: (schema) => schema.notRequired(),
-          }),
-          otherPurpose: Yup.string().when("natureOfWork", {  // Changed from nature_of_work
-            is: "Others",
-            then: (schema) => schema.required("Please specify your purpose"),
-            otherwise: (schema) => schema.notRequired(),
-          }),
-        })}
+        enableReinitialize
+        initialValues={initialValues}
+        validationSchema={validationSchema}
         onSubmit={handleSubmit}
+        validateOnBlur={true}
+        validateOnChange={true}
       >
-        {({ values, errors, touched, setFieldValue }) => (
+        {({ values, errors, touched }) => (
           <Form className="flex flex-col items-center gap-6 pb-10">
             {/* Error Messages Box */}
             {Object.keys(errors).length > 0 && (
@@ -835,7 +815,7 @@ const ReservationDetails = () => {
                       <label className="flex items-center gap-2">
                         <Field
                           type="radio"
-                          name="natureOfWork"  // Changed from nature_of_work
+                          name="natureOfWork" // Changed from nature_of_work
                           value="Room/Space"
                           className="h-4 w-4"
                         />
@@ -844,7 +824,7 @@ const ReservationDetails = () => {
                       <label className="flex items-center gap-2">
                         <Field
                           type="radio"
-                          name="natureOfWork"  // Changed from nature_of_work
+                          name="natureOfWork" // Changed from nature_of_work
                           value="Equipment"
                           className="h-4 w-4"
                         />
@@ -853,7 +833,7 @@ const ReservationDetails = () => {
                       <label className="flex items-center gap-2">
                         <Field
                           type="radio"
-                          name="natureOfWork"  // Changed from nature_of_work
+                          name="natureOfWork" // Changed from nature_of_work
                           value="Transportation"
                           className="h-4 w-4"
                         />
@@ -867,7 +847,7 @@ const ReservationDetails = () => {
                     <Field
                       type="radio"
                       value="Repairs"
-                      name="natureOfWork"  // Changed from nature_of_work
+                      name="natureOfWork" // Changed from nature_of_work
                       className="h-4 w-4"
                     />
                     <span>Repairs</span>
@@ -878,7 +858,7 @@ const ReservationDetails = () => {
                     <Field
                       type="radio"
                       value="Activity/Program"
-                      name="natureOfWork"  // Changed from nature_of_work
+                      name="natureOfWork" // Changed from nature_of_work
                       className="h-4 w-4"
                     />
                     <span>Activity/Program</span>
@@ -889,7 +869,7 @@ const ReservationDetails = () => {
                     <Field
                       type="radio"
                       value="Others"
-                      name="natureOfWork"  // Changed from nature_of_work
+                      name="natureOfWork" // Changed from nature_of_work
                       className="h-4 w-4 mt-1"
                     />
                     <div className="flex flex-col gap-2">
@@ -920,11 +900,6 @@ const ReservationDetails = () => {
               <button
                 type="submit"
                 className="bg-[#274C77] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03] order-1 md:order-2"
-                onClick={() =>
-                  router.push(
-                    `/rooms/${encodeURIComponent(room?.id ?? decodedRoomId)}/reserve/page2`
-                  )
-            }
               >
                 Submit for Approval
               </button>

@@ -41,7 +41,11 @@ interface AvailableRoomsProps {
   searchedFloor?: string;
 }
 
-const AvailableRooms = ({ roomDetails, roomTimes, searchedFloor }: AvailableRoomsProps) => {
+const AvailableRooms = ({
+  roomDetails,
+  roomTimes,
+  searchedFloor,
+}: AvailableRoomsProps) => {
   const [selectedFloor, setSelectedFloor] = useState("1st Floor, CSM");
   const [showAllRooms, setShowAllRooms] = useState(false);
   const [showMoreRooms, setShowMoreRooms] = useState(false);
@@ -195,22 +199,22 @@ const AvailableRooms = ({ roomDetails, roomTimes, searchedFloor }: AvailableRoom
               md:text-[11px] md:px-2 md:py-1 
               text-[11px] px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Link
-                href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1/`}
-              >
-                View Details
-              </Link>
+              View Details
             </Button>
-            <Link
-              className="bg-[#274c77] text-white hover:bg-[#182657] active:bg-[#0A1128] active:text-[#9BB2FC] rounded px-3 py-2 inline-flex items-center justify-center font-medium transition-colors
+            <Button
+              size="extraSmall"
+              className="bg-[#274c77] text-white hover:bg-[#182657] active:bg-[#0A1128] active:text-[#9BB2FC]
               xl:text-[15px] xl:px-5 xl:py-3 
               lg:text-[14px] lg:px-4 lg:py-2 
               md:text-[12px] md:px-3 md:py-2 
               text-[11px] px-3 py-2"
-              href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1/`}
             >
-              Reserve Now
-            </Link>
+              <Link
+                href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1`}
+              >
+                Reserve Now
+              </Link>
+            </Button>
           </div>
         </div>
       </Card>

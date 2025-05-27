@@ -6,7 +6,12 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { format } from "date-fns";
-import { Room, Reservation, ReservationFormValues, ReservationInsert } from "@/utils/database/types";
+import {
+  Room,
+  Reservation,
+  ReservationFormValues,
+  ReservationInsert,
+} from "@/utils/database/types";
 
 export const loginAction = async (email: string, password: string) => {
   const { auth } = await createClient();
@@ -445,7 +450,7 @@ export async function createReservation(formData: FormData) {
       room_location: formData.get("room_location") as string,
       type: formData.get("type") as string,
       nature_of_work: formData.get("nature_of_work") as string,
-      others_purpose: formData.get("others_purpose") as string || "", // Add default or extract from formData
+      others_purpose: (formData.get("others_purpose") as string) || "", // Add default or extract from formData
     };
 
     // First, clean up any existing pending reservations for this user
@@ -543,10 +548,12 @@ export const getReservationSummary = async () => {
 };
 
 // Updated submitReservation function
-export async function submitReservation(formData: FormData) {
+export async function submitReservation() {
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) throw new Error("Not authenticated");
 
@@ -557,13 +564,18 @@ export async function submitReservation(formData: FormData) {
       .eq("user_id", user.id)
       .single();
 
-    if (pendingError || !pendingData) throw new Error("No pending reservation found");
+    if (pendingError || !pendingData)
+      throw new Error("No pending reservation found");
 
     const { data: roomID, error: roomError } = await supabase
       .from("room")
       .select("room_id")
       .eq("name", pendingData.reservation_data.room_id)
       .single();
+
+    if (roomError || !roomID) {
+      throw new Error("Room not found or invalid room name");
+    }
 
     // 2. Map reservation_data to reservation table columns
     const d = pendingData.reservation_data;
@@ -581,7 +593,7 @@ export async function submitReservation(formData: FormData) {
       type: d.type,
       nature_of_work: d.nature_of_work,
       status: "Pending",
-      others_purpose: d.others_purpose ?? d.otherPurpose ?? "",
+      others_purpose: d.others_purpose ?? "",
     };
 
     // 3. Insert into reservation table
@@ -594,22 +606,19 @@ export async function submitReservation(formData: FormData) {
     if (insertError) throw new Error(insertError.message);
 
     // 4. Delete from pending_reservation
-    await supabase
-      .from("pending_reservation")
-      .delete()
-      .eq("user_id", user.id);
+    await supabase.from("pending_reservation").delete().eq("user_id", user.id);
 
     return {
       success: true,
-      data: { id: reservation.id, ...reservation }
+      data: { id: reservation.id, ...reservation },
     };
-
   } catch (error) {
     console.error("Error in submitReservation:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to submit reservation",
-      data: null
+      error:
+        error instanceof Error ? error.message : "Failed to submit reservation",
+      data: null,
     };
   }
 }
@@ -636,7 +645,8 @@ export const cancelReservation = async (reservationId: string) => {
     if (fetchError || !reservation) {
       return {
         error: true,
-        errorMessage: "Reservation not found or you don't have permission to cancel it",
+        errorMessage:
+          "Reservation not found or you don't have permission to cancel it",
       };
     }
 
@@ -774,4 +784,28 @@ export async function getReservationById(id: string) {
       errorMessage: error.message || "An unexpected error occurred",
     };
   }
+}
+
+export const EditReservationDetails = async () => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  // Fetch the latest pending reservation for this user
+  const { data, error } = await supabase
+    .from("pending_reservation")
+    .select("reservation_data")
+    .eq("user_id", user.id)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data.reservation_data; // This is your JSON object
 }

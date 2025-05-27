@@ -114,7 +114,7 @@ export default function ReservationSummary() {
         formData.append("others_purpose", reservationData.others_purpose);
       }
 
-      const result = await submitReservation(formData);
+      const result = await submitReservation();
 
       if (result.success && result.data?.id) {
         // Store the reservation data in localStorage
@@ -242,7 +242,8 @@ export default function ReservationSummary() {
                 : displayData?.date || ""}
             </p>
             <p>
-              Time: {displayData?.start_time || ""} - {displayData?.end_time || ""}
+              Time: {displayData?.start_time || ""} -{" "}
+              {displayData?.end_time || ""}
             </p>
             {displayData?.nature_of_work && (
               <p>Nature of Work: {displayData.nature_of_work}</p>
@@ -259,7 +260,7 @@ export default function ReservationSummary() {
             type="button"
             onClick={() =>
               router.push(
-                `/rooms/${encodeURIComponent(room?.id ?? decodedRoomId)}/reserve/page1`
+                `/rooms/${encodeURIComponent(room?.id ?? decodedRoomId)}/reserve/page1`,
               )
             }
             className="w-full md:w-auto bg-[#780D29] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03] order-2 md:order-1"
@@ -271,8 +272,8 @@ export default function ReservationSummary() {
             onClick={() => {
               handleConfirm();
               router.push(
-                `/rooms/${encodeURIComponent(room?.id ?? decodedRoomId)}/reserve/page3` 
-              );  
+                `/rooms/${encodeURIComponent(room?.id ?? decodedRoomId)}/reserve/page3`,
+              );
             }}
             className="w-full md:w-auto bg-[#274C77] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03] order-1 md:order-2"
           >
