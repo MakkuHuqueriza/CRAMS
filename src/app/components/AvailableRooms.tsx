@@ -197,7 +197,7 @@ const AvailableRooms = ({
               text-[11px] px-3 py-2"
             >
               <Link
-                href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1`}
+                href={`/rooms/${encodeURIComponent(room.name)}/reserve/reservation-form`}
               >
                 Reserve Now
               </Link>

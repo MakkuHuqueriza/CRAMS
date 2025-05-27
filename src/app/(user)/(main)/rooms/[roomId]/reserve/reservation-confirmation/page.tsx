@@ -1,18 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { CircleCheckBig, ClipboardCopy } from "lucide-react";
+import { CircleCheckBig, Check, Copy } from "lucide-react";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 
 export default function Confirmation() {
   const params = useParams();
   const roomId = params.roomId;
   const reservationId = "#111-69"; // Replace with dynamic ID if needed
 
-  const handleCopyToClipboard = () => {
-    navigator.clipboard.writeText(reservationId).then(() => {
-      alert("Reservation ID copied to clipboard!");
-    });
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(text);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
   };
 
   return (
@@ -34,14 +41,14 @@ export default function Confirmation() {
         </Link>{" "}
         &gt;{" "}
         <Link
-          href={`/rooms/${encodeURIComponent(roomId as string)}/reserve/page1`}
+          href={`/rooms/${encodeURIComponent(roomId as string)}/reserve/reservation-form`}
           className="text-[#274c77] hover:underline cursor-pointer"
         >
           Reservation Form
         </Link>{" "}
         &gt;{" "}
         <Link
-          href={`/rooms/${encodeURIComponent(roomId as string)}/reserve/page2`}
+          href={`/rooms/${encodeURIComponent(roomId as string)}/reserve/reservation-summary`}
           className="text-[#274c77] hover:underline cursor-pointer"
         >
           Reservation Summary
@@ -58,10 +65,17 @@ export default function Confirmation() {
         </h1>
         <div className="flex items-center gap-2 text-[12px] md:text-[16px] mb-4">
           <p>Reservation ID: {reservationId}</p>
-          <ClipboardCopy
-            className="w-4 h-4 cursor-pointer hover:text-[#274c77]"
-            onClick={handleCopyToClipboard}
-          />
+          <button
+            onClick={() => copyToClipboard(reservationId)}
+            className="p-1 hover:bg-blue-200 rounded transition-colors"
+            title="Copy to clipboard"
+          >
+            {copiedId === reservationId ? (
+              <Check className="h-4 w-4 text-green-600" />
+            ) : (
+              <Copy className="h-4 w-4 text-gray-600" />
+            )}
+          </button>
         </div>
         <p className="text-[18px] sm:text-[22px] md:text-[28px] lg:text-[32px] font-medium text-center px-4 md:px-10 leading-tight py-4">
           You will be notified{" "}
@@ -73,7 +87,7 @@ export default function Confirmation() {
           <div className="py-4 pb-6 mt-4">
             <button
               type="button"
-              className="border-2 border-[#274c77] text-[#274c77] font-semibold px-6 py-3 rounded-[50px] transition-transform transform hover:scale-[1.03]"
+              className="border-2 border-[#274c77] text-[#274c77] font-semibold px-6 py-3 rounded-[50px] transition-transform transform hover:scale-[1.02]"
             >
               Reserve Another Room
             </button>

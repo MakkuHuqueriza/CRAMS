@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
+import type React from "react";
+
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { roomData } from "@/app/roomData";
-import { Field, Form, Formik, useFormikContext } from "formik";
+import { Field, Form, Formik, useFormikContext, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import Link from "next/link";
+import { TriangleAlert } from "lucide-react";
 
 type TimePeriodSelectorProps = {
   timeFieldName: string;
@@ -79,6 +82,7 @@ const TimePeriodSelector = ({
       // For times 8,9,10,11 - only AM allowed
       else if (
         [
+          "07:30",
           "08:00",
           "08:30",
           "09:00",
@@ -91,7 +95,7 @@ const TimePeriodSelector = ({
       ) {
         setFieldValue(periodFieldName, "AM");
       }
-      // For 7:00 and 7:30 - user can choose AM or PM (don't force)
+      // For 7:00 - user can choose AM or PM (don't force)
     }
   }, [selectedTime, setFieldValue, periodFieldName]);
 
@@ -123,6 +127,7 @@ const TimePeriodSelector = ({
     // Times that can only be AM
     else if (
       [
+        "07:30",
         "08:00",
         "08:30",
         "09:00",
@@ -135,14 +140,30 @@ const TimePeriodSelector = ({
     ) {
       return ["AM"];
     }
-    // Times that can be either (7:00, 7:30)
+    // Times that can be either (7:00)
     else {
       return ["AM", "PM"];
     }
   };
 
   const availableOptions = getAvailableOptions();
+  const isDisabled = availableOptions.length === 1;
 
+  // If only one option is available, show it as disabled text
+  if (isDisabled) {
+    return (
+      <div className="border rounded p-1 text-sm w-[60px] bg-gray-100 text-gray-600 flex items-center justify-center">
+        <span className="text-center">{availableOptions[0]}</span>
+        <Field
+          name={periodFieldName}
+          type="hidden"
+          value={availableOptions[0]}
+        />
+      </div>
+    );
+  }
+
+  // If multiple options available, show dropdown
   return (
     <Field
       name={periodFieldName}
@@ -165,6 +186,7 @@ const ReservationDetails = () => {
   const decodedRoomId =
     typeof roomId === "string" ? decodeURIComponent(roomId) : "";
   const room = roomData.find((room) => room.id === decodedRoomId);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   if (!room) {
     return (
@@ -180,8 +202,17 @@ const ReservationDetails = () => {
       .email("Invalid email address")
       .required("Email is required"),
     contactNumber: Yup.string()
-      .matches(/^9\d{9}$/, "Contact Number must start with 9")
-      .required("Contact Number is required"),
+      .required("Contact Number is required")
+      .test(
+        "starts-with-9",
+        "Contact Number must start with 9",
+        (value) => !value || value[0] === "9",
+      )
+      .test(
+        "length-10",
+        "Contact Number must have 10 digits",
+        (value) => !value || value.length === 10,
+      ),
     role: Yup.string().required("Role is required"),
     course: Yup.string().required("Course/Department/Organization is required"),
     type: Yup.string().required("Type is required"),
@@ -193,19 +224,15 @@ const ReservationDetails = () => {
         if (isNaN(date.getTime())) return false;
         const year = date.getFullYear();
         // Only allow years between 2024 and 2100
-        return year >= 2024 && year <= 2100;
+        return year >= 2000 && year <= 2026;
       })
-      .test(
-        "not-in-past",
-        "Date of Reservation cannot be in the past",
-        (value) => {
-          if (!value) return false;
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const date = new Date(value);
-          return date >= today;
-        },
-      ),
+      .test("not-in-past", "Date cannot be in the past", (value) => {
+        if (!value) return false;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const date = new Date(value);
+        return date >= today;
+      }),
     startTime: Yup.string().required("Start Time is required"),
     startPeriod: Yup.string().required("Start Period is required"),
     endTime: Yup.string().required("End Time is required"),
@@ -255,9 +282,16 @@ const ReservationDetails = () => {
     return true;
   });
 
-  const handleSubmit = () => {
+  const handleSubmit = (
+    _values: ReservationFormValues,
+    { setSubmitting }: FormikHelpers<ReservationFormValues>,
+  ) => {
+    setHasSubmitted(true);
     // If the form is valid, navigate to the next page
-    router.push(`/rooms/${encodeURIComponent(room?.id)}/reserve/page2`);
+    router.push(
+      `/rooms/${encodeURIComponent(room?.id)}/reserve/reservation-summary`,
+    );
+    setSubmitting(false);
   };
 
   const timeOptions = [
@@ -324,7 +358,7 @@ const ReservationDetails = () => {
         &gt; Reservation Form
       </p>
 
-      <Formik
+      <Formik<ReservationFormValues>
         enableReinitialize
         initialValues={initialValues}
         onSubmit={handleSubmit}
@@ -335,26 +369,30 @@ const ReservationDetails = () => {
         {({ values, errors, touched }) => (
           <Form className="flex flex-col items-center gap-6 pb-10">
             {/* Error Messages Box */}
-            {Object.keys(errors).length > 0 && (
-              <div className="bg-red-100 border border-red-500 text-red-700 text-sm w-full px-4 py-3 rounded mb-2">
-                <p>
-                  Complete the missing information indicated by the asterisk (*)
-                </p>
-                {errors.endTime &&
-                  typeof errors.endTime === "string" &&
-                  errors.endTime.includes(
-                    "End time must be after start time",
-                  ) && <p className="mt-1">• {errors.endTime}</p>}
-                {errors.startTime &&
-                  typeof errors.startTime === "string" &&
-                  errors.startTime.includes("between 7:00 AM and 7:00 PM") && (
-                    <p className="mt-1">• {errors.startTime}</p>
-                  )}
-                {errors.endTime &&
-                  typeof errors.endTime === "string" &&
-                  errors.endTime.includes("between 7:00 AM and 7:00 PM") && (
-                    <p className="mt-1">• {errors.endTime}</p>
-                  )}
+            {hasSubmitted && Object.keys(errors).length > 0 && (
+              <div className="bg-red-100 border border-red-500 text-red-700 text-sm w-full px-4 py-3 rounded mb-2 flex items-start gap-3">
+                <TriangleAlert className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p>
+                    Complete the missing information indicated by the asterisk
+                    (*)
+                  </p>
+                  {errors.endTime &&
+                    typeof errors.endTime === "string" &&
+                    errors.endTime.includes(
+                      "End time must be after start time",
+                    ) && <p className="mt-1">• {errors.endTime}</p>}
+                  {errors.startTime &&
+                    typeof errors.startTime === "string" &&
+                    errors.startTime.includes(
+                      "between 7:00 AM and 7:00 PM",
+                    ) && <p className="mt-1">• {errors.startTime}</p>}
+                  {errors.endTime &&
+                    typeof errors.endTime === "string" &&
+                    errors.endTime.includes("between 7:00 AM and 7:00 PM") && (
+                      <p className="mt-1">• {errors.endTime}</p>
+                    )}
+                </div>
               </div>
             )}
 
@@ -380,7 +418,7 @@ const ReservationDetails = () => {
                 <div>
                   <label className="text-[14px] md:text-[16px] font-medium">
                     Contact Name
-                    {errors.contactName && touched.contactName && (
+                    {hasSubmitted && errors.contactName && (
                       <span className="text-red-500 ml-1">*</span>
                     )}
                   </label>
@@ -398,7 +436,7 @@ const ReservationDetails = () => {
                 <div>
                   <label className="text-[14px] md:text-[16px] font-medium">
                     Email Address
-                    {errors.email && touched.email && (
+                    {hasSubmitted && errors.email && (
                       <span className="text-red-500 ml-1">*</span>
                     )}
                   </label>
@@ -423,7 +461,7 @@ const ReservationDetails = () => {
                     <div className="flex-[0.6]">
                       <label className="text-[14px] md:text-[16px] font-medium">
                         Contact Number
-                        {errors.contactNumber && touched.contactNumber && (
+                        {hasSubmitted && errors.contactNumber && (
                           <span className="text-red-500 ml-1">*</span>
                         )}
                       </label>
@@ -443,10 +481,11 @@ const ReservationDetails = () => {
                           }}
                         />
                       </div>
+                      {/* Show contact number error immediately */}
                       {touched.contactNumber && errors.contactNumber && (
-                        <div className="text-red-500 text-xs mt-1">
+                        <p className="text-red-500 text-xs mt-1">
                           {errors.contactNumber}
-                        </div>
+                        </p>
                       )}
                       <p className="text-[11px] md:text-[13px] text-gray-500 mt-1">
                         Enter your contact number
@@ -457,7 +496,7 @@ const ReservationDetails = () => {
                     <div className="flex-[0.4]">
                       <label className="text-[14px] md:text-[16px] font-medium">
                         Role
-                        {errors.role && touched.role && (
+                        {hasSubmitted && errors.role && (
                           <span className="text-red-500 ml-1">*</span>
                         )}
                       </label>
@@ -483,7 +522,7 @@ const ReservationDetails = () => {
                   <div className="flex-1">
                     <label className="text-[14px] md:text-[16px] font-medium">
                       Course/Department/Organization
-                      {errors.course && touched.course && (
+                      {hasSubmitted && errors.course && (
                         <span className="text-red-500 ml-1">*</span>
                       )}
                     </label>
@@ -504,7 +543,7 @@ const ReservationDetails = () => {
                   <div>
                     <label className="text-[14px] md:text-[16px] font-medium">
                       Contact Number
-                      {errors.contactNumber && touched.contactNumber && (
+                      {hasSubmitted && errors.contactNumber && (
                         <span className="text-red-500 ml-1">*</span>
                       )}
                     </label>
@@ -526,10 +565,11 @@ const ReservationDetails = () => {
                         }}
                       />
                     </div>
+                    {/* Show contact number error immediately */}
                     {touched.contactNumber && errors.contactNumber && (
-                      <div className="text-red-500 text-xs mt-1">
+                      <p className="text-red-500 text-xs mt-1">
                         {errors.contactNumber}
-                      </div>
+                      </p>
                     )}
                     <p className="text-[11px] md:text-[13px] text-gray-500 mt-1">
                       Enter your contact number
@@ -542,7 +582,7 @@ const ReservationDetails = () => {
                     <div>
                       <label className="text-[14px] md:text-[16px] font-medium">
                         Role
-                        {errors.role && touched.role && (
+                        {hasSubmitted && errors.role && (
                           <span className="text-red-500 ml-1">*</span>
                         )}
                       </label>
@@ -567,7 +607,7 @@ const ReservationDetails = () => {
                     <div>
                       <label className="text-[14px] md:text-[16px] font-medium">
                         Course/Department/Organization
-                        {errors.course && touched.course && (
+                        {hasSubmitted && errors.course && (
                           <span className="text-red-500 ml-1">*</span>
                         )}
                       </label>
@@ -627,7 +667,7 @@ const ReservationDetails = () => {
                   <div className="md:col-span-2 lg:col-span-1">
                     <label className="text-sm font-medium block mb-1">
                       Type
-                      {errors.type && touched.type && (
+                      {hasSubmitted && errors.type && (
                         <span className="text-red-500 ml-1">*</span>
                       )}
                     </label>
@@ -643,10 +683,9 @@ const ReservationDetails = () => {
                   <div className="md:col-span-2 lg:col-span-1">
                     <label className="text-sm font-medium block mb-1">
                       Date of Reservation
-                      {errors.dateOfReservation &&
-                        touched.dateOfReservation && (
-                          <span className="text-red-500 ml-1">*</span>
-                        )}
+                      {hasSubmitted && errors.dateOfReservation && (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
                     </label>
                     <Field
                       name="dateOfReservation"
@@ -654,10 +693,11 @@ const ReservationDetails = () => {
                       max="2100-12-31"
                       className="border-[1px] border-[#B9B9B9] rounded-md px-3 w-full focus:ring-2 focus:ring-[#274c77]/20 focus:outline-none transition-shadow h-9"
                     />
+                    {/* Show date error immediately */}
                     {touched.dateOfReservation && errors.dateOfReservation && (
-                      <div className="text-red-500 text-xs mt-1">
+                      <p className="text-red-500 text-xs mt-1">
                         {errors.dateOfReservation}
-                      </div>
+                      </p>
                     )}
                   </div>
                   {/* Time Section in a Box */}
@@ -667,7 +707,7 @@ const ReservationDetails = () => {
                       <div className="flex flex-col w-full md:w-1/2">
                         <label className="text-sm font-medium block mb-1">
                           Start Time
-                          {errors.startTime && touched.startTime && (
+                          {hasSubmitted && errors.startTime && (
                             <span className="text-red-500 ml-1">*</span>
                           )}
                         </label>
@@ -697,7 +737,7 @@ const ReservationDetails = () => {
                       <div className="flex flex-col w-full md:w-1/2">
                         <label className="text-sm font-medium block mb-1">
                           End Time
-                          {errors.endTime && touched.endTime && (
+                          {hasSubmitted && errors.endTime && (
                             <span className="text-red-500 ml-1">*</span>
                           )}
                         </label>
@@ -731,7 +771,7 @@ const ReservationDetails = () => {
               <fieldset className="border border-[#B9B9B9] rounded-lg px-4 md:px-6 py-4 pb-6 mx-6 mb-10 relative">
                 <legend className="text-[16px] md:text-[18px] font-bold px-2 text-[#274C77]">
                   NATURE OF WORK
-                  {errors.natureOfWork && touched.natureOfWork && (
+                  {hasSubmitted && errors.natureOfWork && (
                     <span className="text-red-500 ml-1">*</span>
                   )}
                 </legend>
@@ -773,7 +813,7 @@ const ReservationDetails = () => {
                   </div>
 
                   {/* Repairs */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center font-medium gap-2">
                     <Field
                       type="radio"
                       value="Repairs"
@@ -784,7 +824,7 @@ const ReservationDetails = () => {
                   </div>
 
                   {/* Activity/Program */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center font-medium gap-2">
                     <Field
                       type="radio"
                       value="Activity/Program"
@@ -795,7 +835,7 @@ const ReservationDetails = () => {
                   </div>
 
                   {/* Others */}
-                  <div className="flex items-start gap-2">
+                  <div className="flex items-start font-medium gap-2">
                     <Field
                       type="radio"
                       value="Others"
@@ -822,14 +862,15 @@ const ReservationDetails = () => {
             <div className="flex flex-col md:flex-row justify-between w-full gap-4 mt-1">
               <button
                 type="button"
-                className="bg-[#780D29] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03] order-2 md:order-1"
-                onClick={() => router.back()}
+                className="bg-[#780D29] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.02] order-2 md:order-1"
+                onClick={() => router.push("/")}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-[#274C77] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03] order-1 md:order-2"
+                className="bg-[#274C77] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.02] order-1 md:order-2"
+                onClick={() => setHasSubmitted(true)}
               >
                 Submit for Approval
               </button>
