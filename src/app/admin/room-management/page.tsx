@@ -522,8 +522,8 @@ export default function RoomManagementPage() {
                 }
               >
                 {(showAllTimesSidebar
-                  ? selectedRoom?.availableTimeslots
-                  : selectedRoom?.availableTimeslots?.slice(0, 2) || []
+                  ? selectedRoom?.availableTimeslots ?? []
+                  : selectedRoom?.availableTimeslots?.slice(0, 2) ?? []
                 ).map((time: Timeslot, i: number) => (
                   <p
                     key={i}
@@ -877,9 +877,10 @@ function RoomCard({
           Available Time
         </p>
         <div className={showAllTimes ? "grid grid-cols-3 gap-1" : "space-y-1"}>
-          {(showAllTimes
-            ? room.availableTimeslots
-            : room.availableTimeslots?.slice(0, 2) || []
+          {(
+            showAllTimes
+              ? room.availableTimeslots ?? []
+              : room.availableTimeslots?.slice(0, 2) ?? []
           ).map((time: Timeslot, i: number) => (
             <p
               key={i}
