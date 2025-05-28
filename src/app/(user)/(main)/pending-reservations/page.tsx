@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { X, AlertTriangle, Copy, Check } from "lucide-react";
 import {
   AlertDialog,
@@ -12,81 +12,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { getUserReservations, cancelReservation } from "@/actions/users";
+import { mockReservations, type Reservation } from "@/app/reservationSummary";
 
-// Define types based on your database schema
-interface Room {
-  room_id: string;
-  name: string;
-  room_location: string;
-  room_type: string;
-}
-
-interface Reservation {
-  id: string;
-  name: string;
-  email_address: string;
-  contact_number: string;
-  role: string;
-  course: string;
-  date_requested: string;
-  start_time: string;
-  end_time: string;
-  status: "Pending" | "Accepted" | "Rejected";
-  nature_of_work: string;
-  type: string;
-  created_at: string;
-  rooms: Room;
-  others_purpose?: string; // Optional field for additional purpose
-}
-
-/* Mock data - replace with actual data from your backend
-const mockReservations = [
-  {
-    id: "#111-69",
-    status: "pending" as "pending" | "accepted" | "rejected",
-    contactDetails: {
-      name: "Makku Kuma",
-      email: "makkukuma@g8.com",
-      contactNumber: "+639462666969",
-      role: "Student",
-      courseDeptOrg: "BS Computer Science",
-    },
-    jobOrder: {
-      room: "CSM 227",
-      locationBuilding: "CSM, 2nd Floor",
-      type: "Event",
-      dateOfReservation: "04/13/2025",
-      time: "12:00 AM - 2:00 PM",
-      natureOfWork: "Reservation/Setup Room/Space",
-    },
-  },
-  {
-    id: "#111-70",
-    status: "accepted" as "pending" | "accepted" | "rejected",
-    contactDetails: {
-      name: "Joditech Gabano",
-      email: "joditech.com.ph.edu.org",
-      contactNumber: "+639411234567",
-      role: "Student",
-      courseDeptOrg: "BS Computer Science",
-    },
-    jobOrder: {
-      room: "CSM 228",
-      locationBuilding: "CSM, 2nd Floor",
-      type: "Event",
-      dateOfReservation: "05/13/2025",
-      time: "12:00 AM - 3:00 PM",
-      natureOfWork: "Reservation/Setup Room/Space",
-    },
-  },
-  // Add more reservations as needed
-]; */
-
-export default function PendingReservationsPage() {
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default function PendingReservations() {
+  const [reservations, setReservations] =
+    useState<Reservation[]>(mockReservations);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [selectedReservationId, setSelectedReservationId] = useState<
     string | null
@@ -94,40 +24,19 @@ export default function PendingReservationsPage() {
   const [showDisclaimer, setShowDisclaimer] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  // Fetch reservations on component mount
-  useEffect(() => {
-    const fetchReservations = async () => {
-      try {
-        setLoading(true);
-        const result = await getUserReservations();
-
-        // Check if result is an error
-        if (result && typeof result === "object" && "errorMessage" in result) {
-          setError(result.errorMessage);
-        } else {
-          setReservations(result || []);
-        }
-      } catch (err) {
-        setError("Failed to fetch reservations");
-        console.error("Error fetching reservations:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchReservations();
-  }, []);
-
-  const getStatusBadge = (status: "Pending" | "Accepted" | "Rejected") => {
+  const getStatusBadge = (
+    status: "Pending" | "Accepted" | "Rejected" | "Completed",
+  ) => {
     const statusConfig = {
-      Pending: "bg-[#FFA500] text-white",
-      Accepted: "bg-[#006225] text-white",
-      Rejected: "bg-[#780D29] text-white",
+      Pending: "bg-[#FFC442] hover:bg-[#ffbe33]",
+      Accepted: "bg-[#006225] text-[#A5EEC0]",
+      Rejected: "bg-[#780D29] text-[#ffb7ca]",
+      Completed: "bg-[#034078] text-[#92C2F9]",
     };
 
     return (
       <span
-        className={`px-4 py-1 rounded-full text-sm font-medium ${statusConfig[status]}`}
+        className={`px-4 py-1 rounded-lg text-sm font-medium ${statusConfig[status]}`}
       >
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
@@ -139,28 +48,13 @@ export default function PendingReservationsPage() {
     setShowCancelDialog(true);
   };
 
-  const confirmCancelReservation = async () => {
+  const confirmCancelReservation = () => {
     if (selectedReservationId) {
-      try {
-        const result = await cancelReservation(selectedReservationId);
-
-        if (result.error) {
-          setError(result.errorMessage || "Failed to cancel reservation");
-        } else {
-          // Remove the cancelled reservation from local state
-          setReservations((prev) =>
-            prev.filter(
-              (reservation) => reservation.id !== selectedReservationId,
-            ),
-          );
-        }
-      } catch (err) {
-        setError("Failed to cancel reservation");
-        console.error("Error cancelling reservation:", err);
-      } finally {
-        setShowCancelDialog(false);
-        setSelectedReservationId(null);
-      }
+      setReservations((prev) =>
+        prev.filter((reservation) => reservation.id !== selectedReservationId),
+      );
+      setShowCancelDialog(false);
+      setSelectedReservationId(null);
     }
   };
 
@@ -173,61 +67,6 @@ export default function PendingReservationsPage() {
       console.error("Failed to copy: ", err);
     }
   };
-
-  // Date Formatting
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
-    });
-  };
-
-  // Time Formatting
-  const formatTime = (startTime: string, endTime: string) => {
-    const formatTimeString = (time: string) => {
-      const [hours, minutes] = time.split(":");
-      const hour = parseInt(hours);
-      const ampm = hour >= 12 ? "PM" : "AM";
-      const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-      return `${displayHour}:${minutes} ${ampm}`;
-    };
-
-    return `${formatTimeString(startTime)} - ${formatTimeString(endTime)}`;
-  };
-
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#F5EEEA] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading reservations...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error state
-  if (error) {
-    return (
-      <div className="min-h-screen bg-[#F5EEEA] flex items-center justify-center">
-        <div className="text-center">
-          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600 text-lg font-medium mb-2">
-            Error Loading Reservations
-          </p>
-          <p className="text-gray-600">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen">
@@ -261,8 +100,8 @@ export default function PendingReservationsPage() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <p className="text-sm text-blue-800">
-                      <strong>Note:</strong> If you can&apos;t find your recent
-                      reservation here, check your email for more status
+                      <strong>Note:</strong> When you can&apos;t find your
+                      recent reservation here, check your email for more status
                       updates.
                     </p>
                   </div>
@@ -302,7 +141,7 @@ export default function PendingReservationsPage() {
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                           <div className="flex items-center gap-2">
                             <div className="border border-[#0A1128] bg-white rounded px-3 py-1 text-sm font-medium">
-                              Reservation ID #{reservation.id}
+                              Reservation ID {reservation.id}
                             </div>
                             <button
                               onClick={() => copyToClipboard(reservation.id)}
@@ -331,27 +170,27 @@ export default function PendingReservationsPage() {
                             <div className="space-y-2 text-sm">
                               <p>
                                 <span className="font-medium">Name:</span>{" "}
-                                {reservation.name}
+                                {reservation.contactDetails.name}
                               </p>
                               <p>
                                 <span className="font-medium">Email:</span>{" "}
-                                {reservation.email_address}
+                                {reservation.contactDetails.email}
                               </p>
                               <p>
                                 <span className="font-medium">
                                   Contact Number:
                                 </span>{" "}
-                                {reservation.contact_number}
+                                {reservation.contactDetails.contactNumber}
                               </p>
                               <p>
                                 <span className="font-medium">Role:</span>{" "}
-                                {reservation.role}
+                                {reservation.contactDetails.role}
                               </p>
                               <p>
                                 <span className="font-medium">
                                   Course/Dept/Org:
                                 </span>{" "}
-                                {reservation.course}
+                                {reservation.contactDetails.courseDeptOrg}
                               </p>
                             </div>
                           </div>
@@ -364,49 +203,39 @@ export default function PendingReservationsPage() {
                             <div className="space-y-2 text-sm">
                               <p>
                                 <span className="font-medium">Room:</span>{" "}
-                                {reservation.rooms?.name}
+                                {reservation.jobOrder.room}
                               </p>
                               <p>
                                 <span className="font-medium">
                                   Location/Building:
                                 </span>{" "}
-                                {reservation.rooms?.room_location}
+                                {reservation.jobOrder.locationBuilding}
                               </p>
                               <p>
                                 <span className="font-medium">Type:</span>{" "}
-                                {reservation.type}
+                                {reservation.jobOrder.type}
                               </p>
                               <p>
                                 <span className="font-medium">
                                   Date of Reservation:
                                 </span>{" "}
-                                {formatDate(reservation.date_requested)}
+                                {reservation.jobOrder.dateOfReservation}
                               </p>
                               <p>
                                 <span className="font-medium">Time:</span>{" "}
-                                {formatTime(
-                                  reservation.start_time,
-                                  reservation.end_time,
-                                )}
+                                {reservation.jobOrder.time}
                               </p>
                               <p>
                                 <span className="font-medium">
                                   Nature of Work:
                                 </span>{" "}
-                                {reservation.nature_of_work}
+                                {reservation.jobOrder.natureOfWork}
                               </p>
-                              {reservation.others_purpose && (
-                                <p>
-                                  <span className="font-medium">
-                                    Specific Purpose:
-                                  </span>{" "}
-                                  {reservation.others_purpose}
-                                </p>
-                              )}
                             </div>
                           </div>
                         </div>
 
+                        {/* Cancel Button in Blue Area */}
                         {/* Cancel Button in Pending Area Only */}
                         <div className="flex justify-end">
                           {reservation.status === "Pending" && (
