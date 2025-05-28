@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { adminLoginAction } from "@/actions/admin";
 
 export default function AdminLoginPage() {
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const handleAdminLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); // Prevent default form submission
@@ -19,6 +21,11 @@ export default function AdminLoginPage() {
       const result = await adminLoginAction(formData);
       if (result?.message) {
         setMessage(result.message); // Display error message if login fails
+      }
+      if (result?.success) {
+        // Redirect to admin dashboard
+        router.push("/admin");
+        router.refresh();
       }
     } catch (error) {
       console.error("Error during admin login:", error);

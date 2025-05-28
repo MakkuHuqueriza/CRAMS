@@ -27,12 +27,17 @@ import {
 } from "lucide-react";
 import { formatTimeTo12Hour } from "@/lib/utils";
 import { FullPageLoading } from "@/components/ui/loading-spinner";
-import { Room, AvailableRoomsProps } from "@/lib/types"; // Adjust the import path as necessary
+import { Room } from "@/lib/types";
+
+interface AvailableRoomsProps {
+  roomDetails: Room[];
+  searchedFloor?: string;
+}
 
 const AvailableRooms = ({
   roomDetails,
   searchedFloor,
-}: AvailableRoomsProps & { searchedFloor?: string }) => {
+}: AvailableRoomsProps) => {
   const [selectedFloor, setSelectedFloor] = useState("1st Floor, CSM");
   const [showAllRooms, setShowAllRooms] = useState(false);
   const [showMoreRooms, setShowMoreRooms] = useState(false);
@@ -111,7 +116,7 @@ const AvailableRooms = ({
       <Card className="w-[98%] flex md:flex-row bg-[#e7edf1] border-none p-4 md:p-4 scale-[0.90] md:scale-[0.97] gap-6 md:gap-5">
         <div className="flex-shrink-0 flex items-stretch">
           <Image
-            src="/room_sample.jpg"
+            src="/classroom.jpg"
             alt={room.name}
             width={315}
             height={315}
@@ -197,7 +202,7 @@ const AvailableRooms = ({
               text-[11px] px-3 py-2"
             >
               <Link
-                href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1`}
+                href={`/rooms/${encodeURIComponent(room.name)}/reserve/reservation-form`}
               >
                 Reserve Now
               </Link>

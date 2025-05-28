@@ -1,8 +1,6 @@
 "use client";
 
-import type React from "react";
-import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Search,
   Clock,
@@ -16,8 +14,6 @@ import {
   ChefHat,
   MoreHorizontal,
   Trash2,
-  // Plus,
-  // CalendarIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,13 +44,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { roomData, type Room } from "@/app/roomData";
-import "@/styles/globals.css";
+import Image from "next/image";
+import { Room } from "@/utils/database/types";
+import {
+  getAllRoomsWithTimeslots,
+  createRoomAction,
+  updateRoomDetailsAction,
+  deleteRoomAction,
+  searchRoomsAction,
+} from "@/actions/admin";
+import { formatTimeTo12Hour } from "@/lib/utils";
+import { Timeslot } from "@/lib/types";
 
-// Function to get the appropriate icon based on room type
+// Helper for room type icons
 const getRoomTypeIcon = (type: string) => {
   const typeUpperCase = type.toUpperCase();
-
   if (
     typeUpperCase.includes("LECTURE") ||
     typeUpperCase.includes("AUDITORIUM")
@@ -71,22 +75,23 @@ const getRoomTypeIcon = (type: string) => {
   }
 };
 
-// Available room types for selection
+const floorOptions = ["1st Floor, CSM", "2nd Floor, CSM"];
 const roomTypes = [
   "LECTURE ROOM",
   "LECTURE ROOM/AUDITORIUM",
   "DBSES LABORATORY ROOM",
   "DMPCS LABORATORY ROOM",
   "DFSC LABORATORY ROOM",
-];
+] as const;
 
-// Available floors for selection
-const floorOptions = ["1st Floor, CSM", "2nd Floor, CSM"];
+type RoomWithTimeslots = Room & { availableTimeslots?: Timeslot[] };
 
-export default function RoomSchedulePage() {
+export default function RoomManagementPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<RoomWithTimeslots | null>(
+    null,
+  );
   const [sidebarWidth, setSidebarWidth] = useState(700);
   const [isResizing, setIsResizing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -95,29 +100,42 @@ export default function RoomSchedulePage() {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [editedDescription, setEditedDescription] = useState("");
   const [roomImage, setRoomImage] = useState<string | null>("/classroom.jpg");
-  const [localRoomData, setLocalRoomData] = useState<Room[]>(roomData);
+  const [rooms, setRooms] = useState<RoomWithTimeslots[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showAllTimesSidebar, setShowAllTimesSidebar] = useState(false);
+  const [showCreateRoomDialog, setShowCreateRoomDialog] = useState(false);
 
   // Create room state
-  const [showCreateRoomDialog, setShowCreateRoomDialog] = useState(false);
   const [newRoom, setNewRoom] = useState<Partial<Room>>({
-    id: "",
-    type: "",
-    floor: "",
+    name: "",
+    room_type: "LECTURE ROOM",
+    room_location: "",
     capacity: 50,
-    image: "/classroom.jpg",
-    description: "",
+    room_description: "",
   });
 
   const minWidth = 700;
   const maxWidth = 1150;
   const sidebarRef = useRef<HTMLDivElement>(null);
 
+  // Fetch rooms from Supabase
+  useEffect(() => {
+    async function fetchRooms() {
+      setLoading(true);
+      const { rooms: fetchedRooms } = await getAllRoomsWithTimeslots();
+      if (fetchedRooms) setRooms(fetchedRooms);
+      setLoading(false);
+    }
+    fetchRooms();
+  }, []);
+
   // Filter rooms based on search query and selected floor
-  const filteredRooms = localRoomData.filter((room) => {
-    const matchesSearch = room.id
+  const filteredRooms = rooms.filter((room) => {
+    const matchesSearch = room.name
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
-    const matchesFloor = selectedFloor === null || room.floor === selectedFloor;
+    const matchesFloor =
+      selectedFloor === null || room.room_location === selectedFloor;
     return matchesSearch && matchesFloor;
   });
 
@@ -125,29 +143,22 @@ export default function RoomSchedulePage() {
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing) return;
-
-      // Calculate new width based on mouse position
       const newWidth = window.innerWidth - e.clientX;
-
-      // Apply constraints
       if (newWidth >= minWidth && newWidth <= maxWidth) {
         setSidebarWidth(newWidth);
       }
     };
-
     const handleMouseUp = () => {
       setIsResizing(false);
       document.body.style.cursor = "default";
       document.body.style.userSelect = "auto";
     };
-
     if (isResizing) {
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
       document.body.style.cursor = "ew-resize";
       document.body.style.userSelect = "none";
     }
-
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
@@ -157,13 +168,11 @@ export default function RoomSchedulePage() {
   // Initialize edit form when a room is selected or editing mode changes
   useEffect(() => {
     if (selectedRoom && isEditing) {
-      setEditedDescription(selectedRoom.description);
+      setEditedDescription(selectedRoom.room_description || "");
     }
   }, [selectedRoom, isEditing]);
 
-  const startResizing = () => {
-    setIsResizing(true);
-  };
+  const startResizing = () => setIsResizing(true);
 
   const handleEditRoom = () => {
     setIsEditing(true);
@@ -180,31 +189,46 @@ export default function RoomSchedulePage() {
     }
   };
 
-  const handleSaveChanges = () => {
-    // saving room changes @ local :)
+  const handleSaveChanges = async () => {
     if (selectedRoom) {
-      const updatedRooms = localRoomData.map((room) => {
-        if (room.id === selectedRoom.id) {
-          return {
-            ...room,
-            description: editedDescription,
-          };
-        }
-        return room;
-      });
+      const formData = new FormData();
+      formData.append("roomId", selectedRoom.room_id);
+      formData.append("roomName", selectedRoom.name);
+      formData.append("description", editedDescription);
+      formData.append("capacity", String(selectedRoom.capacity));
+      formData.append("floor", selectedRoom.room_location);
+      formData.append("roomType", selectedRoom.room_type);
 
-      // Update local room data
-      setLocalRoomData(updatedRooms);
+      const result = await updateRoomDetailsAction(formData);
+      const error = result?.error;
+      const room = result?.room;
 
-      // Update the selected room with the new description
+      if (error) {
+        alert(error.message || "Failed to save changes.");
+        return;
+      }
+
+      if (!room) {
+        alert("No room data returned.");
+        return;
+      }
+
+      // Now it's safe to use 'room'
+      setRooms((prev) =>
+        prev.map((r) =>
+          r.room_id === selectedRoom.room_id
+            ? { ...r, ...room, room_description: editedDescription }
+            : r,
+        ),
+      );
       setSelectedRoom({
         ...selectedRoom,
-        description: editedDescription,
+        ...room,
+        room_description: editedDescription,
       });
+      setIsEditing(false);
+      setHasUnsavedChanges(false);
     }
-
-    setIsEditing(false);
-    setHasUnsavedChanges(false);
   };
 
   const handleDiscardChanges = () => {
@@ -219,65 +243,74 @@ export default function RoomSchedulePage() {
     setHasUnsavedChanges(true);
   };
 
-  const handleDeleteRoom = () => {
-    setShowDeleteConfirmation(true);
-  };
+  const handleDeleteRoom = () => setShowDeleteConfirmation(true);
 
-  const confirmDeleteRoom = () => {
+  const confirmDeleteRoom = async () => {
     if (selectedRoom) {
-      // Filter out the selected room
-      const updatedRooms = localRoomData.filter(
-        (room) => room.id !== selectedRoom.id,
+      const result = await deleteRoomAction(selectedRoom.room_id);
+      if (result?.error) {
+        console.error("Delete error:", result.error);
+        alert(result.error.message || "Failed to delete room.");
+        return;
+      }
+
+      // Success: remove room and close dialog
+      setRooms((prev) =>
+        prev.filter((room) => room.room_id !== selectedRoom.room_id),
       );
-
-      // Update local room data
-      setLocalRoomData(updatedRooms);
-
-      // Close the delete confirmation dialog
       setShowDeleteConfirmation(false);
-
-      // Close the room details sidebar
       setSelectedRoom(null);
     }
   };
 
-  const handleCreateRoom = () => {
-    setShowCreateRoomDialog(true);
-  };
+  const handleCreateRoom = () => setShowCreateRoomDialog(true);
 
-  const handleSaveNewRoom = () => {
-    if (newRoom.id && newRoom.type && newRoom.floor && newRoom.description) {
-      const roomToAdd: Room = {
-        id: newRoom.id,
-        type: newRoom.type,
-        floor: newRoom.floor,
-        capacity: newRoom.capacity || 50,
-        image: newRoom.image || "/classroom.jpg",
-        times: [],
-        description: newRoom.description,
-      };
+  const handleSaveNewRoom = async () => {
+    if (
+      newRoom.name &&
+      newRoom.room_type &&
+      newRoom.room_location &&
+      newRoom.room_description
+    ) {
+      const formData = new FormData();
+      formData.append("roomName", newRoom.name);
+      formData.append("description", newRoom.room_description);
+      formData.append("capacity", String(newRoom.capacity));
+      formData.append("floor", newRoom.room_location);
+      formData.append("roomType", newRoom.room_type);
 
-      // Add to local room data
-      setLocalRoomData([...localRoomData, roomToAdd]);
-
-      // Reset form
-      setNewRoom({
-        id: "",
-        type: "",
-        floor: "",
-        capacity: 50,
-        image: "/classroom.jpg",
-        description: "",
-      });
-
-      // Close dialog
-      setShowCreateRoomDialog(false);
+      const result = await createRoomAction(formData);
+      const error = result?.error;
+      const room = result && "room" in result ? result.room : undefined;
+      if (!error && room) {
+        // Refetch all rooms with timeslots to ensure consistency
+        const { rooms: fetchedRooms } = await getAllRoomsWithTimeslots();
+        setRooms(fetchedRooms || []);
+        setShowCreateRoomDialog(false);
+        setNewRoom({
+          name: "",
+          room_type: "LECTURE ROOM",
+          room_location: "",
+          capacity: 50,
+          room_description: "",
+        });
+      }
     }
   };
 
   // Function to clear search
-  const clearSearch = () => {
-    setSearchQuery("");
+  const clearSearch = () => setSearchQuery("");
+
+  // Optional: handle search with backend
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    if (query.trim() === "") {
+      const { rooms: fetchedRooms } = await getAllRoomsWithTimeslots();
+      setRooms(fetchedRooms || []);
+    } else {
+      const searchResult = await searchRoomsAction(query);
+      setRooms(searchResult?.rooms || []);
+    }
   };
 
   return (
@@ -291,9 +324,9 @@ export default function RoomSchedulePage() {
         <div className="relative w-full max-w-[21rem]">
           <Input
             type="text"
-            placeholder="Search Room Number"
+            placeholder="Search Room Name"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
             className="pl-10 pr-10 bg-white"
           />
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -310,30 +343,22 @@ export default function RoomSchedulePage() {
 
       {/* Floor filter buttons */}
       <div className="flex gap-5 mb-6">
-        <Button
-          variant={selectedFloor === "1st Floor, CSM" ? "default" : "outline"}
-          onClick={() =>
-            setSelectedFloor(
-              selectedFloor === "1st Floor, CSM" ? null : "1st Floor, CSM",
-            )
-          }
-          className={`${selectedFloor === "1st Floor, CSM" ? "bg-[#274c77] hover:bg-[#274c77] text-white" : "bg-white text-color-primary primary-border"}`}
-        >
-          Floor 1 - CSM Lobby
-        </Button>
-
-        <Button
-          variant={selectedFloor === "2nd Floor, CSM" ? "default" : "outline"}
-          onClick={() =>
-            setSelectedFloor(
-              selectedFloor === "2nd Floor, CSM" ? null : "2nd Floor, CSM",
-            )
-          }
-          className={`${selectedFloor === "2nd Floor, CSM" ? "bg-[#274c77] hover:bg-[#274c77] text-white" : "bg-white text-color-primary primary-border"}`}
-        >
-          Floor 2 - Rooms
-        </Button>
-
+        {floorOptions.map((floor) => (
+          <Button
+            key={floor}
+            variant={selectedFloor === floor ? "default" : "outline"}
+            onClick={() =>
+              setSelectedFloor(selectedFloor === floor ? null : floor)
+            }
+            className={`${
+              selectedFloor === floor
+                ? "bg-[#274c77] hover:bg-[#274c77] text-white"
+                : "bg-white text-color-primary primary-border"
+            }`}
+          >
+            {floor}
+          </Button>
+        ))}
         <div className="ml-auto">
           <Button
             className="bg-[#034078] hover:bg-[#274c77] text-white font-semibold transition-colors duration-200"
@@ -349,11 +374,15 @@ export default function RoomSchedulePage() {
         {/* Scrollable content area with custom scrollbar */}
         <div className="h-full overflow-y-auto pr-2 custom-scrollbar">
           {/* Room cards grid */}
-          {filteredRooms.length > 0 ? (
+          {loading ? (
+            <div className="flex justify-center items-center h-full">
+              <p className="text-gray-500 text-lg">Loading rooms...</p>
+            </div>
+          ) : filteredRooms.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {filteredRooms.map((room) => (
                 <RoomCard
-                  key={room.id}
+                  key={room.room_id}
                   room={room}
                   onViewDetails={() => setSelectedRoom(room)}
                 />
@@ -455,10 +484,10 @@ export default function RoomSchedulePage() {
 
             {/* Room Name */}
             <div className="mb-6">
-              <h3 className="text-lg font-bold mb-2">{selectedRoom.id}</h3>
+              <h3 className="text-lg font-bold mb-2">{selectedRoom.name}</h3>
               <div className="flex items-center">
-                {getRoomTypeIcon(selectedRoom.type)}
-                <span className="uppercase">{selectedRoom.type}</span>
+                {getRoomTypeIcon(selectedRoom.room_type)}
+                <span className="uppercase">{selectedRoom.room_type}</span>
               </div>
             </div>
 
@@ -473,24 +502,53 @@ export default function RoomSchedulePage() {
                 />
               ) : (
                 <p className="text-sm text-gray-700">
-                  {selectedRoom.description}
+                  {selectedRoom.room_description}
                 </p>
               )}
             </div>
 
-            {/* Available Time */}
+            {/* Capacity */}
             <div className="mb-6">
+              <h3 className="text-lg font-bold mb-2">Capacity</h3>
+              <p className="text-sm text-gray-700">{selectedRoom.capacity}</p>
+            </div>
+
+            {/* Available Timeslots */}
+            <div className="mb-6 pt-4 pb-1">
               <h3 className="text-lg font-bold mb-2">Available Time</h3>
-              <div className="grid grid-cols-3 gap-2">
-                {selectedRoom.times.map((time, index) => (
-                  <div key={index} className="mb-2">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Clock className="h-4 w-4 text-gray-700" />
-                      <span className="text-xs">{time}</span>
-                    </div>
-                  </div>
+              <div
+                className={
+                  showAllTimesSidebar ? "grid grid-cols-3 gap-1" : "space-y-1"
+                }
+              >
+                {(showAllTimesSidebar
+                  ? (selectedRoom?.availableTimeslots ?? [])
+                  : (selectedRoom?.availableTimeslots?.slice(0, 2) ?? [])
+                ).map((time: Timeslot, i: number) => (
+                  <p
+                    key={i}
+                    className="text-[#274c77] text-[13px] lg:text-sm md:text-[11px] tracking-wider flex items-center gap-2"
+                  >
+                    <Clock className="w-4 h-4 text-[#274c77]" />
+                    {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(time.end_time)}`}
+                  </p>
                 ))}
               </div>
+              {selectedRoom?.availableTimeslots &&
+                selectedRoom.availableTimeslots.length > 2 && (
+                  <button
+                    onClick={() => setShowAllTimesSidebar(!showAllTimesSidebar)}
+                    className="bg-primary text-black rounded-full p-1 w-6 h-3 mt-[2px] flex items-center justify-center"
+                  >
+                    <MoreHorizontal className="w-4 h-4" />
+                  </button>
+                )}
+              {(!selectedRoom?.availableTimeslots ||
+                selectedRoom.availableTimeslots.length === 0) && (
+                <p className="text-sm text-gray-500">
+                  No available timeslots today.
+                </p>
+              )}
             </div>
 
             {/* Action Buttons */}
@@ -622,19 +680,13 @@ export default function RoomSchedulePage() {
           <div className="grid gap-4 py-4">
             {/* Room Image */}
             <div className="relative mb-4">
-              {newRoom.image ? (
-                <Image
-                  src={newRoom.image || "/classroom.jpg"}
-                  alt="Room"
-                  width={600}
-                  height={200}
-                  className="w-full h-[200px] object-cover rounded-lg"
-                />
-              ) : (
-                <div className="bg-gray-200 h-[200px] rounded-lg flex items-center justify-center text-gray-500">
-                  No Room Image
-                </div>
-              )}
+              <Image
+                src={"/classroom.jpg"}
+                alt="Room"
+                width={600}
+                height={200}
+                className="w-full h-[200px] object-cover rounded-lg"
+              />
 
               <div className="absolute bottom-2 right-2">
                 <label htmlFor="newRoomImageUpload">
@@ -662,7 +714,6 @@ export default function RoomSchedulePage() {
                         if (typeof reader.result === "string") {
                           setNewRoom({
                             ...newRoom,
-                            image: reader.result,
                           });
                         }
                       };
@@ -673,17 +724,19 @@ export default function RoomSchedulePage() {
               </div>
             </div>
 
-            {/* Room ID */}
+            {/* Room Name */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="roomId" className="text-right">
-                Room ID
+              <Label htmlFor="roomName" className="text-right">
+                Room Name
               </Label>
               <Input
-                id="roomId"
+                id="roomName"
                 placeholder="e.g., ROOM 101"
                 className="col-span-3"
-                value={newRoom.id}
-                onChange={(e) => setNewRoom({ ...newRoom, id: e.target.value })}
+                value={newRoom.name}
+                onChange={(e) =>
+                  setNewRoom({ ...newRoom, name: e.target.value })
+                }
               />
             </div>
 
@@ -693,9 +746,9 @@ export default function RoomSchedulePage() {
                 Room Type
               </Label>
               <Select
-                value={newRoom.type}
-                onValueChange={(value) =>
-                  setNewRoom({ ...newRoom, type: value })
+                value={newRoom.room_type}
+                onValueChange={(value: (typeof roomTypes)[number]) =>
+                  setNewRoom({ ...newRoom, room_type: value })
                 }
               >
                 <SelectTrigger className="col-span-3">
@@ -717,9 +770,9 @@ export default function RoomSchedulePage() {
                 Floor
               </Label>
               <Select
-                value={newRoom.floor}
+                value={newRoom.room_location}
                 onValueChange={(value) =>
-                  setNewRoom({ ...newRoom, floor: value })
+                  setNewRoom({ ...newRoom, room_location: value })
                 }
               >
                 <SelectTrigger className="col-span-3">
@@ -764,9 +817,9 @@ export default function RoomSchedulePage() {
                 id="description"
                 placeholder="Enter room description"
                 className="col-span-3 min-h-[100px]"
-                value={newRoom.description}
+                value={newRoom.room_description}
                 onChange={(e) =>
-                  setNewRoom({ ...newRoom, description: e.target.value })
+                  setNewRoom({ ...newRoom, room_description: e.target.value })
                 }
               />
             </div>
@@ -784,10 +837,10 @@ export default function RoomSchedulePage() {
               onClick={handleSaveNewRoom}
               className="bg-blue-400 hover:bg-[#274c77] text-white transition-colors duration-200"
               disabled={
-                !newRoom.id ||
-                !newRoom.type ||
-                !newRoom.floor ||
-                !newRoom.description
+                !newRoom.name ||
+                !newRoom.room_type ||
+                !newRoom.room_location ||
+                !newRoom.room_description
               }
             >
               Create Room
@@ -804,72 +857,56 @@ function RoomCard({
   room,
   onViewDetails,
 }: {
-  room: Room;
+  room: RoomWithTimeslots;
   onViewDetails: () => void;
 }) {
   const [showAllTimes, setShowAllTimes] = useState(false);
 
-  // Show only 2 times initially, or all times if showAllTimes is true
-  const displayTimes = showAllTimes ? room.times : room.times.slice(0, 2);
-
   return (
     <div className="bg-[#e9f0f5] rounded-lg p-5 pb-3 relative">
       <div className="mb-3">
-        <h2 className="text-xl font-bold">{room.id}</h2>
+        <h2 className="text-xl font-bold">{room.name}</h2>
         <div className="flex items-center text-gray-600">
-          {getRoomTypeIcon(room.type)}
-          <span>{room.type}</span>
+          {getRoomTypeIcon(room.room_type)}
+          <span>{room.room_type}</span>
         </div>
       </div>
-
-      <div className="mb-2">
-        <h3 className="font-medium mb-1">Available Time</h3>
-        {displayTimes.map((time, index) => (
-          <div key={index} className="flex items-center gap-2 mb-1">
-            <Clock className="h-4 w-4 text-gray-700" />
-            <span>{time}</span>
-          </div>
-        ))}
-
-        {room.times.length > 2 && (
-          <div className="flex justify-between items-center mt-1">
-            {!showAllTimes ? (
-              <button
-                onClick={() => setShowAllTimes(true)}
-                className="bg-white text-black rounded-full p-1 w-6 h-6 flex items-center justify-center"
-              >
-                <MoreHorizontal className="w-4 h-4" />
-              </button>
-            ) : (
-              <button
-                onClick={() => setShowAllTimes(false)}
-                className="text-left text-sm text-blue-500 hover:text-blue-700"
-              >
-                Show less
-              </button>
-            )}
-
-            <Button
-              variant="outline"
-              className="bg-blue-400 hover:bg-blue-500 text-white border-none"
-              onClick={onViewDetails}
+      {/* Available Timeslots Preview */}
+      <div className="mb-2 pt-4 pb-1">
+        <p className="text-[15px] lg:text-[16px] md:text-[12px] text-primary-foreground font-semibold">
+          Available Time
+        </p>
+        <div className={showAllTimes ? "grid grid-cols-3 gap-1" : "space-y-1"}>
+          {(showAllTimes
+            ? (room.availableTimeslots ?? [])
+            : (room.availableTimeslots?.slice(0, 2) ?? [])
+          ).map((time: Timeslot, i: number) => (
+            <p
+              key={i}
+              className="text-primary-foreground text-[13px] lg:text-sm md:text-[11px] tracking-wider flex items-center gap-2"
             >
-              View Room Details
-            </Button>
-          </div>
+              <Clock className="w-4 h-4 text-[#274c77]" />
+              {`${formatTimeTo12Hour(time.start_time)} - ${formatTimeTo12Hour(time.end_time)}`}
+            </p>
+          ))}
+        </div>
+        {room.availableTimeslots && room.availableTimeslots.length > 2 && (
+          <button
+            onClick={() => setShowAllTimes(!showAllTimes)}
+            className="bg-primary text-black rounded-full p-1 w-6 h-3 mt-[2px] flex items-center justify-center"
+          >
+            <MoreHorizontal className="w-4 h-4" />
+          </button>
         )}
-
-        {room.times.length <= 2 && (
-          <div className="text-right mt-2">
-            <Button
-              variant="outline"
-              className="bg-blue-400 hover:bg-blue-500 text-white border-none"
-              onClick={onViewDetails}
-            >
-              View Room Details
-            </Button>
-          </div>
-        )}
+      </div>
+      <div className="text-right mt-2">
+        <Button
+          variant="outline"
+          className="bg-blue-400 hover:bg-blue-500 text-white border-none"
+          onClick={onViewDetails}
+        >
+          View Room Details
+        </Button>
       </div>
     </div>
   );
