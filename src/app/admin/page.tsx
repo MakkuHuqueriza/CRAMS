@@ -1,11 +1,15 @@
+"use client";
+
 import { Card } from "@/components/ui/card";
 import { CalendarDays } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import React from "react";
 import {
   getRoomCountsAction,
   getPendingReservationsCountAction,
 } from "@/actions/admin"; // Connect to server side
+import { useState } from "react";
 
 const holidays2024 = [
   { date: "08/21", day: "Wednesday", name: "Ninoy Aquino Day" },
@@ -60,9 +64,12 @@ export default async function DashboardPage() {
   const dmpcsPercent = total > 0 ? (roomCounts.dmpcsLabs / total) * 100 : 0;
   const dfscPercent = total > 0 ? (roomCounts.dfscLabs / total) * 100 : 0;
 
+  const [selectedYear, setSelectedYear] = useState<2024 | 2025>(2024);
+  const currentHolidays = selectedYear === 2024 ? holidays2024 : holidays2025;
+
   return (
-    <div className="flex h-screen overflow-hidden">
-      <main className="flex-1 bg-[#f2ede4] p-6 overflow-y-auto">
+    <div className="flex h-screen">
+      <main className="flex-1 bg-[#f2ede4] px-6 py-1">
         <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
 
         <div className="flex flex-col lg:flex-row gap-6">
@@ -155,39 +162,55 @@ export default async function DashboardPage() {
           </div>
 
           {/* Right Section */}
-          <div className="w-full lg:w-3/5 flex flex-col gap-6">
-            <Card className="bg-white p-4 rounded-xl shadow-md">
-              <h2 className="text-gray-500 text-sm font-semibold mb-[-20px]">
-                Holidays (based on the approved academic calendar)
-              </h2>
-              <p className="text-xs text-gray-500 mb-3">
-                <i>Rooms cannot be booked during these days</i>
-              </p>
+          <div className="w-full lg:w-3/5 flex flex-col">
+            <Card className="bg-white p-4 rounded-xl shadow-md flex-1 flex flex-col">
+              <div className="mb-2">
+                <h2 className="text-gray-500 text-sm font-semibold">
+                  Holidays (based on the approved academic calendar)
+                </h2>
+                <p className="text-xs text-gray-500 mb-6">
+                  <i>Rooms cannot be booked during these days</i>
+                </p>
 
-              <div className="space-y-6">
-                {/* 2024 Holidays */}
-                <div>
-                  <p className="text-[25px] font-semibold mb-1">2024</p>
-                  <div className="grid grid-cols-[auto,1fr] gap-x-[46px] gap-y-1 text-sm">
-                    {holidays2024.map((holiday, index) => (
-                      <React.Fragment key={index}>
-                        <div>{`${holiday.date}, ${holiday.day}`}</div>
-                        <div className="text-gray-600">{holiday.name}</div>
-                      </React.Fragment>
-                    ))}
-                  </div>
+                {/* Year Toggle */}
+                <div className="flex bg-gray-100 rounded-t-lg p-1 w-fit">
+                  <Button
+                    variant={selectedYear === 2024 ? "default" : "ghost"}
+                    size="default"
+                    onClick={() => setSelectedYear(2024)}
+                    className={`p-6 text-base transition-all text-[25px] rounded-t-md rounded-b-none ${
+                      selectedYear === 2024
+                        ? "bg-[#1a365d] text-white shadow-sm font-bold"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-white font-medium"
+                    }`}
+                  >
+                    2024
+                  </Button>
+                  <Button
+                    variant={selectedYear === 2025 ? "default" : "ghost"}
+                    size="default"
+                    onClick={() => setSelectedYear(2025)}
+                    className={`p-6 text-base transition-all text-[25px] rounded-t-md rounded-b-none ${
+                      selectedYear === 2025
+                        ? "bg-[#1a365d] text-white shadow-sm font-bold"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-white font-medium"
+                    }`}
+                  >
+                    2025
+                  </Button>
                 </div>
 
-                {/* 2025 Holidays */}
-                <div>
-                  <p className="text-[25px] font-semibold mb-1">2025</p>
-                  <div className="grid grid-cols-[auto,1fr] gap-x-10 gap-y-1 text-sm">
-                    {holidays2025.map((holiday, index) => (
-                      <React.Fragment key={index}>
-                        <div>{`${holiday.date}, ${holiday.day}`}</div>
-                        <div className="text-gray-600">{holiday.name}</div>
-                      </React.Fragment>
-                    ))}
+                {/* Holiday Content Box */}
+                <div className="bg-gray-100 rounded-lg rounded-tl-none p-1 flex-1 min-h-[330px]">
+                  <div className="bg-[#1a365d] rounded-md h-full p-6">
+                    <div className="grid grid-cols-[auto,1fr] gap-x-8 gap-y-3 text-sm">
+                      {currentHolidays.map((holiday, index) => (
+                        <React.Fragment key={index}>
+                          <div className="font-semibold text-white">{`${holiday.date}, ${holiday.day}`}</div>
+                          <div className="text-blue-50">{holiday.name}</div>
+                        </React.Fragment>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

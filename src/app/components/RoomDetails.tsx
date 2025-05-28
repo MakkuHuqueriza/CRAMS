@@ -174,17 +174,16 @@ const RoomDetails = ({ roomDetails, date, setDate }: RoomDetailsProps) => {
                 ))}
               </div>
             </div>
-
-            {/* Reserve Button */}
-            <div className="flex justify-start">
-              <Button className="bg-[#274c77] text-white text-[14px] hover:bg-[#182657] px-5 py-6 rounded-[30px]">
-                <Link
-                  href={`/rooms/${encodeURIComponent(room.name)}/reserve/page1`}
-                >
-                  Reserve Now
-                </Link>
-              </Button>
-            </div>
+          </div>
+          {/* Reserve Button */}
+          <div className="flex justify-start">
+            <Button className="bg-[#274c77] text-white text-[14px] hover:bg-[#182657] px-5 py-6 rounded-[30px]">
+              <Link
+                href={`/rooms/${encodeURIComponent(room.name)}/reserve/reservation-form`}
+              >
+                Reserve Now
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
