@@ -41,7 +41,7 @@ export default async function DashboardPage() {
   const pendingReservationsResult = await getPendingReservationsCountAction();
 
   // Handle potential errors or use default values
-  const roomCounts = roomCountsResult.counts || {
+  const roomCounts = roomCountsResult?.counts || {
     lectureRooms: 0,
     dbsesLabs: 0,
     dmpcsLabs: 0,
@@ -50,7 +50,7 @@ export default async function DashboardPage() {
   };
 
   // Handle potential errors or use default values for pending count
-  const pendingCount = pendingReservationsResult.count || 0;
+  const pendingCount = pendingReservationsResult?.count || 0;
 
   // Calculate percentages for the color bar
   const total = roomCounts.totalRooms;
