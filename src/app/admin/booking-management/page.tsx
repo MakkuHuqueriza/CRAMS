@@ -30,204 +30,113 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  getAdminReservationsAction,
+  getReservationDetailAction,
+  updateReservationStatusAction,
+} from "@/actions/admin";
+import { Reservation, Room, ReservationStatus } from "@/utils/database/types";
 
-// Sample data for the bookings with full dates
-const bookingsData = [
-  {
-    id: "0001",
-    room: "227",
-    submittedDate: "2024-01-15",
-    submittedTime: "4:15 PM",
-    status: "Pending",
-  },
-  {
-    id: "0002",
-    room: "224",
-    submittedDate: "2024-01-14",
-    submittedTime: "3:27 PM",
-    status: "Accepted",
-  },
-  {
-    id: "0003",
-    room: "224",
-    submittedDate: "2024-01-13",
-    submittedTime: "1:17 PM",
-    status: "Completed",
-  },
-  {
-    id: "0004",
-    room: "226",
-    submittedDate: "2024-01-12",
-    submittedTime: "8:04 AM",
-    status: "Rejected",
-    rejectionReason:
-      "Room is under maintenance during the requested time period. Please select an alternative date or room.",
-  },
-  {
-    id: "0005",
-    room: "201",
-    submittedDate: "2024-01-11",
-    submittedTime: "5:49 PM",
-    status: "Pending",
-  },
-  {
-    id: "0006",
-    room: "208",
-    submittedDate: "2024-01-10",
-    submittedTime: "4:12 PM",
-    status: "Accepted",
-  },
-  {
-    id: "0007",
-    room: "229",
-    submittedDate: "2024-01-09",
-    submittedTime: "5:32 AM",
-    status: "Pending",
-  },
-  {
-    id: "0008",
-    room: "206",
-    submittedDate: "2024-01-08",
-    submittedTime: "3:01 PM",
-    status: "Pending",
-  },
-  {
-    id: "0009",
-    room: "210",
-    submittedDate: "2024-01-07",
-    submittedTime: "2:41 PM",
-    status: "Rejected",
-    rejectionReason:
-      "Insufficient equipment available for the requested event type.",
-  },
-  {
-    id: "0010",
-    room: "222",
-    submittedDate: "2024-01-06",
-    submittedTime: "1:07 PM",
-    status: "Rejected",
-    rejectionReason:
-      "Conflicting reservation already exists for this time slot.",
-  },
-];
-
-// Sample data for the reservation details
-const reservationDetails = {
-  contact: {
-    name: "Makku Kuma",
-    email: "makkukuma@y8.com",
-    contactNumber: "+639462666969",
-    role: "Student",
-    department: "BS Computer Science",
-  },
-  jobOrder: {
-    room: "CSM 227",
-    location: "CSM, 2nd Floor",
-    type: "Event",
-    date: "04/13/2025",
-    time: "12:00 AM - 12:00 PM",
-    natureOfWork: "Reservation/Setup",
-    details: "Room/Space",
-  },
-};
-
-// Simplified animation variants - only for essential popups
-const sheetVariants = {
-  hidden: { x: "100%" },
-  visible: {
-    x: 0,
-    transition: {
-      type: "tween",
-      duration: 0.3,
-      ease: "easeOut",
-    },
-  },
-  exit: {
-    x: "100%",
-    transition: {
-      duration: 0.2,
-      ease: "easeIn",
-    },
-  },
-};
-
-const popupVariants = {
-  hidden: {
-    scale: 0.95,
-    opacity: 0,
-  },
-  visible: {
-    scale: 1,
-    opacity: 1,
-    transition: {
-      duration: 0.2,
-      ease: "easeOut",
-    },
-  },
-  exit: {
-    scale: 0.95,
-    opacity: 0,
-    transition: {
-      duration: 0.15,
-      ease: "easeIn",
-    },
-  },
-};
-
-const confirmationPopupVariants = {
-  hidden: {
-    scale: 0.9,
-    opacity: 0,
-  },
-  visible: {
-    scale: 1,
-    opacity: 1,
-    transition: {
-      duration: 0.2,
-      ease: "easeOut",
-    },
-  },
-  exit: {
-    scale: 0.9,
-    opacity: 0,
-    transition: {
-      duration: 0.15,
-      ease: "easeIn",
-    },
-  },
-};
-
-type BookingData = {
+// Types for the booking data structure
+interface BookingData {
   id: string;
   room: string;
-  submittedDate: string;
-  submittedTime: string;
-  status: string;
-  rejectionReason?: string;
-};
+  time: string;
+  date: string;
+  status: ReservationStatus;
+}
+
+interface AdminReservation {
+  id: string;
+  admin_id: string;
+  reservation_id: string;
+  status: ReservationStatus;
+  reason_for_rejection: string | null;
+  reservation: Reservation & {
+    room: Room | null;
+  };
+}
 
 export default function BookingManagementPage() {
   const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("");
-  const [filteredBookings, setFilteredBookings] = useState(bookingsData);
+  const [bookingsData, setBookingsData] = useState<BookingData[]>([]);
+  const [filteredBookings, setFilteredBookings] = useState<BookingData[]>([]);
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [rejectError, setRejectError] = useState(false);
-  const [selectedBookingData, setSelectedBookingData] =
-    useState<BookingData | null>(null);
-  const [showAcceptConfirmation, setShowAcceptConfirmation] = useState(false);
-  const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [showScrollbar, setShowScrollbar] = useState(false);
-  const [dragStartY, setDragStartY] = useState(0);
-  const [scrollbarStartY, setScrollbarStartY] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedReservationDetail, setSelectedReservationDetail] =
+    useState<AdminReservation | null>(null);
 
   const tableRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const scrollbarRef = useRef<HTMLDivElement>(null);
+
+  const [showAcceptConfirmation, setShowAcceptConfirmation] = useState(false);
+  const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
+
+  // For badge styling
+  const badgeClass = "px-3 py-1 rounded-full text-xs font-semibold";
+
+  // Fetch reservations on component mount
+  useEffect(() => {
+    fetchReservations();
+  }, []);
+
+  const fetchReservations = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const result = await getAdminReservationsAction();
+
+      if ("error" in result && result.error) {
+        const errorMessage =
+          typeof result.error === "object" &&
+          result.error !== null &&
+          "message" in result.error
+            ? (result.error as { message?: string }).message ||
+              "Failed to fetch reservation details"
+            : "Failed to fetch reservation details";
+        setError(errorMessage);
+        return;
+      }
+
+      if (result.reservations) {
+        // Transform the data to match the expected BookingData structure
+        const transformedBookings: BookingData[] = result.reservations.map(
+          (item: AdminReservation) => {
+            const reservation = item.reservation;
+            const createdAt = new Date(reservation.created_at);
+
+            return {
+              id: reservation.id,
+              room:
+                reservation.room?.name || reservation.room_id || "Unknown Room",
+              time: createdAt.toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+              }),
+              date: createdAt.toLocaleDateString("en-CA"), // YYYY-MM-DD format
+              status: reservation.status,
+            };
+          },
+        );
+
+        setBookingsData(transformedBookings);
+        setFilteredBookings(transformedBookings);
+      }
+    } catch (err: unknown) {
+      setError("An unexpected error occurred while fetching reservations");
+      console.error("Error fetching reservations:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Handle click outside table to deselect row
   useEffect(() => {
@@ -246,14 +155,6 @@ export default function BookingManagementPage() {
     };
   }, []);
 
-  // Check if scrollbar should be shown
-  useEffect(() => {
-    if (scrollContainerRef.current) {
-      const { scrollHeight, clientHeight } = scrollContainerRef.current;
-      setShowScrollbar(scrollHeight > clientHeight);
-    }
-  }, [filteredBookings]);
-
   // Filter and sort bookings when search term or sort option changes
   useEffect(() => {
     let result = [...bookingsData];
@@ -269,23 +170,15 @@ export default function BookingManagementPage() {
     switch (sortOption) {
       case "latest":
         result = result.sort((a, b) => {
-          const dateA = new Date(
-            `${a.submittedDate} ${a.submittedTime}`,
-          ).getTime();
-          const dateB = new Date(
-            `${b.submittedDate} ${b.submittedTime}`,
-          ).getTime();
+          const dateA = new Date(`${a.date} ${a.time}`).getTime();
+          const dateB = new Date(`${b.date} ${b.time}`).getTime();
           return dateB - dateA;
         });
         break;
       case "oldest":
         result = result.sort((a, b) => {
-          const dateA = new Date(
-            `${a.submittedDate} ${a.submittedTime}`,
-          ).getTime();
-          const dateB = new Date(
-            `${b.submittedDate} ${b.submittedTime}`,
-          ).getTime();
+          const dateA = new Date(`${a.date} ${a.time}`).getTime();
+          const dateB = new Date(`${b.date} ${b.time}`).getTime();
           return dateA - dateB;
         });
         break;
@@ -296,69 +189,58 @@ export default function BookingManagementPage() {
         break;
     }
 
+    // Always move completed reservations to the bottom
+    result = result.sort((a, b) => {
+      if (a.status === "Completed" && b.status !== "Completed") {
+        return 1; // Move 'a' (Completed) to the bottom
+      }
+      if (b.status === "Completed" && a.status !== "Completed") {
+        return -1; // Move 'b' (Completed) to the bottom
+      }
+      return 0; // Keep original order for non-completed items
+    });
+
     setFilteredBookings(result);
-  }, [searchTerm, sortOption]);
-
-  // Handle scrollbar dragging
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging || !scrollContainerRef.current || !scrollbarRef.current)
-        return;
-
-      e.preventDefault();
-
-      const scrollContainer = scrollContainerRef.current;
-      const scrollbarContainer = scrollbarRef.current.parentElement;
-      if (!scrollbarContainer) return;
-
-      // Calculate the new position based on mouse movement
-      const deltaY = e.clientY - dragStartY;
-      const newScrollbarY = scrollbarStartY + deltaY;
-
-      const containerHeight = scrollbarContainer.offsetHeight - 16; // Account for padding
-      const scrollbarHeight = scrollbarRef.current.offsetHeight;
-      const maxY = containerHeight - scrollbarHeight;
-
-      const clampedY = Math.max(0, Math.min(newScrollbarY, maxY));
-      const scrollPercentage = maxY > 0 ? clampedY / maxY : 0;
-
-      // Update scrollbar position immediately
-      scrollbarRef.current.style.transform = `translateY(${clampedY}px)`;
-
-      // Update scroll container
-      const maxScroll =
-        scrollContainer.scrollHeight - scrollContainer.clientHeight;
-      scrollContainer.scrollTop = scrollPercentage * maxScroll;
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-      document.body.style.userSelect = "none";
-      document.body.style.cursor = "default";
-    }
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.userSelect = "";
-      document.body.style.cursor = "";
-    };
-  }, [isDragging, dragStartY, scrollbarStartY]);
+  }, [searchTerm, sortOption, bookingsData]);
 
   // Function to handle row click
-  const handleRowClick = (bookingId: string) => {
-    const bookingData = bookingsData.find(
-      (booking) => booking.id === bookingId,
-    );
-    setSelectedBookingData(bookingData ?? null);
-    setSelectedBooking(bookingId === selectedBooking ? null : bookingId);
-    setIsSheetOpen(true);
-    setShowRejectForm(false);
+  const handleRowClick = async (
+    bookingId: string,
+    status: ReservationStatus,
+  ) => {
+    if (status === "Pending") {
+      try {
+        setSelectedBooking(bookingId === selectedBooking ? null : bookingId);
+
+        // Fetch detailed reservation information
+        const result = await getReservationDetailAction(bookingId);
+
+        if ("error" in result && result.error) {
+          const errorMessage =
+            typeof result.error === "object" &&
+            result.error !== null &&
+            "message" in result.error
+              ? (result.error as { message?: string }).message ||
+                "Failed to fetch reservation details"
+              : "Failed to fetch reservation details";
+          setError(errorMessage);
+          return;
+        }
+
+        if (result.reservation) {
+          setSelectedReservationDetail(result.reservation as AdminReservation);
+          setIsSheetOpen(true);
+          setShowRejectForm(false); // Reset reject form when opening sheet
+        }
+      } catch (err: unknown) {
+        setError(
+          "An unexpected error occurred while fetching reservation details",
+        );
+        console.error("Error fetching reservation details:", err);
+      }
+    } else {
+      setSelectedBooking(bookingId === selectedBooking ? null : bookingId);
+    }
   };
 
   // Function to handle search
@@ -383,12 +265,6 @@ export default function BookingManagementPage() {
     }
   };
 
-  // Function to handle accept button click
-  const handleAccept = () => {
-    setShowAcceptConfirmation(true);
-    setIsSheetOpen(false);
-  };
-
   // Function to handle reject button click
   const handleReject = () => {
     setShowRejectForm(true);
@@ -402,36 +278,96 @@ export default function BookingManagementPage() {
   };
 
   // Function to handle reject submit
-  const handleRejectSubmit = () => {
+  const handleRejectSubmit = async () => {
     if (!rejectReason.trim()) {
       setRejectError(true);
       return;
     }
 
-    console.log("Reservation rejected with reason:", rejectReason);
+    if (!selectedReservationDetail) {
+      setError("No reservation selected");
+      return;
+    }
 
-    setShowRejectForm(false);
-    setIsSheetOpen(false);
-    setRejectReason("");
-    setRejectError(false);
-    setShowRejectConfirmation(true);
+    try {
+      const formData = new FormData();
+      formData.append(
+        "reservationId",
+        selectedReservationDetail.reservation_id,
+      );
+      formData.append("status", "Rejected");
+      formData.append("reasonForRejection", rejectReason);
+
+      const result = await updateReservationStatusAction(formData);
+
+      if (!result) {
+        setError("Failed to fetch reservation details");
+        return;
+      }
+
+      if (result.error) {
+        setError(result.error.message || "Failed to reject reservation");
+        return;
+      }
+
+      // Refresh the reservations list
+      await fetchReservations();
+
+      // Close the form and sheet
+      setShowRejectForm(false);
+      setIsSheetOpen(false);
+      setRejectReason("");
+      setRejectError(false);
+      setSelectedReservationDetail(null);
+      setShowRejectConfirmation(true);
+    } catch (err: unknown) {
+      setError("An unexpected error occurred while rejecting the reservation");
+      console.error("Error rejecting reservation:", err);
+    }
   };
 
-  // Function to format date for display
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
-    });
+  // Function to handle accept
+  const handleAccept = async () => {
+    if (!selectedReservationDetail) {
+      setError("No reservation selected");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append(
+        "reservationId",
+        selectedReservationDetail.reservation_id,
+      );
+      formData.append("status", "Accepted");
+
+      const result = await updateReservationStatusAction(formData);
+
+      if (!result) {
+        setError("Failed to fetch reservation details");
+        return;
+      }
+
+      if (result.error) {
+        setError(result.error.message || "Failed to accept reservation");
+        return;
+      }
+
+      // Refresh the reservations list
+      await fetchReservations();
+
+      // Close the sheet
+      setIsSheetOpen(false);
+      setSelectedReservationDetail(null);
+      setShowAcceptConfirmation(true);
+    } catch (err: unknown) {
+      setError("An unexpected error occurred while accepting the reservation");
+      console.error("Error accepting reservation:", err);
+    }
   };
 
   // Function to get badge color based on status
-  const getStatusBadge = (status: string) => {
-    const badgeClass =
-      "rounded-lg px-3 py-1 text-[13px] font-medium min-w-[80px] text-center";
-
+  const getStatusBadge = (status: ReservationStatus) => {
     switch (status) {
       case "Pending":
         return (
@@ -470,125 +406,30 @@ export default function BookingManagementPage() {
     }
   };
 
-  // Function to render sheet content based on status
-  const renderSheetContent = () => {
-    if (!selectedBookingData) return null;
+  const popupVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.2 } },
+    exit: { opacity: 0, scale: 0.95, transition: { duration: 0.15 } },
+  };
 
-    const isViewOnly =
-      selectedBookingData.status === "Accepted" ||
-      selectedBookingData.status === "Complete";
-    const isRejected = selectedBookingData.status === "Rejected";
-    const isPending = selectedBookingData.status === "Pending";
+  const confirmationPopupVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
+    exit: { opacity: 0, y: 20, transition: { duration: 0.15 } },
+  };
 
+  if (loading) {
     return (
-      <div className={showRejectForm ? "blur-[2px] pointer-events-none" : ""}>
-        <SheetHeader>
-          <SheetTitle className="text-2xl text-bold text-center text-blue-800">
-            {isViewOnly ? "Reservation Details" : "Reservation Summary"}
-          </SheetTitle>
-          <SheetDescription className="text-center text-[12px]">
-            {isViewOnly
-              ? "View reservation details"
-              : isPending
-                ? "Review the reservation details before accepting or rejecting."
-                : "Reservation details and rejection reason"}
-          </SheetDescription>
-        </SheetHeader>
-
-        {/* Contact Details Section */}
-        <div className="mt-4 p-4">
-          <h3 className="text-lg font-semibold mb-2">Contact Details</h3>
-          <div className="border-2 border-gray-300 p-4 rounded-lg space-y-2">
-            <p>
-              <span className="font-medium">Name:</span>{" "}
-              {reservationDetails.contact.name}
-            </p>
-            <p>
-              <span className="font-medium">Email:</span>{" "}
-              {reservationDetails.contact.email}
-            </p>
-            <p>
-              <span className="font-medium">Contact Number:</span>{" "}
-              {reservationDetails.contact.contactNumber}
-            </p>
-            <p>
-              <span className="font-medium">Role:</span>{" "}
-              {reservationDetails.contact.role}
-            </p>
-            <p>
-              <span className="font-medium">Affiliation:</span>{" "}
-              {reservationDetails.contact.department}
-            </p>
+      <div className="flex h-screen bg-gray-50">
+        <div className="flex-1 bg-[#f2ede4] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading reservations...</p>
           </div>
         </div>
-
-        {/* Request for Job Order Section */}
-        <div className="mt-4 p-4">
-          <h3 className="text-lg font-semibold mb-2">Request for Job Order</h3>
-          <div className="border-2 border-gray-300 p-4 rounded-lg space-y-2">
-            <p>
-              <span className="font-medium">Room:</span>{" "}
-              {reservationDetails.jobOrder.room}
-            </p>
-            <p>
-              <span className="font-medium">Location/Building:</span>{" "}
-              {reservationDetails.jobOrder.location}
-            </p>
-            <p>
-              <span className="font-medium">Type:</span>{" "}
-              {reservationDetails.jobOrder.type}
-            </p>
-            <p>
-              <span className="font-medium">Date of Reservation:</span>{" "}
-              {reservationDetails.jobOrder.date}
-            </p>
-            <p>
-              <span className="font-medium">Time:</span>{" "}
-              {reservationDetails.jobOrder.time}
-            </p>
-            <p>
-              <span className="font-medium">Nature of Work:</span>{" "}
-              {reservationDetails.jobOrder.natureOfWork}
-            </p>
-            <p className="pl-4">• {reservationDetails.jobOrder.details}</p>
-          </div>
-        </div>
-
-        {/* Rejection Reason Section */}
-        {isRejected && selectedBookingData.rejectionReason && (
-          <div className="mt-4 p-4">
-            <h3 className="text-lg font-semibold mb-2 text-red-700">
-              Reason for Rejection
-            </h3>
-            <div className="border-2 border-red-300 bg-red-50 p-4 rounded-lg">
-              <p className="text-red-800">
-                {selectedBookingData.rejectionReason}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Action Buttons */}
-        {isPending && (
-          <div className="flex gap-4 mt-6 mb-4 justify-end">
-            <Button
-              variant="destructive"
-              className="bg-red-800 text-white hover:bg-red-900"
-              onClick={handleReject}
-            >
-              Reject
-            </Button>
-            <Button
-              className="bg-blue-700 text-white hover:bg-blue-800"
-              onClick={handleAccept}
-            >
-              Accept
-            </Button>
-          </div>
-        )}
       </div>
     );
-  };
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -596,6 +437,19 @@ export default function BookingManagementPage() {
       <div className="flex-1 bg-[#f2ede4] overflow-y-auto">
         <div className="container mx-auto px-2 py-4">
           <h1 className="text-3xl font-bold mb-6">Booking Management</h1>
+
+          {/* Error display */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+              {error}
+              <button
+                onClick={() => setError(null)}
+                className="float-right font-bold text-red-700 hover:text-red-900"
+              >
+                ×
+              </button>
+            </div>
+          )}
 
           {/* Search and filter controls */}
           <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
@@ -642,151 +496,74 @@ export default function BookingManagementPage() {
             className="bg-white rounded-lg shadow-md w-full max-w-screen-xl mx-auto overflow-hidden"
             ref={tableRef}
           >
-            <div className="relative">
-              {/* Fixed Header */}
-              <div className="border-b border-gray-200">
+            {/* Table with properly aligned columns */}
+            <div className="relative overflow-hidden">
+              <Table>
+                <TableHeader className="rounded-t-lg overflow-hidden">
+                  <TableRow className="hover:bg-white rounded-t-lg">
+                    <TableHead className="text-center text-[16px] py-5 w-[30%] bg-white rounded-tl-lg">
+                      Booking ID
+                    </TableHead>
+                    <TableHead className="text-center text-[16px] py-5 w-[20%] bg-white">
+                      Room Number
+                    </TableHead>
+                    <TableHead className="text-center text-[16px] py-5 w-1/4 bg-white">
+                      Submitted On
+                    </TableHead>
+                    <TableHead className="text-center text-[16px] py-5 w-1/4 bg-white rounded-tr-lg">
+                      Status
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+              </Table>
+
+              {/* Scrollable Table Body with custom scrollbar */}
+              <div
+                className="max-h-[355px] overflow-y-auto scrollbar-custom"
+                style={{
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "#274c77 #f0f0f0",
+                }}
+              >
                 <Table>
-                  <TableHeader className="rounded-t-lg overflow-hidden">
-                    <TableRow className="hover:bg-white rounded-t-lg">
-                      <TableHead className="text-center font-semibold text-[18px] py-6 w-[25%] bg-white rounded-tl-lg">
-                        Booking ID
-                      </TableHead>
-                      <TableHead className="text-center font-semibold text-[18px] py-6 w-[25%] bg-white">
-                        Room Number
-                      </TableHead>
-                      <TableHead className="text-center font-semibold text-[18px] py-6 w-[25%] bg-white">
-                        Submitted On
-                      </TableHead>
-                      <TableHead className="text-center font-semibold text-[18px] py-6 w-[25%] bg-white rounded-tr-lg">
-                        Status
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                </Table>
-              </div>
-
-              {/* Scrollable Body with Overlay Scrollbar */}
-              <div className="relative">
-                <div
-                  ref={scrollContainerRef}
-                  className="max-h-[350px] overflow-y-auto overflow-x-hidden"
-                  style={{
-                    scrollbarWidth: "none",
-                    msOverflowStyle: "none",
-                  }}
-                  onScroll={(e) => {
-                    if (isDragging) return; // Don't update position while dragging
-
-                    const scrollTop = e.currentTarget.scrollTop;
-                    const scrollHeight = e.currentTarget.scrollHeight;
-                    const clientHeight = e.currentTarget.clientHeight;
-                    const scrollPercentage =
-                      scrollTop / (scrollHeight - clientHeight);
-
-                    // Update scrollbar position
-                    if (scrollbarRef.current) {
-                      const scrollbarContainer =
-                        scrollbarRef.current.parentElement;
-                      if (scrollbarContainer) {
-                        const containerHeight =
-                          scrollbarContainer.offsetHeight - 16; // Account for padding
-                        const scrollbarHeight =
-                          scrollbarRef.current.offsetHeight;
-                        const maxScroll = containerHeight - scrollbarHeight;
-                        scrollbarRef.current.style.transform = `translateY(${scrollPercentage * maxScroll}px)`;
-                      }
-                    }
-                  }}
-                >
-                  <style jsx>{`
-                    div::-webkit-scrollbar {
-                      width: 0px;
-                      background: transparent;
-                    }
-                  `}</style>
-                  <Table>
-                    <TableBody>
-                      {filteredBookings.length > 0 ? (
-                        filteredBookings.map((booking) => (
-                          <TableRow
-                            key={booking.id}
-                            className={`hover:bg-blue-50 cursor-pointer transition-colors duration-200 ${
-                              selectedBooking === booking.id
-                                ? "bg-blue-200"
-                                : ""
-                            }`}
-                            onClick={() => handleRowClick(booking.id)}
-                          >
-                            <TableCell className="font-medium text-center py-4 w-[25%]">
-                              {booking.id}
-                            </TableCell>
-                            <TableCell className="text-center py-4 w-[25%]">
-                              {booking.room}
-                            </TableCell>
-                            <TableCell className="text-center py-4 w-[25%]">
-                              <div className="flex flex-col">
-                                <span className="text-sm font-medium">
-                                  {formatDate(booking.submittedDate)}
-                                </span>
-                                <span className="text-xs text-gray-500">
-                                  {booking.submittedTime}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-center py-4 w-[25%]">
-                              <div className="flex justify-center">
-                                {getStatusBadge(booking.status)}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell
-                            colSpan={4}
-                            className="text-center py-8 text-gray-500"
-                          >
-                            Room has no reservations.
+                  <TableBody>
+                    {filteredBookings.length > 0 ? (
+                      filteredBookings.map((booking) => (
+                        <TableRow
+                          key={booking.id}
+                          className={`hover:bg-blue-50 ${selectedBooking === booking.id ? "bg-[#9BB2FC]" : ""}`}
+                          onClick={() =>
+                            handleRowClick(booking.id, booking.status)
+                          }
+                        >
+                          <TableCell className="font-medium text-center py-4 w-[30%]">
+                            {booking.id}
+                          </TableCell>
+                          <TableCell className="text-center py-4 w-[20%]">
+                            {booking.room}
+                          </TableCell>
+                          <TableCell className="text-center py-4 w-[27%]">
+                            {booking.time}
+                          </TableCell>
+                          <TableCell className="text-center py-4 w-[23%]">
+                            {getStatusBadge(booking.status)}
                           </TableCell>
                         </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-
-                {/* Custom Overlay Scrollbar */}
-                {showScrollbar && (
-                  <div className="scrollbar-container absolute top-0 right-2 w-2 h-full flex items-start pt-2">
-                    <div
-                      ref={scrollbarRef}
-                      className="custom-scrollbar w-full bg-gray-400 rounded-full cursor-default"
-                      style={{
-                        height: `${Math.min(80, (350 / Math.max(filteredBookings.length * 120, 350)) * 100)}%`,
-                        minHeight: "20px",
-                        transition: isDragging
-                          ? "none"
-                          : "transform 75ms ease-out",
-                      }}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        setIsDragging(true);
-                        setDragStartY(e.clientY);
-
-                        // Get current scrollbar position
-                        const currentTransform =
-                          scrollbarRef.current?.style.transform ||
-                          "translateY(0px)";
-                        const currentY =
-                          Number.parseFloat(
-                            currentTransform
-                              .replace("translateY(", "")
-                              .replace("px)", ""),
-                          ) || 0;
-                        setScrollbarStartY(currentY);
-                      }}
-                    />
-                  </div>
-                )}
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={4}
+                          className="text-center py-8 text-gray-500"
+                        >
+                          {searchTerm
+                            ? "No reservations found matching your search."
+                            : "No reservations found."}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
               </div>
             </div>
           </div>
@@ -794,79 +571,196 @@ export default function BookingManagementPage() {
       </div>
 
       {/* Reservation details sheet */}
-      <AnimatePresence>
-        {isSheetOpen && (
-          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-            <SheetContent
-              className="w-full sm:max-w-md p-4 overflow-y-auto"
-              side="right"
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetContent
+          className="w-full sm:max-w-md p-4 overflow-y-auto transition-transform duration-300 ease-in-out"
+          side="right"
+        >
+          <div className="relative">
+            {/* Reservation Details */}
+            <div
+              className={`transition-all duration-300 ease-in-out ${showRejectForm ? "blur-[2px] pointer-events-none" : ""}`}
             >
-              <motion.div
-                variants={sheetVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="relative"
-              >
-                {renderSheetContent()}
+              <SheetHeader>
+                <SheetTitle className="text-2xl text-bold text-center text-blue-800">
+                  Reservation Summary
+                </SheetTitle>
+                <SheetDescription className="text-center text-[12px]">
+                  Review the reservation details before accepting or rejecting.
+                </SheetDescription>
+              </SheetHeader>
 
-                {/* Reject Confirmation Popup */}
-                <AnimatePresence>
-                  {showRejectForm && (
-                    <motion.div
-                      variants={popupVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      className="absolute inset-0 flex items-center justify-center"
-                    >
-                      <div className="bg-white border rounded-lg shadow-lg p-6 w-[90%] max-w-md">
-                        <h3 className="text-lg font-semibold text-center mb-4">
-                          Are you sure you want to reject this reservation?
-                        </h3>
+              {selectedReservationDetail ? (
+                <>
+                  {/* Contact Details Section */}
+                  <div className="mt-6 p-4">
+                    <h3 className="text-lg font-semibold mb-2">
+                      Contact Details
+                    </h3>
+                    <div className="border-2 border-gray-300 p-4 rounded-lg space-y-2">
+                      <p>
+                        <span className="font-medium">Name:</span>{" "}
+                        {selectedReservationDetail.reservation.name || "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Email:</span>{" "}
+                        {selectedReservationDetail.reservation.email_address ||
+                          "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Contact Number:</span>{" "}
+                        {selectedReservationDetail.reservation.contact_number ||
+                          "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Role:</span>{" "}
+                        {selectedReservationDetail.reservation.role || "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Course/Dept/Org:</span>{" "}
+                        {selectedReservationDetail.reservation.course || "N/A"}
+                      </p>
+                    </div>
+                  </div>
 
-                        <Textarea
-                          placeholder="Enter reason for rejection..."
-                          value={rejectReason}
-                          onChange={(e) => {
-                            setRejectReason(e.target.value);
-                            if (e.target.value.trim()) {
-                              setRejectError(false);
-                            }
-                          }}
-                          className={`min-h-[100px] ${rejectError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
-                        />
-                        {rejectError && (
-                          <p className="text-sm text-red-500 mt-1">
-                            Please provide a reason for rejection
-                          </p>
-                        )}
+                  {/* Request for Job Order Section */}
+                  <div className="mt-6 p-4">
+                    <h3 className="text-lg font-semibold mb-2">
+                      Request for Job Order
+                    </h3>
+                    <div className="border-2 border-gray-300 p-4 rounded-lg space-y-2">
+                      <p>
+                        <span className="font-medium">Room:</span>{" "}
+                        {selectedReservationDetail.reservation.room?.name ||
+                          selectedReservationDetail.reservation.room_id ||
+                          "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Location/Building:</span>{" "}
+                        {selectedReservationDetail.reservation.room
+                          ?.room_location || "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Room Type:</span>{" "}
+                        {selectedReservationDetail.reservation.room
+                          ?.room_type || "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">
+                          Date of Reservation:
+                        </span>{" "}
+                        {selectedReservationDetail.reservation.date_requested ||
+                          "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Start Time:</span>{" "}
+                        {selectedReservationDetail.reservation.start_time ||
+                          "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">End Time:</span>{" "}
+                        {selectedReservationDetail.reservation.end_time ||
+                          "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Nature of Work:</span>{" "}
+                        {selectedReservationDetail.reservation.nature_of_work ||
+                          "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Status:</span>{" "}
+                        {selectedReservationDetail.reservation.status}
+                      </p>
+                      <p>
+                        <span className="font-medium">Submitted On:</span>{" "}
+                        {new Date(
+                          selectedReservationDetail.reservation.created_at,
+                        ).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="mt-6 p-4 text-center text-gray-500">
+                  <p>Loading reservation details...</p>
+                </div>
+              )}
 
-                        <div className="flex justify-between mt-6">
-                          <Button
-                            type="button"
-                            className="bg-red-800 hover:bg-red-900 text-white"
-                            onClick={handleRejectCancel}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            type="button"
-                            className="bg-blue-700 hover:bg-blue-800 text-white"
-                            onClick={handleRejectSubmit}
-                          >
-                            Submit
-                          </Button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            </SheetContent>
-          </Sheet>
-        )}
-      </AnimatePresence>
+              {/* Action Buttons */}
+              {selectedReservationDetail && (
+                <div className="flex gap-4 mt-8 mb-4 justify-end">
+                  <Button
+                    variant="destructive"
+                    className="bg-red-800 text-white hover:bg-red-900"
+                    onClick={handleReject}
+                  >
+                    Reject
+                  </Button>
+                  <Button
+                    className="bg-blue-700 text-white hover:bg-blue-800"
+                    onClick={handleAccept}
+                  >
+                    Accept
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Reject Confirmation Popup */}
+            <AnimatePresence>
+              {showRejectForm && (
+                <motion.div
+                  variants={popupVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  className="absolute inset-0 flex items-center justify-center"
+                >
+                  <div className="bg-white border rounded-lg shadow-lg p-6 w-[90%] max-w-md">
+                    <h3 className="text-lg font-semibold text-center mb-4">
+                      Are you sure you want to reject this reservation?
+                    </h3>
+
+                    <Textarea
+                      placeholder="Enter reason for rejection..."
+                      value={rejectReason}
+                      onChange={(e) => {
+                        setRejectReason(e.target.value);
+                        if (e.target.value.trim()) {
+                          setRejectError(false);
+                        }
+                      }}
+                      className={`min-h-[100px] ${rejectError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                    />
+                    {rejectError && (
+                      <p className="text-sm text-red-500 mt-1">
+                        Please provide a reason for rejection
+                      </p>
+                    )}
+
+                    <div className="flex justify-between mt-6">
+                      <Button
+                        type="button"
+                        className="bg-red-800 hover:bg-red-900 text-white"
+                        onClick={handleRejectCancel}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="button"
+                        className="bg-blue-700 hover:bg-blue-800 text-white"
+                        onClick={handleRejectSubmit}
+                      >
+                        Submit
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Accept Confirmation Popup */}
       <AnimatePresence>

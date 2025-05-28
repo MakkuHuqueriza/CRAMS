@@ -1,13 +1,17 @@
 "use client";
 
-import type React from "react";
-
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { roomData } from "@/app/roomData";
-import { Field, Form, Formik, useFormikContext, FormikHelpers } from "formik";
-import * as Yup from "yup";
+import type React from "react";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation"; // Add useRouter import
+import { Field, Form, Formik, useFormikContext } from "formik";
+import * as Yup from "yup";
+import { createReservation, getAllRoomsWithTimeslots } from "@/actions/users"; // Import the server action
+import {
+  EditReservationDetails,
+  deletePendingReservation,
+} from "@/actions/users";
+import { Room } from "@/lib/types";
 import { TriangleAlert } from "lucide-react";
 
 type TimePeriodSelectorProps = {
@@ -185,8 +189,75 @@ const ReservationDetails = () => {
   const roomId = params.roomId;
   const decodedRoomId =
     typeof roomId === "string" ? decodeURIComponent(roomId) : "";
-  const room = roomData.find((room) => room.id === decodedRoomId);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [initialValues, setInitialValues] =
+    useState<ReservationFormValues | null>(null);
+  const [pendingReservationId, setPendingReservationId] = useState<
+    string | null
+  >(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+
+  useEffect(() => {
+    // Fetch rooms with timeslots from Supabase
+    getAllRoomsWithTimeslots().then((data) => {
+      setRooms(data || []);
+    });
+  }, []);
+
+  useEffect(() => {
+    // Fetch pending reservation on mount
+    EditReservationDetails().then((data) => {
+      if (data) {
+        setPendingReservationId(data.id);
+        // Map Supabase JSON keys to your form fields if needed
+        setInitialValues({
+          contactName: data.name || "",
+          email: data.email || "",
+          contactNumber: data.contact_number || "",
+          role: data.role || "",
+          course: data.course || "",
+          type: data.type || "",
+          dateOfReservation: data.date || "",
+          startTime: data.start_time ? data.start_time.split(" ")[0] : "",
+          startPeriod: data.start_time ? data.start_time.split(" ")[1] : "AM",
+          endTime: data.end_time ? data.end_time.split(" ")[0] : "",
+          endPeriod: data.end_time ? data.end_time.split(" ")[1] : "AM",
+          natureOfWork: data.nature_of_work || "",
+          otherPurpose: data.others_purpose || "",
+        });
+      } else {
+        setInitialValues({
+          contactName: "",
+          email: "",
+          contactNumber: "",
+          role: "",
+          course: "",
+          type: "",
+          dateOfReservation: "",
+          startTime: "",
+          startPeriod: "AM",
+          endTime: "",
+          endPeriod: "AM",
+          natureOfWork: "",
+          otherPurpose: "",
+        });
+      }
+    });
+  }, []);
+
+  // Handle cancel button click
+  const handleCancel = async () => {
+    try {
+      if (pendingReservationId) {
+        await deletePendingReservation(pendingReservationId);
+      }
+      router.back();
+    } catch {
+      alert("Failed to cancel reservation.");
+    }
+  };
+
+  const room = rooms.find((room) => room.name === decodedRoomId);
 
   if (!room) {
     return (
@@ -238,9 +309,14 @@ const ReservationDetails = () => {
     endTime: Yup.string().required("End Time is required"),
     endPeriod: Yup.string().required("End Period is required"),
     natureOfWork: Yup.string().required("Nature of Work is required"),
+    reservationOptions: Yup.array().when("natureOfWork", {
+      is: "Reservation/Set-up",
+      then: (schema) => schema.min(1, "Select at least one option"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
     otherPurpose: Yup.string().when("natureOfWork", {
       is: "Others",
-      then: (schema) => schema.required("Please describe your purpose"),
+      then: (schema) => schema.required("Please specify your purpose"),
       otherwise: (schema) => schema.notRequired(),
     }),
   }).test("time-interval", "Invalid time interval", function (values) {
@@ -282,16 +358,45 @@ const ReservationDetails = () => {
     return true;
   });
 
-  const handleSubmit = (
-    _values: ReservationFormValues,
-    { setSubmitting }: FormikHelpers<ReservationFormValues>,
-  ) => {
-    setHasSubmitted(true);
-    // If the form is valid, navigate to the next page
-    router.push(
-      `/rooms/${encodeURIComponent(room?.id)}/reserve/reservation-summary`,
-    );
-    setSubmitting(false);
+  // Modified handleSubmit with client-side navigation
+  const handleSubmit = async (values: ReservationFormValues) => {
+    try {
+      // Format start and end times with periods (AM/PM)
+      const startTimeFormatted = `${values.startTime} ${values.startPeriod}`;
+      const endTimeFormatted = `${values.endTime} ${values.endPeriod}`;
+
+      // Create FormData object to send to the server action
+      const formData = new FormData();
+      formData.append("name", values.contactName);
+      formData.append("email_address", values.email);
+      formData.append("contact_number", values.contactNumber);
+      formData.append("role", values.role);
+      formData.append("course", values.course);
+      formData.append("date_requested", values.dateOfReservation);
+      formData.append("start_time", startTimeFormatted);
+      formData.append("end_time", endTimeFormatted);
+      formData.append("room_id", decodedRoomId);
+      formData.append("room_location", room.room_location || "");
+      formData.append("type", values.type);
+      formData.append("nature_of_work", values.natureOfWork);
+
+      if (values.natureOfWork === "Others" && values.otherPurpose) {
+        formData.append("others_purpose", values.otherPurpose);
+      }
+
+      // Call the server action with the form data
+      await createReservation(formData);
+
+      // Handle navigation on client side
+      router.push(
+        `/rooms/${encodeURIComponent(decodedRoomId)}/reserve/reservation-summary/`,
+      );
+    } catch (error) {
+      console.error("Error submitting reservation:", error);
+      alert(
+        "An error occurred while submitting the reservation. Please try again.",
+      );
+    }
   };
 
   const timeOptions = [
@@ -321,22 +426,9 @@ const ReservationDetails = () => {
     "06:30",
   ];
 
-  const initialValues = {
-    contactName: "",
-    email: "",
-    contactNumber: "",
-    role: "",
-    course: "",
-    type: "",
-    dateOfReservation: "",
-    startTime: "",
-    startPeriod: "AM",
-    endTime: "",
-    endPeriod: "AM",
-    natureOfWork: "",
-    reservationOptions: [],
-    otherPurpose: "",
-  };
+  if (!initialValues) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
@@ -350,10 +442,10 @@ const ReservationDetails = () => {
         </Link>{" "}
         &gt;{" "}
         <Link
-          href={`/rooms/${encodeURIComponent(room.id)}`}
+          href={`/rooms/${encodeURIComponent(decodedRoomId)}`}
           className="text-[#274c77] hover:underline cursor-pointer"
         >
-          {room.id}
+          {decodedRoomId}
         </Link>{" "}
         &gt; Reservation Form
       </p>
@@ -361,10 +453,10 @@ const ReservationDetails = () => {
       <Formik<ReservationFormValues>
         enableReinitialize
         initialValues={initialValues}
-        onSubmit={handleSubmit}
         validationSchema={validationSchema}
-        validateOnChange={true}
+        onSubmit={handleSubmit}
         validateOnBlur={true}
+        validateOnChange={true}
       >
         {({ values, errors, touched }) => (
           <Form className="flex flex-col items-center gap-6 pb-10">
@@ -648,7 +740,7 @@ const ReservationDetails = () => {
                     </label>
                     <input
                       type="text"
-                      value={room?.id || ""}
+                      value={decodedRoomId || ""}
                       readOnly
                       className="border-[1px] border-[#B9B9B9] text-gray-500 rounded-md px-3 w-full bg-gray-100 h-9"
                     />
@@ -659,7 +751,7 @@ const ReservationDetails = () => {
                     </label>
                     <input
                       type="text"
-                      value={room?.floor || ""}
+                      value={room?.room_location || ""}
                       readOnly
                       className="border-[1px] border-[#B9B9B9] text-gray-500 rounded-md px-3 w-full bg-gray-100 h-9"
                     />
@@ -785,7 +877,7 @@ const ReservationDetails = () => {
                       <label className="flex items-center gap-2">
                         <Field
                           type="radio"
-                          name="natureOfWork"
+                          name="natureOfWork" // Changed from nature_of_work
                           value="Room/Space"
                           className="h-4 w-4"
                         />
@@ -794,7 +886,7 @@ const ReservationDetails = () => {
                       <label className="flex items-center gap-2">
                         <Field
                           type="radio"
-                          name="natureOfWork"
+                          name="natureOfWork" // Changed from nature_of_work
                           value="Equipment"
                           className="h-4 w-4"
                         />
@@ -803,7 +895,7 @@ const ReservationDetails = () => {
                       <label className="flex items-center gap-2">
                         <Field
                           type="radio"
-                          name="natureOfWork"
+                          name="natureOfWork" // Changed from nature_of_work
                           value="Transportation"
                           className="h-4 w-4"
                         />
@@ -817,7 +909,7 @@ const ReservationDetails = () => {
                     <Field
                       type="radio"
                       value="Repairs"
-                      name="natureOfWork"
+                      name="natureOfWork" // Changed from nature_of_work
                       className="h-4 w-4"
                     />
                     <span>Repairs</span>
@@ -828,7 +920,7 @@ const ReservationDetails = () => {
                     <Field
                       type="radio"
                       value="Activity/Program"
-                      name="natureOfWork"
+                      name="natureOfWork" // Changed from nature_of_work
                       className="h-4 w-4"
                     />
                     <span>Activity/Program</span>
@@ -839,7 +931,7 @@ const ReservationDetails = () => {
                     <Field
                       type="radio"
                       value="Others"
-                      name="natureOfWork"
+                      name="natureOfWork" // Changed from nature_of_work
                       className="h-4 w-4 mt-1"
                     />
                     <div className="flex flex-col gap-2">
@@ -862,8 +954,8 @@ const ReservationDetails = () => {
             <div className="flex flex-col md:flex-row justify-between w-full gap-4 mt-1">
               <button
                 type="button"
-                className="bg-[#780D29] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.02] order-2 md:order-1"
-                onClick={() => router.push("/")}
+                className="bg-[#780D29] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03] order-2 md:order-1"
+                onClick={handleCancel}
               >
                 Cancel
               </button>
