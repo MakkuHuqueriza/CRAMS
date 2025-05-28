@@ -35,16 +35,21 @@ import {
   getReservationDetailAction,
   updateReservationStatusAction,
 } from "@/actions/admin";
-import { Reservation, Room, ReservationStatus } from "@/utils/database/types";
+import type {
+  Reservation,
+  Room,
+  ReservationStatus,
+} from "@/utils/database/types";
 
-// Types for the booking data structure
-interface BookingData {
+// Types
+type BookingData = {
   id: string;
   room: string;
-  time: string;
-  date: string;
+  submittedDate: string;
+  submittedTime: string;
   status: ReservationStatus;
-}
+  rejectionReason?: string;
+};
 
 interface AdminReservation {
   id: string;
@@ -57,7 +62,21 @@ interface AdminReservation {
   };
 }
 
+// Animation variants
+const popupVariants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.2 } },
+  exit: { opacity: 0, scale: 0.95, transition: { duration: 0.15 } },
+};
+
+const confirmationPopupVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
+  exit: { opacity: 0, y: 20, transition: { duration: 0.15 } },
+};
+
 export default function BookingManagementPage() {
+  // UI State
   const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -71,12 +90,19 @@ export default function BookingManagementPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedReservationDetail, setSelectedReservationDetail] =
     useState<AdminReservation | null>(null);
+  const [showAcceptConfirmation, setShowAcceptConfirmation] = useState(false);
+  const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
+
+  // Scrollbar state
+  const [isDragging, setIsDragging] = useState(false);
+  const [showScrollbar, setShowScrollbar] = useState(false);
+  const [dragStartY, setDragStartY] = useState(0);
+  const [scrollbarStartY, setScrollbarStartY] = useState(0);
 
   const tableRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-
-  const [showAcceptConfirmation, setShowAcceptConfirmation] = useState(false);
-  const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollbarRef = useRef<HTMLDivElement>(null);
 
   // For badge styling
   const badgeClass = "px-3 py-1 rounded-full text-xs font-semibold";
@@ -86,6 +112,64 @@ export default function BookingManagementPage() {
     fetchReservations();
   }, []);
 
+  // Check if scrollbar should be shown
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const { scrollHeight, clientHeight } = scrollContainerRef.current;
+      setShowScrollbar(scrollHeight > clientHeight);
+    }
+  }, [filteredBookings]);
+
+  // Handle scrollbar dragging
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging || !scrollContainerRef.current || !scrollbarRef.current)
+        return;
+
+      e.preventDefault();
+
+      const deltaY = e.clientY - dragStartY;
+      const newScrollbarY = scrollbarStartY + deltaY;
+
+      const scrollbarContainer = scrollbarRef.current.parentElement;
+      if (!scrollbarContainer) return;
+
+      const containerHeight = scrollbarContainer.offsetHeight - 16; // Account for padding
+      const scrollbarHeight = scrollbarRef.current.offsetHeight;
+      const maxScrollbarY = containerHeight - scrollbarHeight;
+
+      const clampedY = Math.max(0, Math.min(newScrollbarY, maxScrollbarY));
+      const scrollPercentage = clampedY / maxScrollbarY;
+
+      const scrollContainer = scrollContainerRef.current;
+      const maxScroll =
+        scrollContainer.scrollHeight - scrollContainer.clientHeight;
+      scrollContainer.scrollTop = scrollPercentage * maxScroll;
+
+      // Update scrollbar position immediately
+      scrollbarRef.current.style.transform = `translateY(${clampedY}px)`;
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.body.style.userSelect = "none";
+      document.body.style.cursor = "grabbing";
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
+    };
+  }, [isDragging, dragStartY, scrollbarStartY]);
+
+  // Fetch reservations from backend
   const fetchReservations = async () => {
     try {
       setLoading(true);
@@ -116,13 +200,14 @@ export default function BookingManagementPage() {
               id: reservation.id,
               room:
                 reservation.room?.name || reservation.room_id || "Unknown Room",
-              time: createdAt.toLocaleTimeString("en-US", {
+              submittedTime: createdAt.toLocaleTimeString("en-US", {
                 hour: "numeric",
                 minute: "2-digit",
                 hour12: true,
               }),
-              date: createdAt.toLocaleDateString("en-CA"), // YYYY-MM-DD format
+              submittedDate: createdAt.toLocaleDateString("en-CA"), // YYYY-MM-DD format
               status: reservation.status,
+              rejectionReason: item.reason_for_rejection || undefined,
             };
           },
         );
@@ -170,15 +255,23 @@ export default function BookingManagementPage() {
     switch (sortOption) {
       case "latest":
         result = result.sort((a, b) => {
-          const dateA = new Date(`${a.date} ${a.time}`).getTime();
-          const dateB = new Date(`${b.date} ${b.time}`).getTime();
+          const dateA = new Date(
+            `${a.submittedDate} ${a.submittedTime}`,
+          ).getTime();
+          const dateB = new Date(
+            `${b.submittedDate} ${b.submittedTime}`,
+          ).getTime();
           return dateB - dateA;
         });
         break;
       case "oldest":
         result = result.sort((a, b) => {
-          const dateA = new Date(`${a.date} ${a.time}`).getTime();
-          const dateB = new Date(`${b.date} ${b.time}`).getTime();
+          const dateA = new Date(
+            `${a.submittedDate} ${a.submittedTime}`,
+          ).getTime();
+          const dateB = new Date(
+            `${b.submittedDate} ${b.submittedTime}`,
+          ).getTime();
           return dateA - dateB;
         });
         break;
@@ -192,12 +285,12 @@ export default function BookingManagementPage() {
     // Always move completed reservations to the bottom
     result = result.sort((a, b) => {
       if (a.status === "Completed" && b.status !== "Completed") {
-        return 1; // Move 'a' (Completed) to the bottom
+        return 1;
       }
       if (b.status === "Completed" && a.status !== "Completed") {
-        return -1; // Move 'b' (Completed) to the bottom
+        return -1;
       }
-      return 0; // Keep original order for non-completed items
+      return 0;
     });
 
     setFilteredBookings(result);
@@ -406,16 +499,10 @@ export default function BookingManagementPage() {
     }
   };
 
-  const popupVariants = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.2 } },
-    exit: { opacity: 0, scale: 0.95, transition: { duration: 0.15 } },
-  };
-
-  const confirmationPopupVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
-    exit: { opacity: 0, y: 20, transition: { duration: 0.15 } },
+  // Helper for formatting date (if needed)
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-CA");
   };
 
   if (loading) {
@@ -474,18 +561,36 @@ export default function BookingManagementPage() {
                 )}
               </div>
             </div>
-            <div className="w-full md:w-[180px] bg-white rounded-lg shadow-sm">
+            <div className="w-full md:w-[200px] bg-white rounded-lg shadow-sm">
               <Select value={sortOption} onValueChange={handleSortChange}>
-                <SelectTrigger className={`w-full h-9 border-0`}>
-                  <div className="flex items-center gap-2">
-                    <ArrowDownWideNarrow className="h-4 w-4" />
-                    <SelectValue placeholder="Sort by" />
+                <SelectTrigger className="w-full h-9 border-0 px-3">
+                  <div className="flex items-center gap-2 w-full">
+                    <ArrowDownWideNarrow className="h-4 w-4 flex-shrink-0" />
+                    <SelectValue
+                      placeholder="Sort by"
+                      className="flex-1 text-left"
+                    />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="w-full bg-white">
-                  <SelectItem value="latest">Latest</SelectItem>
-                  <SelectItem value="oldest">Oldest</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
+                <SelectContent className="w-[200px] bg-white">
+                  <SelectItem
+                    value="latest"
+                    className="focus:bg-[#274c77] active:bg-[#274c77] pl-[30px] rounded-t-md"
+                  >
+                    <span>Latest</span>
+                  </SelectItem>
+                  <SelectItem
+                    value="oldest"
+                    className="focus:bg-[#274c77] active:bg-[#274c77] pl-[30px]"
+                  >
+                    <span>Oldest</span>
+                  </SelectItem>
+                  <SelectItem
+                    value="pending"
+                    className="focus:bg-[#274c77] active:bg-[#274c77] pl-[30px] rounded-b-md"
+                  >
+                    <span>Pending</span>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -496,74 +601,148 @@ export default function BookingManagementPage() {
             className="bg-white rounded-lg shadow-md w-full max-w-screen-xl mx-auto overflow-hidden"
             ref={tableRef}
           >
-            {/* Table with properly aligned columns */}
-            <div className="relative overflow-hidden">
-              <Table>
-                <TableHeader className="rounded-t-lg overflow-hidden">
-                  <TableRow className="hover:bg-white rounded-t-lg">
-                    <TableHead className="text-center text-[16px] py-5 w-[30%] bg-white rounded-tl-lg">
-                      Booking ID
-                    </TableHead>
-                    <TableHead className="text-center text-[16px] py-5 w-[20%] bg-white">
-                      Room Number
-                    </TableHead>
-                    <TableHead className="text-center text-[16px] py-5 w-1/4 bg-white">
-                      Submitted On
-                    </TableHead>
-                    <TableHead className="text-center text-[16px] py-5 w-1/4 bg-white rounded-tr-lg">
-                      Status
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-              </Table>
-
-              {/* Scrollable Table Body with custom scrollbar */}
-              <div
-                className="max-h-[355px] overflow-y-auto scrollbar-custom"
-                style={{
-                  scrollbarWidth: "thin",
-                  scrollbarColor: "#274c77 #f0f0f0",
-                }}
-              >
+            <div className="relative">
+              {/* Fixed Header */}
+              <div className="border-b border-gray-200">
                 <Table>
-                  <TableBody>
-                    {filteredBookings.length > 0 ? (
-                      filteredBookings.map((booking) => (
-                        <TableRow
-                          key={booking.id}
-                          className={`hover:bg-blue-50 ${selectedBooking === booking.id ? "bg-[#9BB2FC]" : ""}`}
-                          onClick={() =>
-                            handleRowClick(booking.id, booking.status)
-                          }
-                        >
-                          <TableCell className="font-medium text-center py-4 w-[30%]">
-                            {booking.id}
-                          </TableCell>
-                          <TableCell className="text-center py-4 w-[20%]">
-                            {booking.room}
-                          </TableCell>
-                          <TableCell className="text-center py-4 w-[27%]">
-                            {booking.time}
-                          </TableCell>
-                          <TableCell className="text-center py-4 w-[23%]">
-                            {getStatusBadge(booking.status)}
+                  <TableHeader className="rounded-t-lg overflow-hidden">
+                    <TableRow className="hover:bg-white rounded-t-lg">
+                      <TableHead className="text-center font-semibold text-[18px] py-6 w-[30%] bg-white rounded-tl-lg">
+                        Booking ID
+                      </TableHead>
+                      <TableHead className="text-center font-semibold text-[18px] py-6 w-[22%] bg-white">
+                        Room Number
+                      </TableHead>
+                      <TableHead className="text-center font-semibold text-[18px] py-6 w-[23%] bg-white">
+                        Submitted On
+                      </TableHead>
+                      <TableHead className="text-center font-semibold text-[18px] py-6 w-[25%] bg-white rounded-tr-lg">
+                        Status
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                </Table>
+              </div>
+
+              {/* Scrollable Body with Overlay Scrollbar */}
+              <div className="relative">
+                <div
+                  ref={scrollContainerRef}
+                  className="max-h-[350px] overflow-y-auto overflow-x-hidden"
+                  style={{
+                    scrollbarWidth: "none",
+                    msOverflowStyle: "none",
+                  }}
+                  onScroll={(e) => {
+                    if (isDragging) return; // Don't update position while dragging
+
+                    const scrollTop = e.currentTarget.scrollTop;
+                    const scrollHeight = e.currentTarget.scrollHeight;
+                    const clientHeight = e.currentTarget.clientHeight;
+                    const scrollPercentage =
+                      scrollTop / (scrollHeight - clientHeight);
+
+                    // Update scrollbar position
+                    if (scrollbarRef.current) {
+                      const scrollbarContainer =
+                        scrollbarRef.current.parentElement;
+                      if (scrollbarContainer) {
+                        const containerHeight =
+                          scrollbarContainer.offsetHeight - 16; // Account for padding
+                        const scrollbarHeight =
+                          scrollbarRef.current.offsetHeight;
+                        const maxScroll = containerHeight - scrollbarHeight;
+                        scrollbarRef.current.style.transform = `translateY(${scrollPercentage * maxScroll}px)`;
+                      }
+                    }
+                  }}
+                >
+                  <style jsx>{`
+                    div::-webkit-scrollbar {
+                      width: 0px;
+                      background: transparent;
+                    }
+                  `}</style>
+                  <Table>
+                    <TableBody>
+                      {filteredBookings.length > 0 ? (
+                        filteredBookings.map((booking) => (
+                          <TableRow
+                            key={booking.id}
+                            className={`hover:bg-blue-50 cursor-pointer transition-colors duration-200 ${
+                              selectedBooking === booking.id
+                                ? "bg-blue-200"
+                                : ""
+                            }`}
+                            onClick={() =>
+                              handleRowClick(booking.id, booking.status)
+                            }
+                          >
+                            <TableCell className="font-medium text-center text-[12px] py-4 w-[30%]">
+                              {booking.id}
+                            </TableCell>
+                            <TableCell className="text-center py-4 w-[22%]">
+                              {booking.room}
+                            </TableCell>
+                            <TableCell className="text-center py-4 w-[23%]">
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium">
+                                  {formatDate(booking.submittedDate)}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  {booking.submittedTime}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-center py-4 w-[25%]">
+                              <div className="flex justify-center">
+                                {getStatusBadge(booking.status)}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell
+                            colSpan={4}
+                            className="text-center py-8 text-gray-500"
+                          >
+                            {searchTerm
+                              ? "No reservations found matching your search."
+                              : "No reservations found."}
                           </TableCell>
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={4}
-                          className="text-center py-8 text-gray-500"
-                        >
-                          {searchTerm
-                            ? "No reservations found matching your search."
-                            : "No reservations found."}
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Custom Overlay Scrollbar */}
+                {showScrollbar && (
+                  <div className="scrollbar-container absolute top-0 right-[5px] w-[7px] h-full flex items-start pt-2">
+                    <div
+                      ref={scrollbarRef}
+                      className={`custom-scrollbar w-full bg-[#274c77] rounded-full cursor-default ${
+                        isDragging ? "cursor-grabbing" : ""
+                      } ${isDragging ? "" : "transition-transform duration-75 ease-out"}`}
+                      style={{
+                        height: `${Math.min(80, (350 / Math.max(filteredBookings.length * 80, 350)) * 100)}%`,
+                        minHeight: "20px",
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setIsDragging(true);
+                        setDragStartY(e.clientY);
+
+                        // Get current scrollbar position
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const containerRect =
+                          e.currentTarget.parentElement!.getBoundingClientRect();
+                        setScrollbarStartY(rect.top - containerRect.top - 8); // Account for padding
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -579,7 +758,9 @@ export default function BookingManagementPage() {
           <div className="relative">
             {/* Reservation Details */}
             <div
-              className={`transition-all duration-300 ease-in-out ${showRejectForm ? "blur-[2px] pointer-events-none" : ""}`}
+              className={`transition-all duration-300 ease-in-out ${
+                showRejectForm ? "blur-[2px] pointer-events-none" : ""
+              }`}
             >
               <SheetHeader>
                 <SheetTitle className="text-2xl text-bold text-center text-blue-800">
