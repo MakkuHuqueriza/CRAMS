@@ -88,8 +88,11 @@ export default function BookingManagementPage() {
 
       if ("error" in result && result.error) {
         const errorMessage =
-          typeof result.error === "object" && result.error !== null && "message" in result.error
-            ? (result.error as { message?: string }).message || "Failed to fetch reservation details"
+          typeof result.error === "object" &&
+          result.error !== null &&
+          "message" in result.error
+            ? (result.error as { message?: string }).message ||
+              "Failed to fetch reservation details"
             : "Failed to fetch reservation details";
         setError(errorMessage);
         return;
@@ -210,8 +213,11 @@ export default function BookingManagementPage() {
 
         if ("error" in result && result.error) {
           const errorMessage =
-            typeof result.error === "object" && result.error !== null && "message" in result.error
-              ? (result.error as { message?: string }).message || "Failed to fetch reservation details"
+            typeof result.error === "object" &&
+            result.error !== null &&
+            "message" in result.error
+              ? (result.error as { message?: string }).message ||
+                "Failed to fetch reservation details"
               : "Failed to fetch reservation details";
           setError(errorMessage);
           return;

@@ -395,12 +395,14 @@ export default function PendingReservationsPage() {
                                 </span>{" "}
                                 {reservation.nature_of_work}
                               </p>
-                              {reservation.others_purpose && (  <p>
-                                <span className="font-medium">
-                                  Specific Purpose:
-                                </span>{" "}
-                                {reservation.others_purpose}
-                              </p>)}
+                              {reservation.others_purpose && (
+                                <p>
+                                  <span className="font-medium">
+                                    Specific Purpose:
+                                  </span>{" "}
+                                  {reservation.others_purpose}
+                                </p>
+                              )}
                             </div>
                           </div>
                         </div>

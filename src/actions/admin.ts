@@ -22,8 +22,7 @@ export const adminLoginAction = async (FormData: FormData) => {
 
   const supabase = await createClient();
 
-  const { data } =
-    await supabase.auth.signInWithPassword(loginCredentials);
+  const { data } = await supabase.auth.signInWithPassword(loginCredentials);
 
   const { data: adminData, error: adminError } = await supabase
     .from("admin")
@@ -250,9 +249,7 @@ export const getRoomCountsAction = async () => {
 
   try {
     // Get all rooms to count room types
-    const { data: rooms } = await supabase
-      .from("room")
-      .select("room_type");
+    const { data: rooms } = await supabase.from("room").select("room_type");
 
     // Initialize counters
     const counts: RoomCounts = {
@@ -583,7 +580,10 @@ export const deleteRoomAction = async (roomId: string) => {
     }
 
     // Delete the room
-    const { error } = await supabase.from("room").delete().eq("room_id", roomId);
+    const { error } = await supabase
+      .from("room")
+      .delete()
+      .eq("room_id", roomId);
 
     if (error) {
       return { error: { message: "Failed to delete room" } };
@@ -615,10 +615,7 @@ export const createRoomAction = async (formData: FormData) => {
     "DMPCS LABORATORY ROOM",
     "LECTURE ROOM/AUDITORIUM",
   ];
-  const validRoomLocations = [
-    "1st Floor, CSM",
-    "2nd Floor, CSM",
-  ];
+  const validRoomLocations = ["1st Floor, CSM", "2nd Floor, CSM"];
 
   // Validate input
   if (
@@ -719,7 +716,9 @@ export const searchRoomsAction = async (searchTerm: string) => {
 export const getAllReservations = async () => {
   const supabase = await createClient();
   // Get all reservations (customize fields as needed)
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect("/admin/login");
   const { data: adminData, error: adminError } = await supabase
     .from("admin")
@@ -727,9 +726,7 @@ export const getAllReservations = async () => {
     .eq("admin_id", user.id)
     .single();
   if (adminError || !adminData) redirect("/admin/login");
-  const { data: reservations } = await supabase
-    .from("reservation")
-    .select("*");
+  const { data: reservations } = await supabase.from("reservation").select("*");
   return reservations ?? [];
 };
 
@@ -738,7 +735,9 @@ export const getAllRoomsWithTimeslots = async () => {
   const supabase = await createClient();
 
   // Get the current user (admin)
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect("/admin/login");
 
   // Verify user is an admin

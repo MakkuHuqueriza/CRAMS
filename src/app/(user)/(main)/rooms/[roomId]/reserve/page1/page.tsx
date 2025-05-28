@@ -6,7 +6,10 @@ import { useParams, useRouter } from "next/navigation"; // Add useRouter import
 import { Field, Form, Formik, useFormikContext } from "formik";
 import * as Yup from "yup";
 import { createReservation, getAllRoomsWithTimeslots } from "@/actions/users"; // Import the server action
-import { EditReservationDetails, deletePendingReservation } from "@/actions/users";
+import {
+  EditReservationDetails,
+  deletePendingReservation,
+} from "@/actions/users";
 import { Room } from "@/lib/types";
 
 type TimePeriodSelectorProps = {
@@ -30,7 +33,6 @@ type ReservationFormValues = {
   reservationOptions?: string[];
   otherPurpose?: string;
 };
-
 
 // Helper function to convert time to minutes for comparison
 const timeToMinutes = (time: string, period: string): number => {
@@ -56,11 +58,7 @@ const TimePeriodSelector = ({
     timeFieldName as keyof ReservationFormValues
   ] as string;
 
-  
-
   useEffect(() => {
-  
-
     if (selectedTime) {
       // For times 1,2,3,4,5,6,12 - only PM allowed
       if (
@@ -166,15 +164,17 @@ const TimePeriodSelector = ({
 };
 
 const ReservationDetails = () => {
-  
   const params = useParams();
   const router = useRouter();
   const roomId = params.roomId;
   const decodedRoomId =
     typeof roomId === "string" ? decodeURIComponent(roomId) : "";
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [initialValues, setInitialValues] = useState<ReservationFormValues | null>(null);
-  const [pendingReservationId, setPendingReservationId] = useState<string | null>(null);
+  const [initialValues, setInitialValues] =
+    useState<ReservationFormValues | null>(null);
+  const [pendingReservationId, setPendingReservationId] = useState<
+    string | null
+  >(null);
   useEffect(() => {
     // Fetch rooms with timeslots from Supabase
     getAllRoomsWithTimeslots().then((data) => {
@@ -235,7 +235,6 @@ const ReservationDetails = () => {
     }
   };
 
-
   const room = rooms.find((room) => room.name === decodedRoomId);
 
   if (!room) {
@@ -263,7 +262,7 @@ const ReservationDetails = () => {
         if (!value) return false;
         const date = new Date(value);
         if (isNaN(date.getTime())) return false;
-        const year = date.getFullYear();  
+        const year = date.getFullYear();
         // Only allow years between 2024 and 2100
         return year >= 2024 && year <= 2100;
       })
@@ -398,8 +397,7 @@ const ReservationDetails = () => {
     "06:30",
   ];
 
-
-    if (!initialValues) {
+  if (!initialValues) {
     return <div>Loading...</div>;
   }
 

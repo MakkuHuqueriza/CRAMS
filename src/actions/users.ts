@@ -6,7 +6,11 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { format } from "date-fns";
-import { Room, Reservation, ReservationFormValues } from "@/utils/database/types";
+import {
+  Room,
+  Reservation,
+  ReservationFormValues,
+} from "@/utils/database/types";
 
 export const loginAction = async (email: string, password: string) => {
   const { auth } = await createClient();
@@ -682,9 +686,8 @@ export const cancelReservation = async (reservationId: string) => {
     console.error("cancelReservation error:", error);
     return {
       error: true,
-      errorMessage: error instanceof Error
-        ? error.message
-        : "An unexpected error occurred",
+      errorMessage:
+        error instanceof Error ? error.message : "An unexpected error occurred",
     };
   }
 };
@@ -782,9 +785,8 @@ export async function getReservationById(id: string) {
   } catch (error: unknown) {
     // Return an error object with a consistent structure
     return {
-      errorMessage: error instanceof Error
-        ? error.message
-        : "An unexpected error occurred",
+      errorMessage:
+        error instanceof Error ? error.message : "An unexpected error occurred",
     };
   }
 }
@@ -814,7 +816,7 @@ export const EditReservationDetails = async () => {
 
   // Return both id and reservation_data
   return { id: data.id, ...data.reservation_data };
-}
+};
 
 export const deletePendingReservation = async (reservationId: string) => {
   const supabase = await createClient();
@@ -827,4 +829,4 @@ export const deletePendingReservation = async (reservationId: string) => {
   if (error) {
     throw error;
   }
-}
+};

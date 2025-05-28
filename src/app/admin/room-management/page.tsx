@@ -76,14 +76,22 @@ const getRoomTypeIcon = (type: string) => {
 };
 
 const floorOptions = ["1st Floor, CSM", "2nd Floor, CSM"];
-const roomTypes = ["LECTURE ROOM", "LECTURE ROOM/AUDITORIUM", "DBSES LABORATORY ROOM", "DMPCS LABORATORY ROOM", "DFSC LABORATORY ROOM"] as const;
+const roomTypes = [
+  "LECTURE ROOM",
+  "LECTURE ROOM/AUDITORIUM",
+  "DBSES LABORATORY ROOM",
+  "DMPCS LABORATORY ROOM",
+  "DFSC LABORATORY ROOM",
+] as const;
 
 type RoomWithTimeslots = Room & { availableTimeslots?: Timeslot[] };
 
 export default function RoomManagementPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
-  const [selectedRoom, setSelectedRoom] = useState<RoomWithTimeslots | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<RoomWithTimeslots | null>(
+    null,
+  );
   const [sidebarWidth, setSidebarWidth] = useState(700);
   const [isResizing, setIsResizing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -210,10 +218,14 @@ export default function RoomManagementPage() {
         prev.map((r) =>
           r.room_id === selectedRoom.room_id
             ? { ...r, ...room, room_description: editedDescription }
-            : r
-        )
+            : r,
+        ),
       );
-      setSelectedRoom({ ...selectedRoom, ...room, room_description: editedDescription });
+      setSelectedRoom({
+        ...selectedRoom,
+        ...room,
+        room_description: editedDescription,
+      });
       setIsEditing(false);
       setHasUnsavedChanges(false);
     }
@@ -225,7 +237,7 @@ export default function RoomManagementPage() {
   };
 
   const handleDescriptionChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
     setEditedDescription(e.target.value);
     setHasUnsavedChanges(true);
@@ -244,7 +256,7 @@ export default function RoomManagementPage() {
 
       // Success: remove room and close dialog
       setRooms((prev) =>
-        prev.filter((room) => room.room_id !== selectedRoom.room_id)
+        prev.filter((room) => room.room_id !== selectedRoom.room_id),
       );
       setShowDeleteConfirmation(false);
       setSelectedRoom(null);
@@ -269,7 +281,7 @@ export default function RoomManagementPage() {
 
       const result = await createRoomAction(formData);
       const error = result?.error;
-      const room = (result && "room" in result) ? result.room : undefined;
+      const room = result && "room" in result ? result.room : undefined;
       if (!error && room) {
         // Refetch all rooms with timeslots to ensure consistency
         const { rooms: fetchedRooms } = await getAllRoomsWithTimeslots();
@@ -498,15 +510,17 @@ export default function RoomManagementPage() {
             {/* Capacity */}
             <div className="mb-6">
               <h3 className="text-lg font-bold mb-2">Capacity</h3>
-              <p className="text-sm text-gray-700">
-                {selectedRoom.capacity}
-              </p>
+              <p className="text-sm text-gray-700">{selectedRoom.capacity}</p>
             </div>
 
             {/* Available Timeslots */}
             <div className="mb-6 pt-4 pb-1">
               <h3 className="text-lg font-bold mb-2">Available Time</h3>
-              <div className={showAllTimesSidebar ? "grid grid-cols-3 gap-1" : "space-y-1"}>
+              <div
+                className={
+                  showAllTimesSidebar ? "grid grid-cols-3 gap-1" : "space-y-1"
+                }
+              >
                 {(showAllTimesSidebar
                   ? selectedRoom?.availableTimeslots
                   : selectedRoom?.availableTimeslots?.slice(0, 2) || []
@@ -520,16 +534,20 @@ export default function RoomManagementPage() {
                   </p>
                 ))}
               </div>
-              {selectedRoom?.availableTimeslots && selectedRoom.availableTimeslots.length > 2 && (
-                <button
-                  onClick={() => setShowAllTimesSidebar(!showAllTimesSidebar)}
-                  className="bg-primary text-black rounded-full p-1 w-6 h-3 mt-[2px] flex items-center justify-center"
-                >
-                  <MoreHorizontal className="w-4 h-4" />
-                </button>
-              )}
-              {(!selectedRoom?.availableTimeslots || selectedRoom.availableTimeslots.length === 0) && (
-                <p className="text-sm text-gray-500">No available timeslots today.</p>
+              {selectedRoom?.availableTimeslots &&
+                selectedRoom.availableTimeslots.length > 2 && (
+                  <button
+                    onClick={() => setShowAllTimesSidebar(!showAllTimesSidebar)}
+                    className="bg-primary text-black rounded-full p-1 w-6 h-3 mt-[2px] flex items-center justify-center"
+                  >
+                    <MoreHorizontal className="w-4 h-4" />
+                  </button>
+                )}
+              {(!selectedRoom?.availableTimeslots ||
+                selectedRoom.availableTimeslots.length === 0) && (
+                <p className="text-sm text-gray-500">
+                  No available timeslots today.
+                </p>
               )}
             </div>
 
@@ -716,7 +734,9 @@ export default function RoomManagementPage() {
                 placeholder="e.g., ROOM 101"
                 className="col-span-3"
                 value={newRoom.name}
-                onChange={(e) => setNewRoom({ ...newRoom, name: e.target.value })}
+                onChange={(e) =>
+                  setNewRoom({ ...newRoom, name: e.target.value })
+                }
               />
             </div>
 
@@ -727,7 +747,7 @@ export default function RoomManagementPage() {
               </Label>
               <Select
                 value={newRoom.room_type}
-                onValueChange={(value: typeof roomTypes[number]) =>
+                onValueChange={(value: (typeof roomTypes)[number]) =>
                   setNewRoom({ ...newRoom, room_type: value })
                 }
               >
