@@ -388,7 +388,9 @@ const ReservationDetails = () => {
       await createReservation(formData);
 
       // Handle navigation on client side
-      router.push(`/rooms/${encodeURIComponent(decodedRoomId)}/reserve/reservation-summary/`);
+      router.push(
+        `/rooms/${encodeURIComponent(decodedRoomId)}/reserve/reservation-summary/`,
+      );
     } catch (error) {
       console.error("Error submitting reservation:", error);
       alert(
