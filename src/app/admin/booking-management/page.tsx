@@ -75,7 +75,6 @@ export default function BookingManagementPage() {
   const tableRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [showScrollbar, setShowScrollbar] = useState(false);
 
   const [showAcceptConfirmation, setShowAcceptConfirmation] = useState(false);
   const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
@@ -156,14 +155,6 @@ export default function BookingManagementPage() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  // Check if scrollbar should be shown
-  useEffect(() => {
-    if (scrollContainerRef.current) {
-      const { scrollHeight, clientHeight } = scrollContainerRef.current;
-      setShowScrollbar(scrollHeight > clientHeight);
-    }
-  }, [filteredBookings]);
 
   // Filter and sort bookings when search term or sort option changes
   useEffect(() => {

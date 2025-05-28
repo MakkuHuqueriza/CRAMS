@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,8 +9,7 @@ import React from "react";
 import {
   getRoomCountsAction,
   getPendingReservationsCountAction,
-} from "@/actions/admin"; // Connect to server side
-import { useState } from "react";
+} from "@/actions/admin";
 
 const holidays2024 = [
   { date: "08/21", day: "Wednesday", name: "Ninoy Aquino Day" },
@@ -39,22 +39,37 @@ const holidays2025 = [
   { date: "06/12", day: "Thursday", name: "Independence Day" },
 ];
 
-export default async function DashboardPage() {
-  // Fetch room counts data & pending reservations count
-  const roomCountsResult = await getRoomCountsAction();
-  const pendingReservationsResult = await getPendingReservationsCountAction();
-
-  // Handle potential errors or use default values
-  const roomCounts = roomCountsResult?.counts || {
+export default function DashboardPage() {
+  // State for fetched data
+  const [roomCounts, setRoomCounts] = useState({
     lectureRooms: 0,
     dbsesLabs: 0,
     dmpcsLabs: 0,
     dfscLabs: 0,
     totalRooms: 0,
-  };
+  });
+  const [pendingCount, setPendingCount] = useState(0);
 
-  // Handle potential errors or use default values for pending count
-  const pendingCount = pendingReservationsResult?.count || 0;
+  // Fetch data on mount
+  useEffect(() => {
+    async function fetchData() {
+      const roomCountsResult = await getRoomCountsAction();
+      const pendingReservationsResult =
+        await getPendingReservationsCountAction();
+
+      setRoomCounts(
+        roomCountsResult?.counts || {
+          lectureRooms: 0,
+          dbsesLabs: 0,
+          dmpcsLabs: 0,
+          dfscLabs: 0,
+          totalRooms: 0,
+        },
+      );
+      setPendingCount(pendingReservationsResult?.count || 0);
+    }
+    fetchData();
+  }, []);
 
   // Calculate percentages for the color bar
   const total = roomCounts.totalRooms;
