@@ -128,7 +128,7 @@ export default function ReservationSummary() {
 
         // Navigate to confirmation page with the ID in the URL
         router.push(
-          `/rooms/${encodeURIComponent(decodedRoomId)}/reserve/reservvation-confirmation?id=${result.data.id}`,
+          `/rooms/${encodeURIComponent(decodedRoomId)}/reserve/reservation-confirmation?id=${result.data.id}`,
         );
       } else {
         console.error("Submission error:", result.error);
