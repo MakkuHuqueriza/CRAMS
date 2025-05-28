@@ -128,7 +128,7 @@ export default function ReservationSummary() {
 
         // Navigate to confirmation page with the ID in the URL
         router.push(
-          `/rooms/${encodeURIComponent(decodedRoomId)}/reserve/page3?id=${result.data.id}`,
+          `/rooms/${encodeURIComponent(decodedRoomId)}/reserve/reservvation-confirmation?id=${result.data.id}`,
         );
       } else {
         console.error("Submission error:", result.error);
@@ -155,7 +155,7 @@ export default function ReservationSummary() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-500 mb-4">{error}</h1>
           <Link
-            href={`/rooms/${encodeURIComponent(decodedRoomId)}/reserve/page1/`}
+            href={`/rooms/${encodeURIComponent(decodedRoomId)}/reserve/reservation-form/`}
           >
             <button className="bg-[#274C77] text-white font-medium px-4 py-[10px] rounded-[50px]">
               Go Back to Form
@@ -197,7 +197,7 @@ export default function ReservationSummary() {
         </Link>{" "}
         &gt;{" "}
         <Link
-          href={`/rooms/${encodeURIComponent(room?.id ?? decodedRoomId)}/reserve/page1`}
+          href={`/rooms/${encodeURIComponent(room?.id ?? decodedRoomId)}/reserve/reservation-form`}
           className="text-[#274c77] hover:underline cursor-pointer"
         >
           Reservation Form
@@ -260,7 +260,7 @@ export default function ReservationSummary() {
             type="button"
             onClick={() =>
               router.push(
-                `/rooms/${encodeURIComponent(room?.id ?? decodedRoomId)}/reserve/page1`,
+                `/rooms/${encodeURIComponent(room?.id ?? decodedRoomId)}/reserve/reservation-form`,
               )
             }
             className="w-full md:w-auto bg-[#780D29] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03] order-2 md:order-1"
@@ -272,7 +272,7 @@ export default function ReservationSummary() {
             onClick={() => {
               handleConfirm();
               router.push(
-                `/rooms/${encodeURIComponent(room?.id ?? decodedRoomId)}/reserve/page3`,
+                `/rooms/${encodeURIComponent(room?.id ?? decodedRoomId)}/reserve/reservation-confirmation`,
               );
             }}
             className="w-full md:w-auto bg-[#274C77] text-white font-medium px-6 py-[10px] rounded-[50px] transition-transform transform hover:scale-[1.03] order-1 md:order-2"
