@@ -22,12 +22,8 @@ export const adminLoginAction = async (FormData: FormData) => {
 
   const supabase = await createClient();
 
-  const { data, error } =
+  const { data } =
     await supabase.auth.signInWithPassword(loginCredentials);
-
-  if (error) {
-    return { success: false, message: error.message };
-  }
 
   const { data: adminData, error: adminError } = await supabase
     .from("admin")
@@ -80,7 +76,7 @@ export const getAdminReservationsAction = async () => {
   }
 
   // Fetch ALL reservations
-  const { data: reservations, error } = await supabase
+  const { data: reservations } = await supabase
     .from("reservation")
     .select(
       `
@@ -89,10 +85,6 @@ export const getAdminReservationsAction = async () => {
     `,
     )
     .order("created_at", { ascending: false });
-
-  if (error) {
-    return { error };
-  }
 
   // Transform the data to match the expected AdminReservation structure
   const transformedReservations =
@@ -132,7 +124,7 @@ export const getReservationDetailAction = async (reservationId: string) => {
   }
 
   // Fetch specific reservation with details
-  const { data: reservation, error } = await supabase
+  const { data: reservation } = await supabase
     .from("reservation")
     .select(
       `
@@ -142,10 +134,6 @@ export const getReservationDetailAction = async (reservationId: string) => {
     )
     .eq("id", reservationId)
     .single();
-
-  if (error) {
-    return { error };
-  }
 
   // Transform to match AdminReservation structure
   const transformedReservation = {
@@ -232,8 +220,8 @@ export const updateReservationStatusAction = async (formData: FormData) => {
       message: `Reservation ${status === "Accepted" ? "accepted" : "rejected"} successfully`,
       reservation: updatedReservation,
     };
-  } catch (error) {
-    return { error: { message: "An unexpected error occurred" } };
+  } catch {
+    alert("An unexpected error occurred");
   }
 };
 
@@ -262,13 +250,9 @@ export const getRoomCountsAction = async () => {
 
   try {
     // Get all rooms to count room types
-    const { data: rooms, error: roomsError } = await supabase
+    const { data: rooms } = await supabase
       .from("room")
       .select("room_type");
-
-    if (roomsError) {
-      return { error: { message: "Failed to fetch room data" } };
-    }
 
     // Initialize counters
     const counts: RoomCounts = {
@@ -276,11 +260,11 @@ export const getRoomCountsAction = async () => {
       dbsesLabs: 0,
       dmpcsLabs: 0,
       dfscLabs: 0,
-      totalRooms: rooms.length,
+      totalRooms: rooms ? rooms.length : 0,
     };
 
     // Count each room type
-    rooms.forEach((room) => {
+    (rooms ?? []).forEach((room) => {
       const roomType = room.room_type ? room.room_type : "";
 
       if (roomType.includes("LECTURE ROOM")) {
@@ -295,8 +279,8 @@ export const getRoomCountsAction = async () => {
     });
 
     return { counts };
-  } catch (error) {
-    return { error: { message: "An unexpected error occurred" } };
+  } catch {
+    alert("An unexpected error occurred");
   }
 };
 
@@ -325,20 +309,14 @@ export const getPendingReservationsCountAction = async () => {
 
   try {
     // Count reservations with "Pending" status
-    const { count, error } = await supabase
+    const { count } = await supabase
       .from("reservation")
       .select("*", { count: "exact", head: true })
       .eq("status", "Pending");
 
-    if (error) {
-      return {
-        error: { message: "Failed to fetch pending reservations count" },
-      };
-    }
-
     return { count: count || 0 };
-  } catch (error) {
-    return { error: { message: "An unexpected error occurred" } };
+  } catch {
+    alert("An unexpected error occurred");
   }
 };
 
@@ -365,15 +343,10 @@ export const getAllRoomsAction = async () => {
   }
 
   try {
-    const { data: rooms, error } = await supabase
+    const { data: rooms } = await supabase
       .from("room")
       .select("*")
       .order("name", { ascending: true });
-
-    if (error) {
-      console.error("Supabase error:", error);
-      return { error: { message: "Failed to fetch rooms" } };
-    }
 
     if (!rooms) {
       return { rooms: [] };
@@ -412,19 +385,15 @@ export const getRoomsByFloorAction = async (floor: string) => {
 
   try {
     // Fetch rooms by floor
-    const { data: rooms, error } = await supabase
+    const { data: rooms } = await supabase
       .from("room")
       .select("*")
       .eq("floor", floor)
       .order("room_name", { ascending: true });
 
-    if (error) {
-      return { error: { message: "Failed to fetch rooms by floor" } };
-    }
-
-    return { rooms: rooms || [] };
-  } catch (error) {
-    return { error: { message: "An unexpected error occurred" } };
+    return { rooms: rooms ?? [] };
+  } catch {
+    alert("An unexpected error occurred");
   }
 };
 
@@ -453,19 +422,15 @@ export const getRoomDetailsAction = async (roomId: string) => {
 
   try {
     // Fetch specific room details
-    const { data: room, error } = await supabase
+    const { data: room } = await supabase
       .from("room")
       .select("*")
       .eq("id", roomId)
       .single();
 
-    if (error) {
-      return { error: { message: "Failed to fetch room details" } };
-    }
-
     return { room };
-  } catch (error) {
-    return { error: { message: "An unexpected error occurred" } };
+  } catch {
+    alert("An unexpected error occurred");
   }
 };
 
@@ -509,17 +474,13 @@ export const getRoomScheduleAction = async (roomId: string, date?: string) => {
       query = query.eq("reservation_date", date);
     }
 
-    const { data: reservations, error } = await query.order("start_time", {
+    const { data: reservations } = await query.order("start_time", {
       ascending: true,
     });
 
-    if (error) {
-      return { error: { message: "Failed to fetch room schedule" } };
-    }
-
-    return { schedule: reservations || [] };
-  } catch (error) {
-    return { error: { message: "An unexpected error occurred" } };
+    return { schedule: reservations ?? [] };
+  } catch {
+    alert("An unexpected error occurred");
   }
 };
 
@@ -560,7 +521,7 @@ export const updateRoomDetailsAction = async (formData: FormData) => {
 
   try {
     // Update room details
-    const { data: updatedRoom, error } = await supabase
+    const { data: updatedRoom } = await supabase
       .from("room")
       .update({
         name: roomName,
@@ -573,10 +534,6 @@ export const updateRoomDetailsAction = async (formData: FormData) => {
       .select()
       .single();
 
-    if (error) {
-      return { error: { message: "Failed to update room details" } };
-    }
-
     // Revalidate the room management page
     revalidatePath("/admin/room-management");
 
@@ -584,8 +541,8 @@ export const updateRoomDetailsAction = async (formData: FormData) => {
       message: "Room details updated successfully",
       room: updatedRoom,
     };
-  } catch (error) {
-    return { error: { message: "An unexpected error occurred" } };
+  } catch {
+    alert("An unexpected error occurred");
   }
 };
 
@@ -614,14 +571,10 @@ export const deleteRoomAction = async (roomId: string) => {
 
   try {
     // Check if room has any reservations
-    const { count: reservationCount, error: countError } = await supabase
+    const { count: reservationCount } = await supabase
       .from("reservation")
       .select("*", { count: "exact", head: true })
       .eq("room_id", roomId);
-
-    if (countError) {
-      return { error: { message: "Failed to check room reservations" } };
-    }
 
     if (reservationCount && reservationCount > 0) {
       return {
@@ -640,8 +593,8 @@ export const deleteRoomAction = async (roomId: string) => {
     revalidatePath("/admin/room-management");
 
     return { message: "Room deleted successfully" };
-  } catch (error) {
-    return { error: { message: "An unexpected error occurred" } };
+  } catch {
+    alert("An unexpected error occurred");
   }
 };
 
@@ -701,7 +654,7 @@ export const createRoomAction = async (formData: FormData) => {
   }
 
   try {
-    const { data: newRoom, error } = await supabase
+    const { data: newRoom } = await supabase
       .from("room")
       .insert({
         name,
@@ -714,18 +667,14 @@ export const createRoomAction = async (formData: FormData) => {
       .select()
       .single();
 
-    if (error) {
-      return { error: { message: error.message || "Failed to create room" } };
-    }
-
     revalidatePath("/admin/room-management");
 
     return {
       message: "Room created successfully",
       room: newRoom,
     };
-  } catch (error) {
-    return { error: { message: "An unexpected error occurred" } };
+  } catch {
+    alert("An unexpected error occurred");
   }
 };
 
@@ -754,19 +703,15 @@ export const searchRoomsAction = async (searchTerm: string) => {
 
   try {
     // Search rooms by name or room type
-    const { data: rooms, error } = await supabase
+    const { data: rooms } = await supabase
       .from("room")
       .select("*")
       .or(`room_name.ilike.%${searchTerm}%,room_type.ilike.%${searchTerm}%`)
       .order("room_name", { ascending: true });
 
-    if (error) {
-      return { error: { message: "Failed to search rooms" } };
-    }
-
-    return { rooms: rooms || [] };
-  } catch (error) {
-    return { error: { message: "An unexpected error occurred" } };
+    return { rooms: rooms ?? [] };
+  } catch {
+    alert("An unexpected error occurred");
   }
 };
 
@@ -782,11 +727,10 @@ export const getAllReservations = async () => {
     .eq("admin_id", user.id)
     .single();
   if (adminError || !adminData) redirect("/admin/login");
-  const { data: reservations, error } = await supabase
+  const { data: reservations } = await supabase
     .from("reservation")
     .select("*");
-  if (error) return [];
-  return reservations || [];
+  return reservations ?? [];
 };
 
 // --- NEW FUNCTION: getAllRoomsWithTimeslots ---
@@ -806,26 +750,16 @@ export const getAllRoomsWithTimeslots = async () => {
   if (adminError || !adminData) redirect("/admin/login");
 
   // Fetch all rooms
-  const { data: rooms, error: roomError } = await supabase
+  const { data: rooms } = await supabase
     .from("room")
     .select("*")
     .order("name", { ascending: true });
 
-  if (roomError) {
-    console.error("Error fetching rooms:", roomError);
-    return { rooms: [] };
-  }
-
   // Fetch all timeslots
-  const { data: timeslots, error: timeslotError } = await supabase
+  const { data: timeslots } = await supabase
     .from("schedule")
     .select("*")
     .order("start_time", { ascending: true });
-
-  if (timeslotError) {
-    console.error("Error fetching timeslots:", timeslotError);
-    return { rooms: [] };
-  }
 
   const reservations = await getAllReservations();
 
@@ -833,7 +767,7 @@ export const getAllRoomsWithTimeslots = async () => {
   const currentDate = format(new Date(), "yyyy-MM-dd");
 
   // Filter out reservations for the current date
-  const reservationsForToday = reservations.filter((reservation) => {
+  const reservationsForToday = (reservations ?? []).filter((reservation) => {
     return reservation.date_requested === currentDate;
   });
 
@@ -855,7 +789,7 @@ export const getAllRoomsWithTimeslots = async () => {
     return intervals;
   }
 
-  const roomsWithAvailableTimeslots = rooms.map((room) => {
+  const roomsWithAvailableTimeslots = (rooms ?? []).map((room) => {
     // Get all reservations for this room for today
     const roomReservations = reservationsForToday.filter(
       (reservation) => reservation.room_id === room.room_id,
@@ -870,7 +804,7 @@ export const getAllRoomsWithTimeslots = async () => {
     });
 
     // Filter out timeslots that are booked (by start_time)
-    const availableTimeslots = timeslots.filter(
+    const availableTimeslots = (timeslots ?? []).filter(
       (slot) => !bookedIntervals.includes(slot.start_time),
     );
 

@@ -134,7 +134,7 @@ export default function ReservationSummary() {
         console.error("Submission error:", result.error);
         setError(result.error || "Failed to submit reservation");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error submitting reservation:", error);
       setError("Failed to submit reservation. Please try again.");
     }

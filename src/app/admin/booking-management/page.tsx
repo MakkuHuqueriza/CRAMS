@@ -86,15 +86,19 @@ export default function BookingManagementPage() {
 
       const result = await getAdminReservationsAction();
 
-      if (result.error) {
-        setError(result.error.message || "Failed to fetch reservations");
+      if ("error" in result && result.error) {
+        const errorMessage =
+          typeof result.error === "object" && result.error !== null && "message" in result.error
+            ? (result.error as { message?: string }).message || "Failed to fetch reservation details"
+            : "Failed to fetch reservation details";
+        setError(errorMessage);
         return;
       }
 
       if (result.reservations) {
         // Transform the data to match the expected BookingData structure
         const transformedBookings: BookingData[] = result.reservations.map(
-          (item: any) => {
+          (item: AdminReservation) => {
             const reservation = item.reservation;
             const createdAt = new Date(reservation.created_at);
 
@@ -116,7 +120,7 @@ export default function BookingManagementPage() {
         setBookingsData(transformedBookings);
         setFilteredBookings(transformedBookings);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       setError("An unexpected error occurred while fetching reservations");
       console.error("Error fetching reservations:", err);
     } finally {
@@ -204,10 +208,12 @@ export default function BookingManagementPage() {
         // Fetch detailed reservation information
         const result = await getReservationDetailAction(bookingId);
 
-        if (result.error) {
-          setError(
-            result.error.message || "Failed to fetch reservation details",
-          );
+        if ("error" in result && result.error) {
+          const errorMessage =
+            typeof result.error === "object" && result.error !== null && "message" in result.error
+              ? (result.error as { message?: string }).message || "Failed to fetch reservation details"
+              : "Failed to fetch reservation details";
+          setError(errorMessage);
           return;
         }
 
@@ -216,7 +222,7 @@ export default function BookingManagementPage() {
           setIsSheetOpen(true);
           setShowRejectForm(false); // Reset reject form when opening sheet
         }
-      } catch (err) {
+      } catch (err: unknown) {
         setError(
           "An unexpected error occurred while fetching reservation details",
         );
@@ -280,6 +286,11 @@ export default function BookingManagementPage() {
 
       const result = await updateReservationStatusAction(formData);
 
+      if (!result) {
+        setError("Failed to fetch reservation details");
+        return;
+      }
+
       if (result.error) {
         setError(result.error.message || "Failed to reject reservation");
         return;
@@ -294,7 +305,7 @@ export default function BookingManagementPage() {
       setRejectReason("");
       setRejectError(false);
       setSelectedReservationDetail(null);
-    } catch (err) {
+    } catch (err: unknown) {
       setError("An unexpected error occurred while rejecting the reservation");
       console.error("Error rejecting reservation:", err);
     }
@@ -317,6 +328,11 @@ export default function BookingManagementPage() {
 
       const result = await updateReservationStatusAction(formData);
 
+      if (!result) {
+        setError("Failed to fetch reservation details");
+        return;
+      }
+
       if (result.error) {
         setError(result.error.message || "Failed to accept reservation");
         return;
@@ -328,7 +344,7 @@ export default function BookingManagementPage() {
       // Close the sheet
       setIsSheetOpen(false);
       setSelectedReservationDetail(null);
-    } catch (err) {
+    } catch (err: unknown) {
       setError("An unexpected error occurred while accepting the reservation");
       console.error("Error accepting reservation:", err);
     }

@@ -173,7 +173,6 @@ const ReservationDetails = () => {
   const decodedRoomId =
     typeof roomId === "string" ? decodeURIComponent(roomId) : "";
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [loadingRooms, setLoadingRooms] = useState(true);
   const [initialValues, setInitialValues] = useState<ReservationFormValues | null>(null);
   const [pendingReservationId, setPendingReservationId] = useState<string | null>(null);
   useEffect(() => {
@@ -231,7 +230,7 @@ const ReservationDetails = () => {
         await deletePendingReservation(pendingReservationId);
       }
       router.back();
-    } catch (error) {
+    } catch {
       alert("Failed to cancel reservation.");
     }
   };

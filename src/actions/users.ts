@@ -6,12 +6,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { format } from "date-fns";
-import {
-  Room,
-  Reservation,
-  ReservationFormValues,
-  ReservationInsert,
-} from "@/utils/database/types";
+import { Room, Reservation, ReservationFormValues } from "@/utils/database/types";
 
 export const loginAction = async (email: string, password: string) => {
   const { auth } = await createClient();
@@ -476,16 +471,20 @@ export async function createReservation(formData: FormData) {
         ...data[0],
       },
     };
-  } catch (error: any) {
-    return handleError(error);
+  } catch {
+    alert("An unexpected error occurred");
   }
 }
 
 // Helper function to return consistent error format
-const returnError = (error: any) => {
+const returnError = (error: unknown) => {
+  let message = "An unexpected error occurred";
+  if (error instanceof Error) {
+    message = error.message;
+  }
   return {
     error: true,
-    errorMessage: error.message || "An unexpected error occurred",
+    errorMessage: message,
   };
 };
 
@@ -541,7 +540,7 @@ export const getReservationSummary = async () => {
     }
 
     return reservationData;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("getReservationSummary error:", error);
     return returnError(error);
   }
@@ -679,11 +678,13 @@ export const cancelReservation = async (reservationId: string) => {
       success: true,
       message: "Reservation cancelled successfully",
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("cancelReservation error:", error);
     return {
       error: true,
-      errorMessage: error.message || "An unexpected error occurred",
+      errorMessage: error instanceof Error
+        ? error.message
+        : "An unexpected error occurred",
     };
   }
 };
@@ -716,7 +717,7 @@ export const getUserReservations = async () => {
     }
 
     return data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return handleError(error);
   }
 };
@@ -749,7 +750,7 @@ export const checkRoomAvailability = async (
       available: data.length === 0,
       conflictingReservations: data,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return handleError(error);
   }
 };
@@ -778,10 +779,12 @@ export async function getReservationById(id: string) {
     }
 
     return data as Reservation & { rooms: Room };
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Return an error object with a consistent structure
     return {
-      errorMessage: error.message || "An unexpected error occurred",
+      errorMessage: error instanceof Error
+        ? error.message
+        : "An unexpected error occurred",
     };
   }
 }

@@ -54,6 +54,7 @@ import {
   searchRoomsAction,
 } from "@/actions/admin";
 import { formatTimeTo12Hour } from "@/lib/utils";
+import { Timeslot } from "@/lib/types";
 
 // Helper for room type icons
 const getRoomTypeIcon = (type: string) => {
@@ -77,7 +78,7 @@ const getRoomTypeIcon = (type: string) => {
 const floorOptions = ["1st Floor, CSM", "2nd Floor, CSM"];
 const roomTypes = ["LECTURE ROOM", "LECTURE ROOM/AUDITORIUM", "DBSES LABORATORY ROOM", "DMPCS LABORATORY ROOM", "DFSC LABORATORY ROOM"] as const;
 
-type RoomWithTimeslots = Room & { availableTimeslots?: any[] };
+type RoomWithTimeslots = Room & { availableTimeslots?: Timeslot[] };
 
 export default function RoomManagementPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -190,21 +191,31 @@ export default function RoomManagementPage() {
       formData.append("floor", selectedRoom.room_location);
       formData.append("roomType", selectedRoom.room_type);
 
-      const { room, error } = await updateRoomDetailsAction(formData);
-      if (!error && room) {
-        setRooms((prev) =>
-          prev.map((r) =>
-            r.room_id === selectedRoom.room_id
-              ? { ...r, ...room, room_description: editedDescription }
-              : r
-          )
-        );
-        setSelectedRoom({ ...selectedRoom, ...room, room_description: editedDescription });
-        setIsEditing(false);
-        setHasUnsavedChanges(false);
-      } else {
-        alert(error?.message || "Failed to save changes.");
+      const result = await updateRoomDetailsAction(formData);
+      const error = result?.error;
+      const room = result?.room;
+
+      if (error) {
+        alert(error.message || "Failed to save changes.");
+        return;
       }
+
+      if (!room) {
+        alert("No room data returned.");
+        return;
+      }
+
+      // Now it's safe to use 'room'
+      setRooms((prev) =>
+        prev.map((r) =>
+          r.room_id === selectedRoom.room_id
+            ? { ...r, ...room, room_description: editedDescription }
+            : r
+        )
+      );
+      setSelectedRoom({ ...selectedRoom, ...room, room_description: editedDescription });
+      setIsEditing(false);
+      setHasUnsavedChanges(false);
     }
   };
 
@@ -224,17 +235,19 @@ export default function RoomManagementPage() {
 
   const confirmDeleteRoom = async () => {
     if (selectedRoom) {
-      const { error } = await deleteRoomAction(selectedRoom.room_id);
-      if (!error) {
-        setRooms((prev) =>
-          prev.filter((room) => room.room_id !== selectedRoom.room_id)
-        );
-        setShowDeleteConfirmation(false);
-        setSelectedRoom(null);
-      } else {
-        console.error("Delete error:", error);
-        alert(error.message || "Failed to delete room.");
+      const result = await deleteRoomAction(selectedRoom.room_id);
+      if (result?.error) {
+        console.error("Delete error:", result.error);
+        alert(result.error.message || "Failed to delete room.");
+        return;
       }
+
+      // Success: remove room and close dialog
+      setRooms((prev) =>
+        prev.filter((room) => room.room_id !== selectedRoom.room_id)
+      );
+      setShowDeleteConfirmation(false);
+      setSelectedRoom(null);
     }
   };
 
@@ -254,7 +267,9 @@ export default function RoomManagementPage() {
       formData.append("floor", newRoom.room_location);
       formData.append("roomType", newRoom.room_type);
 
-      const { room, error } = await createRoomAction(formData);
+      const result = await createRoomAction(formData);
+      const error = result?.error;
+      const room = (result && "room" in result) ? result.room : undefined;
       if (!error && room) {
         // Refetch all rooms with timeslots to ensure consistency
         const { rooms: fetchedRooms } = await getAllRoomsWithTimeslots();
@@ -281,8 +296,8 @@ export default function RoomManagementPage() {
       const { rooms: fetchedRooms } = await getAllRoomsWithTimeslots();
       setRooms(fetchedRooms || []);
     } else {
-      const { rooms: searchedRooms } = await searchRoomsAction(query);
-      setRooms(searchedRooms || []);
+      const searchResult = await searchRoomsAction(query);
+      setRooms(searchResult?.rooms || []);
     }
   };
 
@@ -495,7 +510,7 @@ export default function RoomManagementPage() {
                 {(showAllTimesSidebar
                   ? selectedRoom?.availableTimeslots
                   : selectedRoom?.availableTimeslots?.slice(0, 2) || []
-                ).map((time: any, i: number) => (
+                ).map((time: Timeslot, i: number) => (
                   <p
                     key={i}
                     className="text-[#274c77] text-[13px] lg:text-sm md:text-[11px] tracking-wider flex items-center gap-2"
@@ -845,7 +860,7 @@ function RoomCard({
           {(showAllTimes
             ? room.availableTimeslots
             : room.availableTimeslots?.slice(0, 2) || []
-          ).map((time: any, i: number) => (
+          ).map((time: Timeslot, i: number) => (
             <p
               key={i}
               className="text-primary-foreground text-[13px] lg:text-sm md:text-[11px] tracking-wider flex items-center gap-2"
