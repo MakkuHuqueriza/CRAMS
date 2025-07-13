@@ -30,19 +30,43 @@ const RejectEmailTemplate: React.FC<RejectEmailTemplateProps> = ({
     </p>
     <h3>Reservation Summary:</h3>
     <ul>
-      <li><strong>Name:</strong> {reservation.name}</li>
-      <li><strong>Email:</strong> {reservation.email}</li>
-      <li><strong>Contact Number:</strong> {reservation.contact_number}</li>
-      <li><strong>Role:</strong> {reservation.role}</li>
-      <li><strong>Course/Department:</strong> {reservation.course}</li>
-      <li><strong>Room:</strong> {reservation.room_id}</li>
-      <li><strong>Location:</strong> {reservation.room_location}</li>
-      <li><strong>Type:</strong> {reservation.type}</li>
-      <li><strong>Date:</strong> {reservation.date}</li>
-      <li><strong>Time:</strong> {reservation.start_time} - {reservation.end_time}</li>
-      <li><strong>Nature of Work:</strong> {reservation.nature_of_work}</li>
+      <li>
+        <strong>Name:</strong> {reservation.name}
+      </li>
+      <li>
+        <strong>Email:</strong> {reservation.email}
+      </li>
+      <li>
+        <strong>Contact Number:</strong> {reservation.contact_number}
+      </li>
+      <li>
+        <strong>Role:</strong> {reservation.role}
+      </li>
+      <li>
+        <strong>Course/Department:</strong> {reservation.course}
+      </li>
+      <li>
+        <strong>Room:</strong> {reservation.room_id}
+      </li>
+      <li>
+        <strong>Location:</strong> {reservation.room_location}
+      </li>
+      <li>
+        <strong>Type:</strong> {reservation.type}
+      </li>
+      <li>
+        <strong>Date:</strong> {reservation.date}
+      </li>
+      <li>
+        <strong>Time:</strong> {reservation.start_time} - {reservation.end_time}
+      </li>
+      <li>
+        <strong>Nature of Work:</strong> {reservation.nature_of_work}
+      </li>
       {reservation.others_purpose && (
-        <li><strong>Other Purpose:</strong> {reservation.others_purpose}</li>
+        <li>
+          <strong>Other Purpose:</strong> {reservation.others_purpose}
+        </li>
       )}
     </ul>
     <p>If you have questions, please contact the admin.</p>

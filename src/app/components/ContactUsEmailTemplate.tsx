@@ -14,8 +14,12 @@ const ContactUsEmailTemplate: React.FC<ContactUsEmailTemplateProps> = ({
   <div>
     <h2>New Contact Us Message</h2>
     <ul>
-      <li><strong>Name:</strong> {name}</li>
-      <li><strong>Email:</strong> {email}</li>
+      <li>
+        <strong>Name:</strong> {name}
+      </li>
+      <li>
+        <strong>Email:</strong> {email}
+      </li>
     </ul>
     <p>
       <strong>Message:</strong>

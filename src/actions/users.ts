@@ -834,4 +834,3 @@ export const deletePendingReservation = async (reservationId: string) => {
     throw error;
   }
 };
-

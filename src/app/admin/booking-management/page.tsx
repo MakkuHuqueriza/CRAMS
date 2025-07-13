@@ -417,9 +417,7 @@ export default function BookingManagementPage() {
       });
       if (!emailResult.ok) {
         const emailError = await emailResult.json();
-        setError(
-          emailError.error || "Failed to send rejection email",
-        );
+        setError(emailError.error || "Failed to send rejection email");
         return;
       }
 
@@ -477,12 +475,10 @@ export default function BookingManagementPage() {
           reservation: selectedReservationDetail.reservation,
         }),
       });
-      
+
       if (!emailResult.ok) {
         const emailError = await emailResult.json();
-        setError(
-          emailError.error || "Failed to send acceptance email",
-        );
+        setError(emailError.error || "Failed to send acceptance email");
         return;
       }
 

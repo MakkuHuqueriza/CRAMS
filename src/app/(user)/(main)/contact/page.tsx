@@ -35,7 +35,7 @@ export default function ContactPage() {
     // Handle form submission logic here
     console.log(formData);
 
-    // send email 
+    // send email
 
     const sendingEmail = await fetch("/api/contact", {
       method: "POST",

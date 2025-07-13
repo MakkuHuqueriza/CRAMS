@@ -1,6 +1,6 @@
-import AcceptEmailTemplate from '@/app/components/AcceptEmailTemplate';
-import React from 'react';
-import { Resend } from 'resend';
+import AcceptEmailTemplate from "@/app/components/AcceptEmailTemplate";
+import React from "react";
+import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -12,10 +12,10 @@ export async function POST(req: Request) {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'teams@crams.space',
+      from: "teams@crams.space",
       to: [email],
-      subject: 'Your Reservation is ACCEPTED',
-      react: AcceptEmailTemplate({ reservation }) as React.ReactElement
+      subject: "Your Reservation is ACCEPTED",
+      react: AcceptEmailTemplate({ reservation }) as React.ReactElement,
     });
 
     if (error) {

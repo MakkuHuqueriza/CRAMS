@@ -52,15 +52,17 @@ import {
   createRoomAction,
   updateRoomDetailsAction,
   deleteRoomAction,
-  searchRoomsAction,
 } from "@/actions/admin";
 import { formatTimeTo12Hour } from "@/lib/utils";
 import { Timeslot } from "@/lib/types";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { format } from "date-fns";
 import { getAllRoomsWithTimeslotsInEachRoom } from "@/actions/users";
-
 
 // Helper for room type icons
 const getRoomTypeIcon = (type: string) => {
@@ -112,26 +114,25 @@ export default function RoomManagementPage() {
   const [showCreateRoomDialog, setShowCreateRoomDialog] = useState(false);
   const [date, setDate] = useState<Date | undefined>(new Date());
 
+  useEffect(() => {
+    const fetchRooms = async () => {
+      setLoading(true);
+      const formattedDate = date ? format(date, "yyyy-MM-dd") : "";
+      let data = await getAllRoomsWithTimeslotsInEachRoom(formattedDate);
 
-useEffect(() => {
-  const fetchRooms = async () => {
-    setLoading(true);
-    const formattedDate = date ? format(date, "yyyy-MM-dd") : "";
-    let data = await getAllRoomsWithTimeslotsInEachRoom(formattedDate);
+      // If there's a search query, filter here
+      if (searchQuery.trim() !== "") {
+        data = data?.filter((room) =>
+          room.name.toLowerCase().includes(searchQuery.toLowerCase()),
+        );
+      }
 
-    // If there's a search query, filter here
-    if (searchQuery.trim() !== "") {
-      data = data?.filter((room) =>
-        room.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
+      setRooms(data || []);
+      setLoading(false);
+    };
 
-    setRooms(data || []);
-    setLoading(false);
-  };
-
-  fetchRooms();
-}, [date, searchQuery]);
+    fetchRooms();
+  }, [date, searchQuery]);
 
   // Create room state
   const [newRoom, setNewRoom] = useState<Partial<Room>>({
@@ -534,7 +535,7 @@ useEffect(() => {
               <p className="text-sm text-gray-700">{selectedRoom.capacity}</p>
             </div>
 
-              {/* Date Selector */}
+            {/* Date Selector */}
             <div className="border-b border-gray-200 pb-4 mb-4">
               <Popover>
                 <PopoverTrigger asChild>

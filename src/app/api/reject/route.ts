@@ -1,6 +1,6 @@
-import RejectEmailTemplate from '@/app/components/RejectEmailTemplate';
-import React from 'react';
-import { Resend } from 'resend';
+import RejectEmailTemplate from "@/app/components/RejectEmailTemplate";
+import React from "react";
+import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -13,10 +13,10 @@ export async function POST(req: Request) {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'teams@crams.space',
+      from: "teams@crams.space",
       to: [email],
-      subject: 'Your Reservation is REJECTED',
-      react: RejectEmailTemplate({ reason, reservation }) as React.ReactElement
+      subject: "Your Reservation is REJECTED",
+      react: RejectEmailTemplate({ reason, reservation }) as React.ReactElement,
     });
 
     if (error) {

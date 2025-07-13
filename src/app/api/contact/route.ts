@@ -17,7 +17,8 @@ export async function POST(req: Request) {
       react: ContactUsEmailTemplate({
         name,
         email,
-        message}) as React.ReactElement,
+        message,
+      }) as React.ReactElement,
     });
 
     if (error) {

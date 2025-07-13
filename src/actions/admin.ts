@@ -816,11 +816,9 @@ export const getAllRoomsWithTimeslots = async () => {
   return { rooms: roomsWithAvailableTimeslots };
 };
 
-
 export async function uploadRoomImage(file: File | null, roomId: string) {
-
   if (!file) {
-    return
+    return;
   }
 
   const supabase = await createClient();

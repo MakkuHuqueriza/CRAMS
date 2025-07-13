@@ -85,7 +85,7 @@ export default function ReservationSummary() {
       }
     };
 
-    fetchReservationData(); 
+    fetchReservationData();
   }, [room?.id, room?.floor]);
 
   const handleConfirm = async () => {
@@ -117,16 +117,6 @@ export default function ReservationSummary() {
       const result = await submitReservation();
 
       if (result.success && result.data?.id) {
-
-              
-      const options = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(reservationData),
-      };
-      
-      const response = await fetch("/api/summary", options)
-        
         // Store the reservation data in localStorage
         localStorage.setItem(
           "reservationData",
