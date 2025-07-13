@@ -6,6 +6,7 @@ interface Room {
   capacity: number;
   room_description: string;
   availableTimeslots: Timeslot[];
+  image_path?: string;
 }
 
 interface Timeslot {

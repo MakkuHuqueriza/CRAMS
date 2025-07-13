@@ -6,6 +6,7 @@ export type Room = {
   image: string;
   times: string[];
   description: string;
+  image_path?: string;
 };
 
 export const roomData: Room[] = [

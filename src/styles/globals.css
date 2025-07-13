@@ -149,10 +149,6 @@ h6 {
   border-radius: 10px;
 }
 
-[data-radix-select-item-indicator] {
-  display: none !important;
-}
-
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #3a7bc8;
 }

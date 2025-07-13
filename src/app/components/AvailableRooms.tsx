@@ -289,19 +289,19 @@ const AvailableRooms = ({
                   <SelectContent className="w-full bg-white text-black border border-gray-300 shadow-md rounded-lg mt-2">
                     <SelectItem
                       value="lecture"
-                      className="hover:bg-gray-200 active:bg-[#274c77] active:text-white px-4 py-[2px] rounded-md cursor-pointer"
+                      className="hover:bg-gray-200 active:bg-[#274c77] active:text-white pl-[30px] py-[2px] rounded-md cursor-pointer"
                     >
                       Lecture Room
                     </SelectItem>
                     <SelectItem
                       value="lab"
-                      className="hover:bg-gray-200 active:bg-[#274c77] active:text-white px-4 py-[2px] rounded-md cursor-pointer"
+                      className="hover:bg-gray-200 active:bg-[#274c77] active:text-white pl-[30px] py-[2px] rounded-md cursor-pointer"
                     >
                       Laboratory Room
                     </SelectItem>
                     <SelectItem
                       value="all"
-                      className="hover:bg-gray-200 active:bg-[#274c77] active:text-white px-4 py-[2px] rounded-md cursor-pointer"
+                      className="hover:bg-gray-200 active:bg-[#274c77] active:text-white pl-[30px] py-[2px] rounded-md cursor-pointer"
                     >
                       All Rooms
                     </SelectItem>
@@ -346,7 +346,7 @@ const AvailableRooms = ({
                 >
                   {showMoreRooms ? "Show Less" : "Show More"}
                   <ArrowDown
-                    className={`w-4 h-4 transition-transform duration-300 ${showMoreRooms ? "rotate-180" : ""}`}
+                    className={`w-4 h-4 ml-2 transition-transform duration-300 ${showMoreRooms ? "rotate-180" : ""}`}
                   />
                 </Button>
               </div>

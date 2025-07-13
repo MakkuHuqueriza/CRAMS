@@ -43,6 +43,8 @@ export default function ResetPasswordPage() {
         <Image
           src="/CRAMS_logo.svg"
           alt="CRAMS Logo"
+          width={2000}
+          height={2000}
           className="max-w-[50%] md:max-w-[55%] xl:max-w-[20%] h-auto"
         />
       </div>

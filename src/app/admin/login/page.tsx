@@ -114,7 +114,7 @@ export default function AdminLoginPage() {
           </button>
         </form>
         {message && (
-          <p className="text-sm text-[#cf2626] mt-4 text-center">{message}</p>
+          <p className="text-sm text-[#3fcf26] mt-4 text-center">{message}</p>
         )}
       </div>
     </div>

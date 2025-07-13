@@ -79,6 +79,8 @@ export const resetPasswordAction = async (FormData: FormData) => {
 
   const { error } = await supabase.auth.resetPasswordForEmail(email);
 
+  await supabase.auth.signOut();
+
   if (error) {
     return handleError(error);
   }
@@ -93,6 +95,8 @@ export const updatePasswordAction = async (FormData: FormData) => {
   if (error) {
     return handleError(error);
   }
+
+  await auth.signOut();
 };
 
 export const getAllRoomsWithTimeslots = async () => {
@@ -830,3 +834,4 @@ export const deletePendingReservation = async (reservationId: string) => {
     throw error;
   }
 };
+

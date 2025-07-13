@@ -56,6 +56,7 @@ export interface Database {
             | "DFSC LABORATORY ROOM";
           room_description: string;
           created_at: string;
+          image_path: string | null;
         };
         Insert: {
           name: string;

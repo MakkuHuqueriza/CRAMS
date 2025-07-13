@@ -815,3 +815,43 @@ export const getAllRoomsWithTimeslots = async () => {
 
   return { rooms: roomsWithAvailableTimeslots };
 };
+
+
+export async function uploadRoomImage(file: File | null, roomId: string) {
+
+  if (!file) {
+    return
+  }
+
+  const supabase = await createClient();
+  // Use a unique path for each room, e.g., room-images/ROOM_101.jpg
+  const { data, error } = await supabase.storage
+    .from("room-images")
+    .upload(`rooms/${roomId}/${file.name}`, file, {
+      cacheControl: "3600",
+      upsert: true,
+    });
+
+  if (error) throw error;
+  return data.path; // Save this path in your DB for the room
+}
+
+export async function saveRoomImagePath(room_name: string, imagePath: string) {
+  const supabase = await createClient();
+
+  // Update the room with the new image path
+  const { data, error } = await supabase
+    .from("room")
+    .update({ image_path: imagePath })
+    .eq("name", room_name)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data; // Return the updated room data
+}
+
+export async function getRoomImageUrl(path: string) {
+  const supabase = await createClient();
+  return supabase.storage.from("room-images").getPublicUrl(path).data.publicUrl;
+}

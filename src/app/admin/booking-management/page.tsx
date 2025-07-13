@@ -403,6 +403,26 @@ export default function BookingManagementPage() {
         return;
       }
 
+      // Send rejection email
+      const emailResult = await fetch("/api/reject", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: selectedReservationDetail.reservation.email_address,
+          reason: rejectReason,
+          reservation: selectedReservationDetail.reservation,
+        }),
+      });
+      if (!emailResult.ok) {
+        const emailError = await emailResult.json();
+        setError(
+          emailError.error || "Failed to send rejection email",
+        );
+        return;
+      }
+
       // Refresh the reservations list
       await fetchReservations();
 
@@ -443,6 +463,26 @@ export default function BookingManagementPage() {
 
       if (result.error) {
         setError(result.error.message || "Failed to accept reservation");
+        return;
+      }
+
+      // Send acceptance email
+      const emailResult = await fetch("/api/accept", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: selectedReservationDetail.reservation.email_address,
+          reservation: selectedReservationDetail.reservation,
+        }),
+      });
+      
+      if (!emailResult.ok) {
+        const emailError = await emailResult.json();
+        setError(
+          emailError.error || "Failed to send acceptance email",
+        );
         return;
       }
 
